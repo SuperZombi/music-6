@@ -1,0 +1,447 @@
+<div id="notifications"></div>
+
+<div id="page-wrapper">
+<div id="menu" class="widthing">
+	<div class="menu-main">
+		<div class="menu-element active" data="dashboard" title="${LANG.dashboard}">
+			<span class="menu-icon">🏠</span>
+			<span class="menu-text">${LANG.dashboard}</span>
+		</div>
+
+		<div class="menu-element" data="tracks" title="${LANG.my_tracks}">
+			<span class="menu-icon">🎵</span>
+			<span class="menu-text">${LANG.my_tracks}</span>
+		</div>
+
+		<div class="menu-element" data="statistics" title="${LANG.statistics}">
+			<span class="menu-icon">📈</span>
+			<span class="menu-text">${LANG.statistics}</span>
+		</div>
+
+		<div class="menu-element" data="premium" title="${LANG.premium}">
+			<span class="menu-icon">👑</span>
+			<span class="menu-text">${LANG.premium}</span>
+		</div>
+
+		<div class="menu-element" data="console" title="${LANG.admin_console}" id="console-icon" style="display:none">
+			<span class="menu-icon"><img src="../root_/images/terminal.svg"></span>
+			<span class="menu-text">${LANG.admin_console}</span>
+		</div>
+
+		<div class="menu-element" data="bonus-code" title="${LANG.bonus_code}" style="display:none">
+			<span class="menu-icon"></span>
+			<span class="menu-text">${LANG.bonus_code}</span>
+		</div>
+
+		<div class="menu-element" data="settings" title="${LANG.settings}">
+			<span class="menu-icon">⚙</span>
+			<span class="menu-text">${LANG.settings}</span>
+		</div>
+	</div>
+
+	<div class="menu-element hide_on_phone collapse_but_wraper" onclick="collapse()" title="${LANG.collapse}">
+		<span class="menu-icon" id="collapse_but"><</span>
+		<span class="menu-text">${LANG.collapse}</span>
+	</div>
+</div>
+
+<div id="page-content">
+	<div id="toTop" title="${LANG.up}">
+		<img onclick="scrollToTop()" src="../root_/images/return-to-the-top.svg">
+	</div>
+
+	<div class="tab-content active" data="dashboard">
+		<div class="flexing">
+			<div>
+				<h1 id="dont-redirected" style="text-align:center;font-family:sans-serif;display:none;">
+					<a href="login" style="color:blue">${LANG.login_radio}/${LANG.signup_radio}</a>
+				</h1>
+
+				<div style="text-align:center;">
+					<div class="artist_image_wrapper" title="${LANG.change_photo}">
+						<img id="artist_image" src="../root_/images/people.svg">
+						<img src="../root_/images/camera.svg" class="popup_image_camera"
+							onclick="selectFile()">
+					</div>
+				</div>
+
+				<div class="logout">
+					<h1 class="category_title" id="user-name"></h1>
+
+					<span id="logout-icon" style="display:none;" title="${LANG.log_out}">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.9 489.9"><g>
+							<path d="M468.3,255.8c0.1-0.1,0.1-0.1,0.2-0.2c0.3-0.4,0.6-0.7,0.8-1.1c0.1-0.1,0.1-0.2,0.2-0.3c0.2-0.4,0.5-0.8,0.7-1.2 c0-0.1,0.1-0.2,0.1-0.2c0.2-0.4,0.4-0.8,0.6-1.3c0-0.1,0-0.1,0.1-0.2c0.2-0.4,0.3-0.9,0.5-1.4c0-0.1,0-0.2,0.1-0.2 c0.1-0.5,0.3-0.9,0.3-1.4c0-0.2,0-0.3,0.1-0.5c0.1-0.4,0.1-0.8,0.2-1.2c0.1-0.6,0.1-1.1,0.1-1.7c0-0.6,0-1.1-0.1-1.7 c0-0.4-0.1-0.8-0.2-1.2c0-0.2,0-0.3-0.1-0.5c-0.1-0.5-0.2-0.9-0.3-1.4c0-0.1,0-0.2-0.1-0.2c-0.1-0.5-0.3-0.9-0.5-1.4 c0-0.1,0-0.1-0.1-0.2c-0.2-0.4-0.4-0.9-0.6-1.3c0-0.1-0.1-0.2-0.1-0.2c-0.2-0.4-0.4-0.8-0.7-1.2c-0.1-0.1-0.1-0.2-0.2-0.3 c-0.3-0.4-0.5-0.8-0.8-1.1c-0.1-0.1-0.1-0.1-0.2-0.2c-0.4-0.4-0.7-0.9-1.2-1.3l-98.9-98.8c-6.7-6.7-17.6-6.7-24.3,0 c-6.7,6.7-6.7,17.6,0,24.3l69.6,69.6H136.8c-9.5,0-17.2,7.7-17.2,17.1c0,9.5,7.7,17.2,17.2,17.2h276.8l-69.1,69.1 c-6.7,6.7-6.7,17.6,0,24.3c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l98.3-98.3C467.5,256.6,467.9,256.2,468.3,255.8z"/>
+							<path d="M110.7,34.3h128c9.5,0,17.2-7.7,17.2-17.1c0-9.5-7.7-17.2-17.2-17.2h-128C59.4,0,17.6,41.8,17.6,93.1v303.7 c0,51.3,41.8,93.1,93.1,93.1h125.9c9.5,0,17.2-7.7,17.2-17.1c0-9.5-7.7-17.2-17.2-17.2H110.7c-32.4,0-58.8-26.4-58.8-58.8V93.1 C52,60.6,78.3,34.3,110.7,34.3z"/></g>
+						</svg>
+					</span>
+				</div>
+
+				<div style="text-align:center">
+					<a href="new-release" class="expanding-link" id="new-release"><img src="../root_/images/publish.svg">${LANG.post}</a>
+					<a href="favorites" class="expanding-link"><img src="../root_/images/bookmark.svg">${LANG.favorites_title}</a>
+				</div>
+			</div>
+
+			<div id="premium_timer" style="display:none"></div>
+		</div>
+	</div>
+
+	<div class="tab-content" data="settings">
+		<div id="settings_area">
+			<span id="settings">
+				<h1>⚙️${LANG.settings}</h1>
+			</span>
+			<hr style="margin-top: 0;">
+
+			<details>
+				<summary>🎨${LANG.appearance}</summary>
+				<div class="content">
+
+				<div class="settings-table">
+					<div class="settings_element">
+						<span>${LANG.lang}:</span>
+						<span>
+							<div class="select">
+								<input class="select__input" type="hidden" name="lang" onchange="changeSettings(this)">
+								<div class="select__head">${LANG.select}</div>
+								<ul class="select__list">
+									<li class="select__item" value="auto">${LANG.auto}</li>
+									<li class="select__item" value="en">English</li>
+									<li class="select__item" value="ru">Русский</li>
+									<li class="select__item" value="uk">Українська</li>
+								</ul>
+							</div>
+						</span>
+					</div>
+					<div class="settings_element">
+						<span>${LANG.theme}:</span>
+						<span>
+							<div class="select">
+								<input class="select__input" type="hidden" name="theme" onchange="changeSettings(this)">
+								<div class="select__head">${LANG.select}</div>
+								<ul class="select__list">
+									<li class="select__item" value="auto">${LANG.auto}</li>
+									<li class="select__item" value="light">${LANG.light}</li>
+									<li class="select__item" value="dark">${LANG.dark}</li>
+								</ul>
+							</div>
+						</span>
+					</div>
+					<div class="settings_element">
+						<span>${LANG.hard_anim}:<span style="cursor: help;" title="${LANG.hard_anim_prompt}">❓</span></span>
+						<span>
+							<input class="form-switch" type="checkbox" name="hard-anim" onclick="changeSettings(this)" checked>
+						</span>
+					</div>
+				</div>
+
+				</div>
+			</details>
+			<hr>
+
+			<details>
+				<summary>👤${LANG.profile_title}</summary>
+				<div class="content">
+
+				<div class="settings_element center-wrap ignore-divide">
+					<button class="button-15" onclick="confrim_delete_avatar()">${LANG.delete_avatar}</button>
+				</div>
+
+				<div class="settings_element center-wrap ignore-divide">
+					<button class="button-15 red" onclick="reset_password()" style="margin-bottom: 10px;">${LANG.change_pwd}</button>
+				</div>
+
+				<div id="profile-settings" style="display:none;">
+					<div class="settings_element center-wrap ignore-divide-background">
+						<div class="group">
+							<input type="email" name="email" placeholder=" "/>
+							<span class="bar"></span>
+							<label>${LANG.email}</label>
+						</div>
+						<div class="switcher">
+							<input id="toggle_email-off" class="toggle toggle-left" name="toggle_email" value="false" type="radio" checked>
+							<label for="toggle_email-off" class="btn" title="${LANG.private}">🔒</label>
+							<input id="toggle_email-on" class="toggle toggle-right" name="toggle_email" value="true" type="radio">
+							<label for="toggle_email-on" class="btn"><img src="../root_/images/eye.svg" title="${LANG.public}"></label>
+						</div>
+					</div>
+
+					<div class="settings_element center-wrap ignore-divide-background">
+						<div class="group">
+							<input type="tel" name="phone" placeholder=" "/>
+							<span class="bar"></span>
+							<label>${LANG.phone}</label>
+						</div>
+						<div class="switcher">
+							<input id="toggle_phone-off" class="toggle toggle-left" name="toggle_phone" value="false" type="radio" checked>
+							<label for="toggle_phone-off" class="btn" title="${LANG.private}">🔒</label>
+							<input id="toggle_phone-on" class="toggle toggle-right" name="toggle_phone" value="true" type="radio">
+							<label for="toggle_phone-on" class="btn" title="${LANG.public}"><img src="../root_/images/eye.svg"></label>
+						</div>
+					</div>
+
+					<div class="settings_element center-wrap ignore-divide-background">
+						<div class="group">
+							<select onchange="this.dataset.chosen = this.value;" data-chosen="" name="gender">
+								<option value="" selected></option>
+								<option value="man">${LANG.man}</option>
+								<option value="woman">${LANG.woman}</option>
+							</select>
+							<label>${LANG.gender}</label>
+						</div>
+						<div class="switcher">
+							<input id="toggle_gender-off" class="toggle toggle-left" name="toggle_gender" value="false" type="radio" checked>
+							<label for="toggle_gender-off" class="btn" title="${LANG.private}">🔒</label>
+							<input id="toggle_gender-on" class="toggle toggle-right" name="toggle_gender" value="true" type="radio">
+							<label for="toggle_gender-on" class="btn" title="${LANG.public}"><img src="../root_/images/eye.svg"></label>
+						</div>
+					</div>
+
+					<div class="settings_element center-wrap ignore-divide" style="justify-content:space-evenly;">
+						<p style="font-size:18px;">${LANG.favorites_title}:<span style="cursor: help;" title="${LANG.favorites_prompt}">❓</span></p>
+						
+						<div class="switcher">
+							<input id="toggle_favorites-off" class="toggle toggle-left" name="toggle_favorites" value="false" type="radio" checked>
+							<label for="toggle_favorites-off" class="btn" title="${LANG.private}">🔒</label>
+							<input id="toggle_favorites-on" class="toggle toggle-right" name="toggle_favorites" value="true" type="radio">
+							<label for="toggle_favorites-on" class="btn" title="${LANG.public}"><img src="../root_/images/eye.svg"></label>
+						</div>
+					</div>
+				</div>
+
+				<div class="settings_element center-wrap ignore-divide" style="justify-content: center;">
+					<button class="button-18" onclick="open_logins()" style="margin-top: 10px;">${LANG.account_logins}</button>
+				</div>
+
+				</div>
+				</details>
+			<hr>
+
+			<details>
+					<summary>📱${LANG.social_media}</summary>
+					<div class="content">
+						<div onclick="add_social()" class="add_social" title="${LANG.add}">+</div>
+						<div id="social"></div>
+					</div>
+				</details>
+			<hr>
+
+			<details>
+					<summary>💡${LANG.other}</summary>
+					<div class="content">
+
+					<div class="settings-table">
+						<div class="settings_element">
+							<span>${LANG.secure_links}:<span style="cursor: help;" title="${LANG.secure_links_desc}">❓</span></span>
+							<span>
+								<input class="form-switch" type="checkbox" name="secure-links" onclick="changeSettings(this)" checked>
+							</span>
+						</div>
+
+						<div class="settings_element">
+							<span>${LANG.resize_images}:<span style="cursor: help;" title="${LANG.resize_images_prompt}">❓</span></span>
+							<span>
+								<input class="form-switch" type="checkbox" name="resize-images" onclick="changeSettings(this)">
+							</span>
+						</div>
+
+						<div class="settings_element">
+							<span>${LANG.sort_method}:</span>
+							<span>
+								<div class="select">
+									<input class="select__input" type="hidden" name="sort_method" onchange="changeSettings(this)">
+									<div class="select__head">${LANG.select}</div>
+									<ul class="select__list">
+										<li class="select__item" value="date">${LANG.by_date}</li>
+										<li class="select__item" value="popular">${LANG.by_popularity}</li>
+									</ul>
+								</div>
+							</span>
+						</div>
+
+					</div>
+
+					</div>
+				</details>
+			<hr>
+
+			<div id="save_button" class="settings_element center-wrap ignore-divide">
+				<button class="button" onclick="saveSettings();">${LANG.save}</button>
+			</div>
+		</div>
+
+	</div>
+
+
+	<div class="tab-content" data="tracks">
+
+		<div style="text-align:center;position:relative;padding: 6px 0;">
+			<span style="margin-top:8px;font-size:18px;margin-bottom:8px;margin-right:10px;display:inline-block;">${LANG.sort_method}:</span>
+			<span>
+				<div class="select" style="display:inline-block;">
+					<input class="select__input" type="hidden" name="my_tracks_sort_method" onchange="changeSortMethod('my_tracks')">
+					<div class="select__head" style="background:var(--settings-back)">${LANG.select}</div>
+					<ul class="select__list">
+						<li class="select__item" value="date">${LANG.by_date}</li>
+						<li class="select__item" value="popular">${LANG.by_popularity}</li>
+					</ul>
+				</div>
+			</span>
+		</div>
+		<hr style="margin-top:0">
+
+		<div id="card_previewer">
+			<span title="${LANG.edit}"><img onclick="edit()" src="../root_/images/edit.svg" draggable="false"/></span>
+			<span title="${LANG.share}"><img onclick="share()" src="../root_/images/share.svg" draggable="false"/></span>
+			<span title="${LANG.delete}" class="title-to-left"><img onclick="confirm_delete()" src="../root_/images/delete.svg" draggable="false"/></span>
+			<span title="${LANG.open}" class="title-to-left"><img onclick="open_()" src="../root_/images/open.svg" draggable="false"/></span>
+			<span title="${LANG.close}" class="title-to-left"><img class="close" onclick="hide()" src="../root_/images/close2.svg" draggable="false"/></span>
+		</div>
+
+		<div id="card_previewer_name">
+			<div id="card_previewer_name_txt"></div>
+		</div>
+
+		<div id="main_page"></div>
+
+		<div id="extra_space"></div>
+
+	</div>
+
+	<div class="tab-content" data="premium">
+		<div style="text-align:center">
+			<div class="expanding-link" onclick="javascript:document.querySelector('.menu-element[data=bonus-code]').click()" style="font-size:16pt;margin-bottom:0">${LANG.activate_bonus_code}</div>
+		</div>
+
+		<table id="limits" style="margin-top:20px;min-width:50%;">
+			<tr>
+				<th></th>
+				<th>${LANG.standard}</th>
+				<th>${LANG.premium}</th>
+			</tr>
+			<tr>
+				<td rowspan="3">${LANG.image_file}</td>
+				<td>⩽1280×1280</td>
+				<td>⩽1920×1920</td>
+			</tr>
+			<tr>
+				<td>⩽2MB</td>
+				<td>⩽5MB</td>
+			</tr>
+			<tr>
+				<td>jpg/png</td>
+				<td>gif</td>
+			</tr>
+
+			<tr>
+				<td rowspan="2">${LANG.audio_file}</td>
+				<td>⩽192kbps</td>
+				<td>⩽320kbps</td>
+			</tr>
+			<tr>
+				<td>⩽10MB</td>
+				<td>⩽16MB</td>
+			</tr>
+		</table>
+
+		<div class="items-list">
+			<div class="item" name="free_trial">
+				<p class="title">${LANG.free_trial}</p>
+				<div class="image">
+					<img src="/root_/images/premium/grass.jpg">
+				</div>
+				<div class="other">
+					<div class="value">7 ${LANG.days}</div>
+					<div class="price">${LANG.free}</div>
+					<button class="button-82" onclick="getFreeTrial()"><span class="action_text">${LANG.get}</span></button>
+				</div>
+			</div>
+
+			<div class="item" name="starter">
+				<p class="title">${LANG.starter}</p>
+				<div class="image">
+					<img src="/root_/images/premium/wood.jpg">
+				</div>
+				<div class="other">
+					<div class="value">7 ${LANG.days}</div>
+					<div class="price">0.25$</div>
+					<button class="button-82" onclick="purchase('starter')"><span class="action_text">${LANG.buy}</span></button>
+				</div>
+			</div>
+
+			<div class="item" name="middle">
+				<p class="title">${LANG.middle}</p>
+				<div class="image">
+					<img src="/root_/images/premium/stone.jpg">
+				</div>
+				<div class="other">
+					<div class="value">1 ${LANG.month}</div>
+					<div class="price">1$</div>
+					<button class="button-82" onclick="purchase('middle')"><span class="action_text">${LANG.buy}</span></button>
+				</div>
+				<div class="additionally">HOT</div>
+			</div>
+
+			<div class="item" name="profesional">
+				<p class="title">${LANG.profesional}</p>
+				<div class="image">
+					<img src="/root_/images/premium/gold.jpg">
+				</div>
+				<div class="other">
+					<div class="value">1 ${LANG.year}</div>
+					<div class="price">10$</div>
+					<button class="button-82" onclick="purchase('profesional')"><span class="action_text">${LANG.buy}</span></button>
+				</div>
+				<div class="additionally">-16%</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-content" data="statistics">
+
+		<div style="text-align:center;position:relative;padding: 6px 0;">
+			<span style="margin-top:8px;margin-bottom:8px;margin-right:10px;font-size:18px;display:inline-block;">${LANG.sort_method}:</span>
+			<span>
+				<div class="select" style="display:inline-block">
+					<input class="select__input" type="hidden" name="stat_sort_method" onchange="changeSortMethod('statistics')">
+					<div class="select__head" style="background:var(--settings-back)">${LANG.select}</div>
+					<ul class="select__list">
+						<li class="select__item" value="date">${LANG.by_date}</li>
+						<li class="select__item" value="popular">${LANG.by_popularity}</li>
+						<li class="select__item" value="views">${LANG.views}</li>
+						<li class="select__item" value="likes">${LANG.likes}</li>
+					</ul>
+				</div>
+			</span>
+		</div>
+		
+		<div id="statistic_graph_parrent"><hr style="margin-top:0"></div>
+		<hr>
+
+		<div id="statistics_area">
+			<div class='track' style="font-weight: bold; padding-top: 12px; padding-bottom: 12px;">
+				<span class="track_info" style="justify-content:center;">${LANG.content}</span>
+				<span class="likes_and_views">
+					<span>${LANG.views}</span>
+					<span>${LANG.likes}</span>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="tab-content" data="console" style="overflow:hidden;">
+		<iframe src="" frameborder="0" height="100%" width="100%"></iframe>
+	</div>
+
+	<div class="tab-content" data="bonus-code" align="center">
+		<h1>${LANG.bonus_code}</h1>
+		<p><input type="text" id="bonus-code-field" placeholder="XXXXX" autocomplete="off"></p>
+		<p><button class="button" style="display:block;margin-top: 25px;padding-left: 3em;padding-right: 3em;" onclick="activate_bonus_code()" id="bonus_code_button">${LANG.activate}</button></p>
+		<div style="height:0;transition:0.5s;overflow:hidden;">
+			<div id="bonus-code-timeout" style="--value:100"></div>
+		</div>
+		<div id="bonus-code-notice"></div>
+	</div>
+
+</div>
+</div>

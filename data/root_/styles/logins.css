@@ -1,0 +1,119 @@
+::-webkit-scrollbar
+{
+	width: 5px;
+	height: 5px;
+}
+h1{
+	text-align: center;
+}
+#mainDiv{
+	text-align: center;
+	margin-bottom: 5px;
+}
+#mainTable{
+	overflow-x: auto;
+	max-width: 100vw;
+	display: inline-block;
+	border-collapse: collapse;
+}
+#mainTable td{
+	padding: 15px;
+	vertical-align: middle;
+}
+
+.device:first-child tr:first-child td:first-child {
+	border-top-left-radius: 20px;
+}
+.device:first-child tr:first-child td:last-child {
+	border-top-right-radius: 20px;
+}
+.device:last-child tr:last-child td:first-child {
+	border-bottom-left-radius: 20px;
+}
+.device:last-child tr:last-child td:last-child {
+	border-bottom-right-radius: 20px;
+}
+
+.device{
+	transition: 0.3s;
+	background: #e4e4e4;
+	cursor: pointer;
+	display: table-row-group;
+}
+.device > .options{
+	text-align: right;
+}
+.device > .options td{
+	padding-top: 0 !important;
+	padding-bottom: 10px !important;
+}
+.device > .options button{
+	background-color: #F01616;
+	border: 1px solid #F01616;
+	border-radius: 8px;
+	color: #FFFFFF;
+	font-family: "Segoe UI",Roboto,Ubuntu,sans-serif;
+	font-size: 12pt;
+	line-height: 12pt;
+	padding: 6px 16px;
+	transition: background 100ms ease-in-out, padding 160ms ease;
+	cursor: pointer;
+}
+.device > .options button:hover {
+	background-color: #E40A0A;
+	border-color: #E40A0A;
+	padding: 6px 24px;
+}
+.device > .options button:active {
+	background-color: #CB0000;
+	border-color: #CB0000;
+}
+
+.device:nth-child(2n) {
+	background: #f0f0f0;
+}
+
+.dark .device{
+	background: rgb(0, 0, 0, 0.4);
+}
+.dark .device:nth-child(2n) {
+	background: rgb(0, 0, 0, 0.3);
+}
+
+.device.current{
+	background: lightgreen;
+}
+.dark .device.current{
+	background: darkgreen;
+}
+
+.device:hover{
+	background: lightgrey;
+}
+.dark .device:hover{
+	background: rgb(50, 50, 50, 0.5);
+}
+.device:hover.current{
+	background: rgb(100, 255, 100);
+}
+.dark .device:hover.current{
+	background: green;
+}
+
+.device svg{
+	border: 2px solid;
+	border-radius: 50px;
+	height: 80px;
+}
+.dark svg{
+	fill: white;
+}
+
+@media all and (max-width: 500px) {
+	#mainTable{
+		font-size: 11pt;
+	}
+	.device svg{
+		height: 50px;
+	}
+}
