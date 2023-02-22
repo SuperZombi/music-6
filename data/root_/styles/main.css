@@ -496,6 +496,9 @@ hr{
 	margin: auto;
 	transition: 0.75s;
 	text-align: center;
+	border-radius: 15px;
+	overflow: hidden;
+	box-shadow: 0 0 0 2px var(--contrast-color);
 }
 #limits th {
 	color: var(--contrast-color);
