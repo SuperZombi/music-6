@@ -167,7 +167,6 @@ body{
 	text-decoration: none;
 	color: var(--contrast-color);
 	transition: 0.35s;
-	backdrop-filter: blur(2px);
 }
 #header a:hover{
 	color: #0077FF;
@@ -179,7 +178,7 @@ body{
 
 #header_{position: relative;white-space: nowrap;user-select: none;height: 70px;font-size: 31pt;font-family: 'Architects Daughter', cursive;background: var(--header-color);transition: background 1s;overflow: hidden;}
 #header_ img{pointer-events: none;vertical-align: bottom;height: 70px;filter: drop-shadow(0 0 1px white);transition: 0.2s;}
-#header_ a{position: relative;z-index: 4;text-decoration: none;color: var(--contrast-color);transition: 0.35s;backdrop-filter: blur(2px);border-radius: 50%;}
+#header_ a{position: relative;z-index: 4;text-decoration: none;color: var(--contrast-color);transition: 0.35s;}
 #header_ svg{pointer-events: none;vertical-align: bottom;height: 70px;filter: drop-shadow(0 0 1px white);transition: 0.2s;}
 
 .dark #header a:hover{

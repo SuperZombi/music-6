@@ -3,6 +3,7 @@
   margin: 0;
   padding: 0;
   transform: translateY(-50%);
+  opacity: 0.8;
 }
 
 .line > li {

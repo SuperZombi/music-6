@@ -21,27 +21,6 @@ else{
 		/**/
 	}
 	else if (currentMonth >= 12 || currentMonth <= 2){
-		/* Snowflakes */
-		(function snowflakes(){
-			if (typeof leaves_area !== 'undefined'){
-				var lea = document.createElement("link")
-				lea.rel = "stylesheet"
-				lea.setAttribute("href", "/root_/styles/snowfall.css");
-				document.head.appendChild(lea)
-				document.getElementById("leaves_area").innerHTML = `
-					<snowfall style="height:inherit;position:absolute;color:#43c7fa;">
-						${'<snowflake><span>❄</span></snowflake>'.repeat(20)}
-						${'<snowflake><span>•</span></snowflake>'.repeat(20)}
-						${'<snowflake><span>.</span></snowflake>'.repeat(10)}
-					</snowfall>
-				`
-			}
-			else{
-				setTimeout(function(){snowflakes()}, 500)
-			}
-		})()
-		/**/
-
 		let currentDate = new Date().getDate();
 		if ((currentMonth == 12 && currentDate >= 24) || (currentMonth == 1 && currentDate <= 7)){
 			/* Lights */
@@ -78,6 +57,27 @@ else{
 			            <li class="blue"></li>
 			        </ul>
 					`
+			})()
+			/**/
+		} else {
+			/* Snowflakes */
+			(function snowflakes(){
+				if (typeof leaves_area !== 'undefined'){
+					var lea = document.createElement("link")
+					lea.rel = "stylesheet"
+					lea.setAttribute("href", "/root_/styles/snowfall.css");
+					document.head.appendChild(lea)
+					document.getElementById("leaves_area").innerHTML = `
+						<snowfall style="height:inherit;position:absolute;color:#43c7fa;">
+							${'<snowflake><span>❄</span></snowflake>'.repeat(20)}
+							${'<snowflake><span>•</span></snowflake>'.repeat(20)}
+							${'<snowflake><span>.</span></snowflake>'.repeat(10)}
+						</snowfall>
+					`
+				}
+				else{
+					setTimeout(function(){snowflakes()}, 500)
+				}
 			})()
 			/**/
 		}
