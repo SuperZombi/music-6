@@ -1,14 +1,3 @@
-#beta{
-	background: darkred;
-	color: white;
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 100%;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	transform: translate(40%, 70%) rotate(35deg);
-}
 form{
 	display: flex;
 	justify-content: center;
@@ -124,4 +113,14 @@ table table input[type="text"] {
 #max-time-total:hover, #min-time-total:hover{
 	padding-left: 15px;
 	padding-right: 15px;
+}
+
+.disabled{
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;
+	outline: none;
+}
+.dark .disabled{
+	background: darkgrey;
 }

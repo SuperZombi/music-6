@@ -412,6 +412,7 @@ function editInit(){
             if (!answer.successfully){ notice.Error(get_decode_error(answer.reason)) }
             else {
                 document.getElementById("form_track_name").setAttribute('readonly', true);
+                document.getElementById("form_track_name").classList.add("disabled");
                 document.getElementById("form_track_name").value = answer.config.track_name;
                 document.getElementById("form_genre").value = answer.config.genre;
                 document.getElementById("form_image").parentNode.parentNode.style.display = "none"

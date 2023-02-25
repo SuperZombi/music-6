@@ -1,3 +1,18 @@
+.beta{
+	background: red;
+	color: white;
+	display: inline-block;
+	font-size: 0.75rem;
+	font-family: sans-serif;
+	padding: 2px 6px;
+	border-radius: 25px;
+	vertical-align: super;
+	margin-left: 5px;
+}
+.dark .beta{
+	background: darkred;
+}
+
 #ads{
 	font-size: 80pt;
 	line-height: 80pt;
