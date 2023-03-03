@@ -136,24 +136,39 @@ table table input[type="text"] {
 	flex-direction: column;
 	align-items: center;
 	padding: 20px;
-	border: 1px dashed rgba(255, 255, 255, 0.4);
+	border: 1px dashed rgba(0, 0, 0, 0.3);
 	border-radius: 6px;
 	transition: 0.2s;
 	gap: 10px;
 }
 .file-drop-area:hover{
-	border: 1px dashed rgba(255, 255, 255, 0.6);
+	border: 1px dashed rgba(0, 0, 0, 0.6);
 }
 .file-drop-area.is-active{
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .file-drop-area{
+	border-color: rgba(255, 255, 255, 0.4);
+}
+.dark .file-drop-area:hover{
+	border-color: rgba(255, 255, 255, 0.6);
+}
+.dark .file-drop-area.is-active{
 	background-color: rgba(255, 255, 255, 0.05);
 }
+
 .fake-btn {
-	background-color: rgba(255, 255, 255, 0.04);
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	background-color: rgba(0, 0, 0, 0.04);
+	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 6px;
 	padding: 8px 15px;
 	font-size: 13px;
 	text-transform: uppercase;
+}
+.dark .fake-btn {
+	background-color: rgba(255, 255, 255, 0.04);
+	border-color: rgba(255, 255, 255, 0.1);
 }
 .file-msg {
 	font-size: small;
