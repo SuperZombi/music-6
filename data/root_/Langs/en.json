@@ -166,9 +166,10 @@
 	"links": "Links",
 	"optional": "Optional",
 
+	"choose_file": "Choose file",
+	"choose_file_empty": "or drag and drop file here",
 	"max_res": "Max Resolution is",
-	"max_img_s": "Max Image Size is",
-	"max_audio_s": "Max Audio Size is",
+	"max_file_s": "Max File Size is",
 	"max_bitrate": "Max Bitrate is",
 
 	"files_uploaded": "Files uploaded successfully!",

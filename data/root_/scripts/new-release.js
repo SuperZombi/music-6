@@ -17,14 +17,17 @@ function formatBytes(bytes, decimals = 2) {
 function checkPhoto(target, compress=true) {
     document.getElementById("photoLabel").innerHTML = "";
 
+    var _URL = window.URL || window.webkitURL;
+    var file = target.files[0];
+    if (!file){return}
     if (file && file['type'].split('/')[0] != 'image'){
-        document.getElementById("photoLabel").innerHTML += `${LANG.wrong_file_format} <br>`;
         target.value = '';
+        setTimeout(_=>{
+            target.previousElementSibling.innerHTML += `<i style='color:red'>${LANG.wrong_file_format}</i>`;
+        }, 0)
         return
     }
 
-    var _URL = window.URL || window.webkitURL;
-    var file = target.files[0];
     var img = new Image();
     var objectUrl = _URL.createObjectURL(file);
     img.onload = function () {
@@ -43,25 +46,25 @@ function checkPhoto(target, compress=true) {
             else{
                 document.getElementById("photoLabel").innerHTML += `${LANG.max_res} <i style='color:red'>${file_limits.image.resolution}x${file_limits.image.resolution}</i>! <br>`;
                 target.value = '';
+                target.previousElementSibling.innerHTML = ""
             }
         }
-        else{
-            if(file.size > file_limits.image.size) {
-                if (local_storage["resize-images"] != undefined && JSON.parse(local_storage["resize-images"]) && compress){
-                    var onSuccessCompress = (image)=>{
-                        let container = new DataTransfer(); 
-                        container.items.add(image);
-                        target.files = container.files;
-                        notice.Success(LANG.file_resized)
-                        checkPhoto(target, false)
-                    }
-                    document.getElementById("photoLabel").innerHTML = LANG.start_resize
-                    ResizeRequest(file, onSuccessCompress, this.width, this.height);
+        else if (file.size > file_limits.image.size) {
+            if (local_storage["resize-images"] != undefined && JSON.parse(local_storage["resize-images"]) && compress){
+                var onSuccessCompress = (image)=>{
+                    let container = new DataTransfer(); 
+                    container.items.add(image);
+                    target.files = container.files;
+                    notice.Success(LANG.file_resized)
+                    checkPhoto(target, false)
                 }
-                else{
-                    document.getElementById("photoLabel").innerHTML += `${LANG.max_img_s} <i style='color:red'>${formatBytes(file_limits.image.size)}</i>! <br>`;
-                    target.value = '';
-                }
+                document.getElementById("photoLabel").innerHTML = LANG.start_resize
+                ResizeRequest(file, onSuccessCompress, this.width, this.height);
+            }
+            else{
+                document.getElementById("photoLabel").innerHTML += `${LANG.max_file_s} <i style='color:red'>${formatBytes(file_limits.image.size)}</i>! <br>`;
+                target.value = '';
+                target.previousElementSibling.innerHTML = ""
             }
         }
         _URL.revokeObjectURL(objectUrl);
@@ -73,6 +76,23 @@ function checkAudio(target) {
     document.getElementById("audioLabel").innerHTML = "";
     var _URL = window.URL || window.webkitURL;
     var file = target.files[0];
+    if (!file){return}
+
+    if (file && file['type'].split('/')[0] != 'audio' || file.name.split('.').at(-1) != 'mp3'){
+        document.getElementById("audioLabel").innerHTML += `${LANG.wrong_file_format} <br>`;
+        target.value = '';
+        setTimeout(_=>{
+            target.previousElementSibling.innerHTML += `<i style='color:red'>${LANG.wrong_file_format}</i>`;
+        }, 0)
+        return
+    }
+
+    if(file.size > file_limits.audio.size) {
+        document.getElementById("audioLabel").innerHTML += `${LANG.max_file_s} <i style='color:red'>${formatBytes(file_limits.audio.size)}</i>! <br>`;
+        target.value = '';
+        return
+    }
+
     var audio = new Audio();
     var objectUrl = _URL.createObjectURL(file);
     var all_bitrates = [128, 192, 320]
@@ -91,22 +111,31 @@ function checkAudio(target) {
         _URL.revokeObjectURL(objectUrl);
     })
     audio.src = objectUrl;
-
-    if(file.size > file_limits.audio.size) {
-        document.getElementById("audioLabel").innerHTML += `${LANG.max_audio_s} <i style='color:red'>${formatBytes(file_limits.audio.size)}</i>! <br>`;
-        target.value = '';
-    }
-
-    if (file && file['type'].split('/')[0] != 'audio'){
-        document.getElementById("audioLabel").innerHTML += `${LANG.wrong_file_format} <br>`;
-        target.value = '';
-    }
-    if (file && file.name.split('.').at(-1) != 'mp3'){
-        document.getElementById("audioLabel").innerHTML += `${LANG.wrong_file_format} <br>`;
-        target.value = '';
-    }
 }
 
+function initDragAndDrop(){
+    document.querySelectorAll(".file-drop-area").forEach(area=>{
+        let input = area.querySelector("input")
+        Array.from(['dragenter', 'focus', 'click']).forEach(evt => 
+            input.addEventListener(evt, _=>{
+                area.classList.add("is-active")
+            })
+        );
+        Array.from(['dragleave', 'blur', 'drop']).forEach(evt => 
+            input.addEventListener(evt, _=>{
+                area.classList.remove("is-active")
+            })
+        );
+        input.addEventListener("change", target=>{
+            let file = target.target.files[0]
+            if (file){
+                area.querySelector(".file-msg").innerHTML = file.name
+            } else{
+                area.querySelector(".file-msg").innerHTML = ""
+            }
+        })
+    })
+}
 
 function ResizeRequest(file, callback, desired_W=1280, desired_H=1280){
     if (file.type.split('/')[0] != 'image'){
@@ -324,6 +353,7 @@ function main(){
     }
 
     editInit()
+    initDragAndDrop()
     get_limits()
     get_all_genres()
 }

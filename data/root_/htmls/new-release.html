@@ -61,14 +61,22 @@
 	<tr>
 		<td>${LANG.image}:</td>
 		<td>
-			<input type="file" id="form_image" accept="image/png, image/jpeg" onchange="checkPhoto(this)" required>
+			<div class="file-drop-area">
+				<span class="fake-btn">${LANG.choose_file}</span>
+				<span class="file-msg">${LANG.choose_file_empty}</span>
+				<input class="file-input" type="file" id="form_image" accept="image/png, image/jpeg" onchange="checkPhoto(this)" required>
+			</div>
 			<div id="photoLabel" class="checkFile"></div>
 		</td>
 	</tr>
 	<tr>
 		<td>${LANG.audio}:</td>
 		<td>
-			<input type="file" id="form_audio" accept="audio/mp3" onchange="checkAudio(this)" required>
+			<div class="file-drop-area">
+				<span class="fake-btn">${LANG.choose_file}</span>
+				<span class="file-msg">${LANG.choose_file_empty}</span>
+				<input class="file-input" type="file" id="form_audio" accept="audio/mp3" onchange="checkAudio(this)" required>
+			</div>
 			<div id="audioLabel" class="checkFile"></div>
 		</td>
 	</tr>
