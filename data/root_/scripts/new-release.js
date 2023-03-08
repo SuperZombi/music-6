@@ -356,6 +356,13 @@ function main(){
     initDragAndDrop()
     get_limits()
     get_all_genres()
+
+    document.addEventListener("keydown", e=>{
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            return false;
+        }
+    })
 }
 
 function get_limits(){
@@ -542,6 +549,9 @@ function initPlayer(audio_path, preview){
         document.getElementById("time-total").value = Math.min(wavesurfer.backend.getDuration() - 1, 10)
         wavesurfer.regions.list["preview"].end = Math.min(wavesurfer.backend.getDuration() - 1, 10)
 
+        document.getElementById("time-current").max = document.getElementById("max-time-total").value
+        document.getElementById("time-total").max = document.getElementById("max-time-total").value
+
         if (preview){
             wavesurfer.regions.list["preview"].start = preview[0]
             wavesurfer.regions.list["preview"].end = preview[1]
@@ -551,9 +561,6 @@ function initPlayer(audio_path, preview){
         wavesurfer.drawBuffer();
     })
     wavesurfer.on('region-updated', function (e){
-        if (wavesurfer.isPlaying()){
-            wavesurfer.pause()
-        }
         var start = Math.round(e.start * 10)/10
         var end = Math.round(e.end * 10)/10
         document.getElementById("time-current").value = start
@@ -565,6 +572,7 @@ function initPlayer(audio_path, preview){
             clearTimeout(region_resizing)
         }
         region_resizing = setTimeout(function(){
+            window.onbeforeunload = _=> {return false};
             wavesurfer.regions.list["preview"].start = start
             wavesurfer.regions.list["preview"].end = end
             wavesurfer.drawBuffer();
@@ -572,15 +580,8 @@ function initPlayer(audio_path, preview){
     })
 }
 function change_region(){
-    if (wavesurfer.isPlaying()){
-        wavesurfer.pause()
-    }
-    if (!document.getElementById("time-current").value){
-        document.getElementById("time-current").value = 0
-    }
-    if (!document.getElementById("time-total").value){
-        document.getElementById("time-total").value = 0
-    }
+    document.getElementById("time-current").max = document.getElementById("time-total").value
+    document.getElementById("time-total").min = document.getElementById("time-current").value
     wavesurfer.regions.list["preview"].start = parseFloat(document.getElementById("time-current").value)
     wavesurfer.regions.list["preview"].end = parseFloat(document.getElementById("time-total").value)
     wavesurfer.drawBuffer();
@@ -598,18 +599,19 @@ function play(e){
                 wavesurfer.pause()
             }
             else{
-                wavesurfer.regions.list["preview"].play()
-                setTimeout(function(){
-                    wavesurfer.on('region-out', function() {
-                        e.target.className = "far fa-play-circle"
-                        e.target.title = LANG.player_play
-                        wavesurfer.pause()
-                    });
-                    wavesurfer.on('pause', function() {
-                        e.target.className = "far fa-play-circle"
-                        e.target.title = LANG.player_play
-                    });
-                }, 10)
+                let region = wavesurfer.regions.list["preview"]
+                if (region.start < wavesurfer.getCurrentTime() && wavesurfer.getCurrentTime() < region.end){
+                    wavesurfer.play()
+                } else{
+                    wavesurfer.regions.list["preview"].play()
+                    setTimeout(function(){
+                        wavesurfer.on('region-out', function() {
+                            e.target.className = "far fa-play-circle"
+                            e.target.title = LANG.player_play
+                            wavesurfer.pause()
+                        });
+                    }, 10)
+                }
                 e.target.className = "far fa-pause-circle"
                 e.target.title = LANG.player_stop
                 wavesurfer.on('finish', function (){

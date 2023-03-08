@@ -320,29 +320,11 @@ function main(){
 		region_color = 'rgb(0, 0, 0, 0.15)'
 	}
 
-	plugin = []
-	if (config.preview_z){
-		plugin = [WaveSurfer.regions.create({
-			regions: [
-				{	
-					id: "preview",
-					start: config.preview_zone[0],
-					end: config.preview_zone[1],
-					loop: false,
-					drag: false,
-					resize: false,
-					color: region_color
-				}
-			]
-		})]
-	}
-
 	wavesurfer = WaveSurfer.create(Object.assign({
 		container: '#waveform',
 		height: 80,
 		barWidth: 1,
 		hideScrollbar: true,
-		plugins: plugin,
 		backend: 'MediaElement'
 	}, theme_params));
 
@@ -353,7 +335,12 @@ function main(){
 	}
 	else{
 		try{
-			wavesurfer.load(config.audio_preview);
+			if (config.preview_z){
+				let path = config.audio_preview + `?start=${config.preview_zone[0]}&end=${config.preview_zone[1]}`
+				wavesurfer.load(path);
+			} else{
+				wavesurfer.load(config.audio_preview);
+			}
 		}catch{
 			document.getElementById("player").style.display = "none";
 			document.getElementById("hr_").style.display = "none";
@@ -442,35 +429,6 @@ function play_pause_animation(){
 					show_anim_t()
 				}
 
-				if (config.preview_z && !region_play){
-					region_play = true;
-					wavesurfer.regions.list["preview"].play()
-					setTimeout(function(){
-						wavesurfer.on('pause', function() {
-							if (config.preview_z){
-								if (Math.round(wavesurfer.getCurrentTime()*100)/100 == config.preview_zone[1]){
-									region_play = false;
-									document.getElementById('play_pause_button').className = "far fa-play-circle"
-									document.getElementById('play_pause_button').title = LANG.player_play
-									wavesurfer.pause()
-									if (config.animate_time){
-										hide_anim_t()
-									}
-								}
-							}
-						});
-						wavesurfer.on('region-out', function() {
-							region_play = false;
-							document.getElementById('play_pause_button').className = "far fa-play-circle"
-							document.getElementById('play_pause_button').title = LANG.player_play
-							wavesurfer.pause()
-							if (config.animate_time){
-								hide_anim_t()
-							}
-						});
-					}, 10)
-				}
-
 				document.getElementById('play_pause_button').className = "far fa-pause-circle"
 				document.getElementById('play_pause_button').title = LANG.player_stop
 				wavesurfer.on('finish', function (){
@@ -541,37 +499,8 @@ function play(e){
 					show_anim_t()
 				}
 
-				if (config.preview_z && !region_play){
-					region_play = true;
-					wavesurfer.regions.list["preview"].play()
-					setTimeout(function(){
-						wavesurfer.on('pause', function() {
-							if (config.preview_z){
-								if (Math.round(wavesurfer.getCurrentTime()*100)/100 == config.preview_zone[1]){
-									region_play = false;
-									e.target.className = "far fa-play-circle"
-									e.target.title = LANG.player_play
-									wavesurfer.pause()
-									if (config.animate_time){
-										hide_anim_t()
-									}
-								}
-							}
-						});
-						wavesurfer.on('region-out', function() {
-							region_play = false;
-							e.target.className = "far fa-play-circle"
-							e.target.title = LANG.player_play
-							wavesurfer.pause()
-							if (config.animate_time){
-								hide_anim_t()
-							}
-						});
-					}, 10)
-				}
-				else{
-					wavesurfer.play()
-				}
+				wavesurfer.play()
+
 				e.target.className = "far fa-pause-circle"
 				e.target.title = LANG.player_stop
 				wavesurfer.on('finish', function (){

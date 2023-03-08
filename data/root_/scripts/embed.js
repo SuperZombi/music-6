@@ -31,30 +31,13 @@ function main(){
 		region_color = 'rgb(0, 0, 0, 0.15)'
 	}
 
-	plugin = []
-	if (config.preview_z){
-		plugin = [WaveSurfer.regions.create({
-			regions: [
-				{	
-					id: "preview",
-					start: config.preview_zone[0],
-					end: config.preview_zone[1],
-					loop: false,
-					drag: false,
-					resize: false,
-					color: region_color
-				}
-			]
-		})]
-	}
-
 	wavesurfer = WaveSurfer.create(Object.assign({
 		container: '#waveform',
 		height: 30,
 		barWidth: 1,
 		barHeight: 0.5,
 		hideScrollbar: true,
-		plugins: plugin
+		backend: 'MediaElement'
 	}, theme_params));
 
 	window.onresize = function(){wavesurfer.drawBuffer();}
@@ -64,7 +47,12 @@ function main(){
 	}
 	else{
 		try{
-			wavesurfer.load(config.audio_preview);
+			if (config.preview_z){
+				let path = config.audio_preview + `?start=${config.preview_zone[0]}&end=${config.preview_zone[1]}`
+				wavesurfer.load(path);
+			} else{
+				wavesurfer.load(config.audio_preview);
+			}
 			wavesurfer.on('ready',_=>{
 				document.getElementById("play_pause").style.display = "block"
 				setTimeout(function(){
@@ -92,6 +80,17 @@ function main(){
 	}
 }
 
+function set_metadata(){
+	navigator.mediaSession.metadata = new MediaMetadata({
+		title: config.track_name,
+		artist: config.artist,
+		album: 'Zombi Music',
+		artwork: [
+			 { src: config.main_img}
+		]
+	});
+}
+
 function tracking(){
 	function setCurrent(init=false){
 		if (init){
@@ -115,7 +114,9 @@ function tracking(){
 		document.getElementById('time-current').innerText = "0:00";
 		wavesurfer_isReady = true;
 	})
-
+	wavesurfer.on('play', function() {
+		set_metadata()
+	});
 	wavesurfer.on('seek', function() {
 		setCurrent()
 	})
@@ -135,29 +136,7 @@ function play(e){
 			wavesurfer.pause()
 		}
 		else{
-			if (config.preview_z && !region_play){
-				region_play = true;
-				wavesurfer.regions.list["preview"].play()
-				wavesurfer.on('pause', function() {
-					if (config.preview_z){
-						if (Math.round(wavesurfer.getCurrentTime()*100)/100 == config.preview_zone[1]){
-							region_play = false;
-							e.target.className = "far fa-play-circle"
-							e.target.title = LANG.player_play
-							wavesurfer.pause()
-						}
-					}
-				});
-				wavesurfer.on('region-out', function() {
-					region_play = false;
-					e.target.className = "far fa-play-circle"
-					e.target.title = LANG.player_play
-					wavesurfer.pause()
-				});
-			}
-			else{
-				wavesurfer.play()
-			}
+			wavesurfer.play()
 			e.target.className = "far fa-pause-circle"
 			e.target.title = LANG.player_stop
 			wavesurfer.on('finish', function (){

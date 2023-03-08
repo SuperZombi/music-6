@@ -13,6 +13,8 @@ import filetype
 from PIL import Image, ImageSequence
 from io import BytesIO
 import audio_metadata
+from pydub import AudioSegment
+from pydub.utils import mediainfo
 import warnings
 warnings.filterwarnings('ignore')
 from fuzzywuzzy import fuzz
@@ -151,6 +153,21 @@ def data(filepath):
 							return send_file(buf, mimetype=filetype.guess(p).mime)
 						except:
 							None
+			elif filetype.is_audio(p):
+				start = request.args.get('start')
+				end = request.args.get('end')
+				if start or end:
+					start = int(float(start) * 1000) if start else 0
+					end = int(float(end) * 1000) if end else None
+					sound = AudioSegment.from_file(p)
+					original_bitrate = mediainfo(p)['bit_rate']
+					extract = sound[start:end]
+					if len(extract) != 0:
+						audioIO = BytesIO()
+						extract.export(audioIO, bitrate=original_bitrate, format="mp3")
+						audioIO.seek(0)
+						return send_file(audioIO, mimetype=filetype.guess(p).mime)
+					abort(416)
 			return send_from_directory('data', filepath)
 
 		if filepath[-1] != "/":
