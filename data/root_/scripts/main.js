@@ -292,8 +292,8 @@ function main(){
 	window.orientationchange = function(){ set_background() }
 
 	let img = document.getElementById("main_img");
-	img.className = "loader";
 	img.onload = ()=>img.classList.remove("loader");
+	img.src = config.main_img
 
 	img.onclick = function(){
 		easter_egg()
