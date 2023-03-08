@@ -55,13 +55,17 @@ body{
 	position: relative;
     justify-content: center;
     align-items: center;
+    max-width: 30%;
 }
 #embed_img > img{
 	height: 160px;
+	width: 100%;
 	margin: auto;
 	display: block;
 	border-radius: 20px;
 	transition: 0.4s;
+	object-fit: contain;
+	background: black;
 }
 #embed_img > i{
 	position: absolute;
