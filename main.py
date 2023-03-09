@@ -154,6 +154,9 @@ def data(filepath):
 						except:
 							None
 			elif filetype.is_audio(p):
+				start = request.args.get('start')
+				end = request.args.get('end')
+
 				render_bitrate = "128000"
 				if request.cookies.get('userName') and request.cookies.get('userPassword'):
 					if fast_login(request.cookies.get('userName'), request.cookies.get('userPassword')):
@@ -162,22 +165,24 @@ def data(filepath):
 							render_bitrate = False
 
 				sound = AudioSegment.from_file(p)
-				original_bitrate = mediainfo(p)['bit_rate']
+				minfo = mediainfo(p)
+				original_bitrate = minfo['bit_rate']
 				audioIO = BytesIO()
-
-				start = request.args.get('start')
-				end = request.args.get('end')
+				
 				if start or end:
 					start = int(float(start) * 1000) if start else 0
 					end = int(float(end) * 1000) if end else None
 					sound = sound[start:end]
 					if len(sound) == 0:
 						abort(416)
-				
-				if render_bitrate:
-					sound.export(audioIO, bitrate=render_bitrate, format="mp3")
 				else:
-					sound.export(audioIO, bitrate=original_bitrate, format="mp3")
+					if not render_bitrate:
+						return send_from_directory('data', filepath)
+
+				if render_bitrate:
+					sound.export(audioIO, bitrate=render_bitrate, format="mp3", tags=minfo.get('TAG', {}))
+				else:
+					sound.export(audioIO, bitrate=original_bitrate, format="mp3", tags=minfo.get('TAG', {}))
 				audioIO.seek(0)
 				return send_file(audioIO, mimetype=filetype.guess(p).mime)
 			return send_from_directory('data', filepath)
