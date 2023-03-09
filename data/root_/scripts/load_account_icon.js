@@ -163,7 +163,7 @@ if (document.querySelector('#main_menu')){
 		window.localStorage.setItem('hard-anim', target.getAttribute("value"))
 		window.location.reload()
 	});
-	initSelectedMenuElement('player', window.localStorage.getItem('player') || "wavesurfer", target=>{
+	initSelectedMenuElement('player', window.localStorage.getItem('player') || "simple", target=>{
 		window.localStorage.setItem('player', target.getAttribute("value"))
 		exitAllSubMenus()
 	});

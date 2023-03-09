@@ -301,7 +301,7 @@ function main(){
 
 	local_storage = { ...localStorage };
 	notice = Notification('#notifications');
-	player = local_storage.player ? local_storage.player : "wavesurfer";
+	player = local_storage.player ? local_storage.player : "simple";
 	loadStatistics()
 
 	if(!config.audio_preview){
