@@ -682,7 +682,7 @@ function validateEmail(input_str) {
 
 var global_profile_data = {};
 function loadSettings() {
-	let available_settings = ["lang", "theme", "hard-anim", "resize-images", "sort_method", "secure-links"]
+	let available_settings = ["lang", "theme", "hard-anim", "player", "resize-images", "sort_method", "secure-links"]
 	Object.keys(local_storage).forEach(function(e){
 		if (available_settings.includes(e)){
 			let inputs = document.querySelectorAll(`.settings_element input[name=${e}]`)

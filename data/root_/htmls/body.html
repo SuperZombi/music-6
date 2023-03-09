@@ -6,7 +6,7 @@
 <div id="wraper">
 
 <div id="page">
-	<img id="main_img" src="${config.main_img}">
+	<img id="main_img" src="" class="loader">
 	<div id="track_name" title="${LANG.track}">${config.track_name}</div></br>
 	<a id="artist" href="../" title="${LANG.author}">${config.artist}</a>
 	<hr>
@@ -50,8 +50,18 @@
 					<circle cx="46" cy="6" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3"/></circle>
 				</svg>
 			</div>
+			<div id="simple-player" class="hide">
+				<audio></audio>
+				<div id="timeline">
+					<div class="slider" data-direction="horizontal">
+						<div class="progress">
+							<div class="pin" id="progress-pin" data-method="rewind"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<span id="time-current">0:00</span>
-			<span id="time-total">0:00</span>
+			<span id="time-total">--:--</span>
 		</div>
 
 		<hr style="display:none">
@@ -120,18 +130,27 @@
 				<input label="${LANG.dark}" type="radio" name="theme" value="dark" onclick="changeEmbed()">
 			</span>
 		</div>
-		<div style="padding:8px">
-			<span>${LANG.corners_rounding}:</span>
-			<span>
-				<input style="margin-left:5px;vertical-align: middle;" class="form-switch" type="checkbox" name="round" onclick="changeEmbed()" checked>
-			</span>
-		</div>
 
 		<div>
 			<span>${LANG.size}:</span>
 			<span class="radio">
 				<input label="${LANG.small}" type="radio" name="size" value="small" checked onclick="changeEmbed(true)">
 				<input label="${LANG.big}" type="radio" name="size" value="big" onclick="changeEmbed(true)">
+			</span>
+		</div>
+
+		<div>
+			<span>Player:</span>
+			<span class="radio">
+				<input label="Wavesurfer" type="radio" name="player" value="wavesurfer" checked onclick="changeEmbed()">
+				<input label="Simple" type="radio" name="player" value="simple" onclick="changeEmbed()">
+			</span>
+		</div>
+
+		<div style="padding:8px">
+			<span>${LANG.corners_rounding}:</span>
+			<span>
+				<input style="margin-left:5px;vertical-align: middle;" class="form-switch" type="checkbox" name="round" onclick="changeEmbed()" checked>
 			</span>
 		</div>
 

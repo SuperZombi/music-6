@@ -377,6 +377,70 @@ div.ripple {
 	transition: 0.5s;
 }
 
+
+#simple-player{
+	width: calc(100% - 57px);
+	margin: auto;
+	display: inline-block;
+	margin-right: 0;
+	height: 80px;
+	margin-bottom: 5px;
+	user-select: none;
+}
+#simple-player.hide{
+	display: none;
+}
+#simple-player #timeline {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 0 auto;
+	width: 95%;
+	height: 100%;
+}
+#simple-player #timeline .slider {
+	background-color: gray;
+	border-radius: 20px;
+	cursor: pointer;
+	height: 10px;
+	position: relative;
+	width: 100%;
+	transition: 0.2s;
+}
+#simple-player #timeline .slider:hover {
+	height: 14px;
+}
+#simple-player #timeline .slider:hover .progress .pin {
+	height: 14px;
+	width: 14px;
+}
+#simple-player #timeline .slider .progress {
+	background-color: #e74c3c;
+	height: 100%;
+	pointer-events: none;
+	position: absolute;
+	width: 0;
+	border-radius: 20px 0 0 20px;
+	transition: 0.2s;
+}
+#simple-player #timeline .slider .progress .pin {
+	background-color: white;
+	border-radius: 8px;
+	height: 12px;
+	width: 12px;
+	position: absolute;
+	pointer-events: all;
+	right: -7px;
+	top: 50%;
+	transform: translateY(-50%);
+	box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.32);
+	transition: 0.25s ease;
+}
+#simple-player #timeline .slider .progress .pin:active {
+	transform: translateY(-50%) scale(1.5);
+}
+
+
 @media all and (max-width: 500px) {
 	#page{
 		max-width: 100vw;

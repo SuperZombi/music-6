@@ -128,6 +128,26 @@
 						</span>
 					</div>
 					<div class="settings_element">
+						<span>Player:
+							<span style="cursor: help;" class="tooltip">
+								❓
+								<div class="tooltip-body">
+									<img width="300px" src="/root_/images/players_preview.png">
+								</div>
+							</span>
+						</span>
+						<span>
+							<div class="select">
+								<input class="select__input" type="hidden" name="player" onchange="changeSettings(this)">
+								<div class="select__head">${LANG.select}</div>
+								<ul class="select__list">
+									<li class="select__item" value="wavesurfer">Wavesurfer</li>
+									<li class="select__item" value="simple">Simple</li>
+								</ul>
+							</div>
+						</span>
+					</div>
+					<div class="settings_element">
 						<span>${LANG.hard_anim}:<span style="cursor: help;" title="${LANG.hard_anim_prompt}">❓</span></span>
 						<span>
 							<input class="form-switch" type="checkbox" name="hard-anim" onclick="changeSettings(this)" checked>

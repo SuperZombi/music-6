@@ -906,6 +906,7 @@ hr{
 	transition: 0.3s;
 	color: var(--contrast-color);
 	margin-right: 10px;
+	user-select: none;
 }
 #time-current{
 	display: none;
@@ -913,6 +914,7 @@ hr{
 	transition: 0.3s;
 	color: var(--contrast-color);
 	margin-left: 10px;
+	user-select: none;
 }
 
 
@@ -1074,7 +1076,8 @@ hr{
 		content: none;
 	}
 	#play_pause_button::after{
-		top: 50%;
+		top: 90%;
+		left: 0;
 		right: initial;
 		transform: unset;
 	}
