@@ -163,6 +163,10 @@ if (document.querySelector('#main_menu')){
 		window.localStorage.setItem('hard-anim', target.getAttribute("value"))
 		window.location.reload()
 	});
+	initSelectedMenuElement('player', window.localStorage.getItem('player') || "wavesurfer", target=>{
+		window.localStorage.setItem('player', target.getAttribute("value"))
+		exitAllSubMenus()
+	});
 	initSelectedMenuElement('theme', document.documentElement.getAttribute("theme"), (target, old_element)=>{
 		window.localStorage.setItem('theme', target.getAttribute("value"))
 		document.documentElement.setAttribute("theme", target.getAttribute("value"))
