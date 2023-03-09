@@ -260,3 +260,17 @@ function ifFileExist(src, max_retries=5, delay=500){
 		helper()
 	})
 }
+
+function setCookie(name, value, options = {}) {
+	options = {path: '/', ...options};
+	let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+	for (let optionKey in options) {
+		updatedCookie += "; " + optionKey;
+		let optionValue = options[optionKey];
+		updatedCookie += "=" + optionValue;
+	}
+	document.cookie = updatedCookie;
+}
+function deleteCookie(name){
+	setCookie(name, "", {'max-age': -1})
+}

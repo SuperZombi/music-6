@@ -171,7 +171,14 @@ function parseForm(type, form){
 			if (xhr.status == 200){
 				answer = JSON.parse(xhr.response)
 				if (!answer.successfully){
-					notice.Error(get_decode_error(answer.reason))
+					if (answer.reason == "email_already_taken"){
+						let input = form.querySelector('input[name="email"]')
+						input.setCustomValidity(get_decode_error(answer.reason));
+						input.reportValidity();
+						input.onkeydown = _=> input.setCustomValidity('');
+					} else{
+						notice.Error(get_decode_error(answer.reason))
+					}
 				}
 				else{
 					notice.Success("OK")
@@ -200,9 +207,15 @@ function parseForm(type, form){
 				}
 			}
 			else{
-				notice.Success("OK")
 				window.localStorage.setItem("userName", final.name)
 				window.localStorage.setItem("userPassword", final.password)
+				setCookie("userName", final.name)
+				setCookie("userPassword", final.password)
+				if (answer.username){
+					window.localStorage.setItem("userName", answer.username)
+					setCookie("userName", answer.username)
+				}
+				notice.Success("OK")
 				afterLogin()
 			}
 		}

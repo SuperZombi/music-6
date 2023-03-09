@@ -416,13 +416,18 @@ def name_available():
 def register():
 	if "/" in request.json['name'] or "\\" in request.json['name']:
 		return jsonify({'successfully': False, 'reason': Errors.forbidden_character.name})
-	for i in request.json.values():
-		if len(i.strip()) == 0:
+	for key, value in request.json.items():
+		if key == "email":
+			if users.find(email=value):
+				return jsonify({'successfully': False, 'reason': Errors.email_already_taken.name})
+		if len(value.strip()) == 0:
 			return jsonify({'successfully': False, 'reason': Errors.forbidden_character.name})
 	
 	if request.json['name'].lower() == "admin":
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
 	if users.get(request.json['name']):
+		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
+	if users.find(email=request.json['name']):
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
 	try:
 		user_folder = os.path.join("data", request.json['name'].lower().replace(" ", "-"))
@@ -467,7 +472,14 @@ def login():
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
 	x = BrootForceProtection(request.json['name'], request.json['password'], ip, fast_login)()
 	if not x['successfully']:
-		x['reason'] = Errors.incorrect_name_or_password.name
+		identifier = users.find(email=request.json['name'])
+		if identifier:
+			x = BrootForceProtection(identifier, request.json['password'], ip, fast_login)()
+			if x['successfully']:
+				x['username'] = identifier
+				return jsonify(x)
+		else:
+			x['reason'] = Errors.incorrect_name_or_password.name
 	return jsonify(x)
 
 @app.route("/api/reset", methods=["POST"])
@@ -982,6 +994,9 @@ def edit_user_profile():
 	if x['successfully']:
 		user = users.get(request.json['name'])
 		if user:
+			if request.json.get("email"):
+				if request.json.get("email") != user.get("email") and users.find(email=request.json.get("email")):
+					return jsonify({'successfully': False, 'reason': Errors.email_already_taken.name})
 			edit_user(user, request.json)
 			return jsonify({'successfully': True})
 		else:

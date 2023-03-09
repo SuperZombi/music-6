@@ -75,9 +75,21 @@ function loader(){
 }
 
 function logout(){
-	window.localStorage.removeItem("userName")
-	window.localStorage.removeItem("userPassword")
-	goToLogin()
+	if (localStorage.getItem('adminName') && localStorage.getItem('adminPassword')){
+		localStorage.setItem('userName', localStorage.getItem('adminName'))
+		localStorage.setItem('userPassword', localStorage.getItem('adminPassword'))
+		setCookie('userName', localStorage.getItem('adminName'))
+		setCookie('userPassword', localStorage.getItem('adminPassword'))
+		window.localStorage.removeItem("adminName")
+		window.localStorage.removeItem("adminPassword")
+		window.location.reload()
+	} else{
+		window.localStorage.removeItem("userName")
+		window.localStorage.removeItem("userPassword")
+		deleteCookie("userName")
+		deleteCookie("userPassword")
+		goToLogin()	
+	}
 }
 function goToLogin(){
 	let filename = window.location.pathname;
@@ -874,7 +886,16 @@ function saveSettings(){
 		if (xhr.status != 200){ notice.Error(LANG.error) }
 		else{
 			let answer = JSON.parse(xhr.response);
-			if (!answer.successfully){ notice.Error(get_decode_error(answer.reason)) }
+			if (!answer.successfully){
+				if (answer.reason == "email_already_taken"){
+					let input = document.querySelector("#profile-settings > .settings_element input[name=email]");
+					input.setCustomValidity(get_decode_error(answer.reason));
+					input.reportValidity();
+					input.onkeydown = _=> input.setCustomValidity('');
+				} else{
+					notice.Error(get_decode_error(answer.reason))
+				}
+			}
 			else {
 				notice.Success("OK")
 				setTimeout(()=>window.location.reload(), 500)

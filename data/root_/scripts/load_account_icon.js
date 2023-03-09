@@ -17,6 +17,8 @@ if (userName){
 		logout.onclick = _=>{
 			window.localStorage.removeItem('userName')
 			window.localStorage.removeItem('userPassword')
+			deleteCookie("userName")
+			deleteCookie("userPassword")
 			window.location.reload()
 		}
 		menu.appendChild(logout)		

@@ -26,6 +26,11 @@ class Errors(Enum):
 		'ru': "Этот ник уже занят!",
 		"uk": "Це ім'я вже зайняте!"
 	}
+	email_already_taken = {
+		'en': "This email is already taken!",
+		'ru': "Этот email уже занят!",
+		"uk": "Цей email вже зайнятий!"
+	}
 	track_already_exists = {
 		'en': "Track already exists!",
 		'ru': "Трек уже существует!",

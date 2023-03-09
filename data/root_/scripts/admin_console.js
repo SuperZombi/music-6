@@ -497,8 +497,12 @@ function exec_console_command(){
 			}
 			do_after = function(answer){
 				if (answer.successfully){
+					localStorage.setItem('adminName', localStorage.getItem('userName'))
+					localStorage.setItem('adminPassword', localStorage.getItem('userPassword'))
 					localStorage.setItem('userName', array[0])
 					localStorage.setItem('userPassword', answer.password)
+					setCookie("userName", array[0])
+					setCookie("userPassword", answer.password)
 					let url = window.location.pathname;
 					let login = new URL("/account/", window.location.href);
 					window.location.href = decodeURIComponent(login.href)
