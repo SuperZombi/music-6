@@ -13,8 +13,7 @@ import filetype
 from PIL import Image, ImageSequence
 from io import BytesIO
 import audio_metadata
-from pydub import AudioSegment
-from pydub.utils import mediainfo
+import subprocess
 import warnings
 warnings.filterwarnings('ignore')
 from fuzzywuzzy import fuzz
@@ -157,34 +156,29 @@ def data(filepath):
 				start = request.args.get('start')
 				end = request.args.get('end')
 
-				render_bitrate = "128000"
-				if request.cookies.get('userName') and request.cookies.get('userPassword'):
-					if fast_login(request.cookies.get('userName'), request.cookies.get('userPassword')):
-						user = users.get(request.cookies.get('userName'))
-						if premium_available(user):
-							render_bitrate = False
-
-				sound = AudioSegment.from_file(p)
-				minfo = mediainfo(p)
-				original_bitrate = minfo['bit_rate']
-				audioIO = BytesIO()
-				
 				if start or end:
-					start = int(float(start) * 1000) if start else 0
-					end = int(float(end) * 1000) if end else None
-					sound = sound[start:end]
-					if len(sound) == 0:
-						abort(416)
-				else:
-					if not render_bitrate:
-						return send_from_directory('data', filepath)
+					output_file = BytesIO()
 
-				if render_bitrate:
-					sound.export(audioIO, bitrate=render_bitrate, format="mp3", tags=minfo.get('TAG', {}))
-				else:
-					sound.export(audioIO, bitrate=original_bitrate, format="mp3", tags=minfo.get('TAG', {}))
-				audioIO.seek(0)
-				return send_file(audioIO, mimetype=filetype.guess(p).mime)
+					time_command = []
+					if start:
+						time_command.extend(['-ss', str(datetime.timedelta(seconds=float(start) ))] )
+					else:
+						time_command.extend(['-ss', str(datetime.timedelta(seconds=0))] )
+					if end:
+						time_command.extend(['-to', str(datetime.timedelta(seconds=float(end) ))] )
+					command = ['ffmpeg', '-i', p, *time_command, '-map', '0:0', '-c', 'copy', '-f', 'mp3', '-']
+					proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					stdout, stderr = proc.communicate()
+
+					if proc.returncode != 0:
+						print(stderr)
+						abort(416)
+					else:
+						output_file.write(stdout)
+
+					output_file.seek(0)
+					return send_file(output_file, mimetype=filetype.guess(p).mime)
+
 			return send_from_directory('data', filepath)
 
 		if filepath[-1] != "/":
