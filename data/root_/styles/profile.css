@@ -1425,10 +1425,15 @@ details[open] > summary:before {
 	min-height: 100px;
 	z-index: 10;
 	background: var(--body-color);
-	padding: 5px;
+	padding: 10px;
 	border-radius: 5px;
 	box-shadow: 0 0 1px;
 	transition: 0.25s;
+	text-align: left;
+}
+.tooltip .tooltip-body hr{
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 .tooltip:hover .tooltip-body{
 	opacity: 1;

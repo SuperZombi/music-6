@@ -128,11 +128,12 @@
 						</span>
 					</div>
 					<div class="settings_element">
-						<span>Player:
+						<span>${LANG.player}:
 							<span style="cursor: help;" class="tooltip">
 								❓
 								<div class="tooltip-body">
-									<img width="300px" src="/root_/images/players_preview.png">
+									<img width="300px" src="/root_/images/players_preview.png" style="margin-bottom: 6px;">
+									${LANG.player_tooltip}
 								</div>
 							</span>
 						</span>
@@ -141,8 +142,8 @@
 								<input class="select__input" type="hidden" name="player" onchange="changeSettings(this)">
 								<div class="select__head">${LANG.select}</div>
 								<ul class="select__list">
-									<li class="select__item" value="wavesurfer">Wavesurfer</li>
-									<li class="select__item" value="simple">Simple</li>
+									<li class="select__item" value="simple">${LANG.player_simple}</li>
+									<li class="select__item" value="wavesurfer">${LANG.player_wave}</li>
 								</ul>
 							</div>
 						</span>

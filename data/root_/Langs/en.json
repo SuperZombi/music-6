@@ -88,6 +88,11 @@
 	"until_hours": "hours(s)",
 	"account_logins": "Account logins",
 
+	"player": "Player",
+	"player_tooltip": "A minimalistic player loads faster.<hr>«Wave» player needs to download full song to draw waveform and start playing.",
+	"player_simple": "Minimalistic",
+	"player_wave": "Wave",
+
 	"activate_bonus_code": "Activate bonus code",
 	"bonus_code": "Bonus code",
 	"activate": "Activate",
