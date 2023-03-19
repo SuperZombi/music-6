@@ -650,7 +650,7 @@ function delete_(){
 				current_show_obj.remove()
 				hide()
 				if (parent.childElementCount == 0){
-					document.getElementById("empty").innerHTML = empty();
+					document.getElementById("main_page").innerHTML = empty();
 				}
 			}
 		}
@@ -753,6 +753,11 @@ function loadSettings() {
 				else if (i == "phone"){
 					phoneMask.unmaskedValue = data[i];
 				}
+				else if (i == "birth"){
+					let input = document.querySelector(`.settings_element input[name=${i}]`)
+					let isoDateString = data[i].replace(/(\d{2}).(\d{2}).(\d{4})/, "$3-$2-$1");
+					input.value = isoDateString
+				}
 				else{
 					try{
 						let input = document.querySelector(`.settings_element input[name=${i}]`)
@@ -831,6 +836,18 @@ function saveSettings(){
 				}
 			}
 			return;
+		}
+		else if (e.type == "date"){
+			if (e.value){
+				let date = new Date(e.value);
+				let day = date.getDate();
+				let month = date.getMonth() + 1;
+				let year = date.getFullYear();
+				let date_str = `${day.toString().padStart(2, "0")}.${month.toString().padStart(2, "0")}.${year}`;
+				final[e.name] = date_str;
+				final_all[e.name] = date_str;
+				return;
+			}
 		}
 		else if (e.type == "email"){
 			if (e.value.trim() != ""){

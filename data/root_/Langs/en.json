@@ -208,6 +208,7 @@
 	"email": "Email",
 	"phone": "Phone",
 	"gender": "Gender",
+	"birth": "Date of Birth",
 	"man": "Male",
 	"woman": "Female",
 	"user_name_not_defined": "UserName not defined!",

@@ -158,6 +158,13 @@ function parseForm(type, form){
 				final[e.name] = "+" + number;
 			}
 		}
+		else if (e.name == "birth"){
+			let date = new Date(e.value);
+			var day = date.getDate();
+			var month = date.getMonth() + 1;
+			var year = date.getFullYear();
+			final[e.name] = `${day.toString().padStart(2, "0")}.${month.toString().padStart(2, "0")}.${year}`;
+		}
 	})
 
 	if (type == "signup"){
@@ -184,6 +191,8 @@ function parseForm(type, form){
 					notice.Success("OK")
 					window.localStorage.setItem("userName", final.name)
 					window.localStorage.setItem("userPassword", final.password)
+					setCookie("userName", final.name)
+					setCookie("userPassword", final.password)
 					afterLogin()
 				}
 			}

@@ -49,6 +49,9 @@ form{
 	border-bottom: 1px solid var(--contrast-color);
 	outline: none;
 }
+.dark input{
+	color-scheme: dark;
+}
 .group input:-webkit-autofill {
   -webkit-text-fill-color: var(--contrast-color);
   /*-webkit-box-shadow: none;*/

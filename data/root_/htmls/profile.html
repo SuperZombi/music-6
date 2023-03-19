@@ -218,6 +218,20 @@
 						</div>
 					</div>
 
+					<div class="settings_element center-wrap ignore-divide-background">
+						<div class="group">
+							<input type="date" name="birth" max="2300-12-31" min="1800-01-01"/>
+							<span class="bar"></span>
+							<label>${LANG.birth}</label>
+						</div>
+						<div class="switcher">
+							<input id="toggle_birth-off" class="toggle toggle-left" name="toggle_birth" value="false" type="radio" checked>
+							<label for="toggle_birth-off" class="btn" title="${LANG.private}">🔒</label>
+							<input id="toggle_birth-on" class="toggle toggle-right" name="toggle_birth" value="true" type="radio">
+							<label for="toggle_birth-on" class="btn" title="${LANG.public}"><img src="../root_/images/eye.svg"></label>
+						</div>
+					</div>
+
 					<div class="settings_element center-wrap ignore-divide" style="justify-content:space-evenly;">
 						<p style="font-size:18px;">${LANG.favorites_title}:<span style="cursor: help;" title="${LANG.favorites_prompt}">❓</span></p>
 						
