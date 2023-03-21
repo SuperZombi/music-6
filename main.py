@@ -1158,6 +1158,9 @@ def delete_user(user):
 		shutil.rmtree(user_folder)
 		try:
 			users.delete(user)
+			user_tracks = tracks.find_all(artist=user)
+			for i in user_tracks:
+				tracks.delete(i)
 			return True
 		except: None
 	return False
