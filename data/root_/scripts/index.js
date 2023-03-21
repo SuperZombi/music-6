@@ -34,7 +34,7 @@ async function main(){
 		}).then(res => res.json()).then(async answer => {
 			if (answer.successfully && answer.tracks.length > 0){
 				let el = await addNewCategory(LANG.recommend_for_you, answer.tracks, "#", true)
-				el.querySelector(".category_title").style.textAlign = "center"
+				el.classList.add("center")
 				let beta = document.createElement("div")
 				beta.className = "beta"
 				beta.innerHTML = LANG.beta
