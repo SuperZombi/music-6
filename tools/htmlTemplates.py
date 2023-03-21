@@ -28,7 +28,7 @@ def track_index(artist, track, image):
 		<link rel="stylesheet" href="../../root_/styles/main.css">
 		<link rel="stylesheet" href="../../root_/styles/track.css">
 		<link rel="stylesheet" href="../../root_/styles/ripple.css">
-		<link href="https://superzombi.github.io/Notification_JS/notifications.css" rel="stylesheet">
+		<link href="https://superzombi.github.io/Notification_JS/notifications.css" rel="stylesheet" required>
 		<link href="https://superzombi.github.io/Notification_JS/plugins/simplity.css" rel="stylesheet">
 		<script src="https://superzombi.github.io/Notification_JS/notifications.js"></script>
 		<link rel="stylesheet" href="../../root_/styles/fontawesome/css/all.min.css">
