@@ -878,12 +878,14 @@ def change_profile_photo():
 			if user['image']:
 				old_image_path = os.path.normpath(os.path.join(os.path.abspath(user_folder), user['image']))
 				
-				if 'delete' in request.form.keys():
-					user['image'] = None
-					users.save()
-					if os.path.isfile(old_image_path):
-						os.remove(old_image_path)
-						return jsonify({'successfully': True})
+			if 'delete' in request.form.keys():
+				if not user['image']:
+					return jsonify({'successfully': True})
+				user['image'] = None
+				users.save()
+				if os.path.isfile(old_image_path):
+					os.remove(old_image_path)
+					return jsonify({'successfully': True})
 
 			cur_limits = limits
 			if premium_available(user):
