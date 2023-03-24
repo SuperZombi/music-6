@@ -514,14 +514,16 @@ def search():
 		final = []
 		for track in tracks.data:
 			confidence = fuzz.partial_ratio(track['track'].lower(), text.lower())
-			if confidence > 80:
-				final.append(track)
+			if confidence > 66:
+				final.append({'track': track, 'confidence': confidence})
 				continue
-			confidence = fuzz.partial_ratio(track['artist'].lower(), text.lower())
-			if confidence > 80:
-				final.append(track)
+			artist_confidence = fuzz.partial_ratio(track['artist'].lower(), text.lower())
+			if artist_confidence > 75:
+				final.append({'track': track, 'confidence': confidence})
 				continue
-		return final
+		sorted_final = sorted(final, key=lambda x: x["confidence"] , reverse=True)
+		final_tracks = list(map(lambda x: x['track'], sorted_final))
+		return final_tracks
 
 	def search_user(text):
 		final = []
@@ -535,9 +537,10 @@ def search():
 				else:
 					image = f"https://ui-avatars.com/api/?name={user}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
 				
-				temp = {"user": user, "path": user.lower().replace(" ", "-"), "image": image}
+				temp = {"user": user, "path": user.lower().replace(" ", "-"), "image": image, "confidence": confidence}
 				final.append(temp)
-		return final
+		sorted_final = sorted(final, key=lambda x: x["confidence"] , reverse=True)
+		return sorted_final
 
 	def search_genre(text):
 		final = []
