@@ -1407,6 +1407,8 @@ def is_admin():
 								user['advantages'][request.json['what_change']] = parse_boolean(request.json['new_value'])
 							else:
 								del user['advantages'][request.json['what_change']]
+							if "verified_with" in user['advantages'].keys():
+								del user['advantages']["verified_with"]
 						elif request.json['what_change'] == "premium":
 							new_value = None
 							if isinstance(request.json['new_value'], int):
