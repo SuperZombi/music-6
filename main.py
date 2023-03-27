@@ -17,7 +17,7 @@ import subprocess
 import warnings
 warnings.filterwarnings('ignore')
 from fuzzywuzzy import fuzz
-# import re
+import re
 import copy
 from tools.DataBase import DataBase
 from tools.serverErrors import Errors
@@ -1154,6 +1154,20 @@ def bonus_code():
 		y['reason'] = Errors.too_many_wrong_attempts.name
 		return jsonify({'successfully': False, **y})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+
+# def verify_user():
+# 	def get_youtube_links(url):
+# 		r = requests.get(f'{url}/about')
+# 		regex = re.compile(r'"url":"(https:\/\/www\.youtube\.com\/redirect\?event=channel_description.*?)"')
+# 		arr = regex.findall(str(r.content))
+# 		arr = list(map(lambda x: 
+# 						re.findall(r'q=(https:\/\/+.*)',
+# 							requests.utils.unquote(x)
+# 						)
+# 			, arr))
+# 		flat_list = [item for sublist in arr for item in sublist]
+# 		return set(flat_list)
 
 
 
