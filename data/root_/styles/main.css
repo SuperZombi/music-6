@@ -850,8 +850,13 @@ hr{
 	border-radius: 15px;
 	transition: 0.3s;
 	margin: 5px 10px;
+	cursor: pointer;
 }
-.link_button:hover{
+.link_button.disabled{
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+.link_button:not(.disabled):hover{
 	border-radius: 20px;
 	padding: 8px 12px;
 	color: var(--contrast-color);

@@ -239,4 +239,9 @@
 	"confirm_redirect": "Ви впевнені, що хочете перейти за зовнішнім посиланням?",
 	"confirm_redirect_go": "Перейти",
 	"confirm_redirect_back": "Повернутись",
+
+	// Verification
+	"verification_title": "Верифікація",
+	"verification_button": "Підтвердити",
+	"verification_desc": "Для верифікації додайте посилання свого облікового запису Zombi Music %link% на один із вибраних ресурсів:"
 }

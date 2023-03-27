@@ -353,6 +353,10 @@
 	padding: 5px;
 	position: relative;
 }
+.verify_element{
+	background: var(--settings-back);
+	border-radius: 10px;
+}
 .settings_element:first-child{
 	margin-top: unset;
 }
@@ -825,6 +829,21 @@ summary {
 	font-size: 14pt;
 	color: var(--contrast-color);
 }
+#settings_area details {
+	margin: 2px 0;
+}
+#settings_area hr {
+	margin: 0;
+}
+#settings_area code{
+	background: var(--menu-el-hover);
+	color: var(--contrast-color);
+	padding: 4px 6px;
+	border-radius: 10px;
+	box-sizing: border-box;
+	cursor: pointer;
+	line-height: 2em;
+}
 details summary::-webkit-details-marker {
 	display: none;
 }
@@ -834,7 +853,7 @@ summary:before {
 	border-style: solid;
 	border-color: transparent transparent transparent var(--contrast-color);
 	position: absolute;
-	top: 1.3rem;
+	top: 1.1rem;
 	left: 1rem;
 	transform: rotate(0);
 	transform-origin: 0.2rem 50%;

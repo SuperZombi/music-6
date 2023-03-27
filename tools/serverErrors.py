@@ -86,3 +86,11 @@ class Errors(Enum):
 		'ru': "Бонус-код уже использован.",
 		'uk': "Бонус-код вже використано."
 	}
+	invalid_verify_method = {
+		'en': "Invalid verify method"
+	}
+	required_verify_link_not_found = {
+		'en': "Required link for verification not found",
+		'ru': "Необходимая ссылка для верификации не найдена",
+		'uk': "Потрібне посилання для верифікації не знайдено"
+	}

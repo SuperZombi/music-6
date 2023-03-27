@@ -65,9 +65,9 @@ function empty(){
 			¯\\_(ツ)_/¯
 		</h2>`
 }
-function loader(){
+function loader(size=80){
 	return `
-	<svg xmlns="http://www.w3.org/2000/svg" style="display:block;margin:auto;" width="80px" height="80px" viewBox="0 0 100 100">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:block;margin:auto;" width="${size}px" height="${size}px" viewBox="0 0 100 100">
 		<circle cx="50" cy="50" fill="none" stroke="#007EFF" stroke-width="10" r="35" stroke-dasharray="165 57">
 			<animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
 		</circle>
@@ -239,8 +239,13 @@ function getProfileInfo(){
 		let answer = JSON.parse(xhr.response);
 		if (answer.successfully){
 			document.getElementById("user-name").getElementsByTagName('a')[0].href = answer.path
+			let user_path = new URL(answer.path, window.location.href)
+			document.getElementById("verify_desc").innerHTML = LANG.verification_desc.replace("%link%", `<br>(<code onclick="copyElementLink(this)" title=` + LANG.copy + `>${user_path.href}</code>)<br>`)
 			if (answer["is_admin"]){
 				document.getElementById("console-icon").style.display = ""
+			}
+			if (answer["official"]){
+				document.getElementById("verify_zone").style.display = "none"
 			}
 			function timeRemainingToStr(value){
 				var date = new Date(value * 1000);
@@ -620,6 +625,10 @@ function copyToClipboard(text) {
 	document.execCommand('copy');
 	document.body.removeChild(elem);
 }
+function copyElementLink(element){
+	copyToClipboard(element.innerHTML)
+	notice.Success(LANG.copied, 3000)
+}
 function share(){
 	let url = new URL("/" + current_show_obj.getAttribute("data-href"), window.location.href)
 	copyToClipboard(decodeURI(url.href))
@@ -730,6 +739,12 @@ function loadSettings() {
 		Object.keys(data).forEach(function(i){
 			if (i == "social"){
 				for (j in data[i]){
+					if (data[i][j].includes('youtube')){
+						document.querySelector("#youtube_verify").href = data[i][j]
+						document.querySelector("#youtube_verify").innerHTML = `<code style="cursor:alias;">${data[i][j]}</code>`
+						document.querySelector("#youtube_verify_button").classList.remove("disabled")
+						document.querySelector("#youtube_verify_button").onclick = _=>{verify_user('youtube', document.querySelector("#youtube_verify_button"))}
+					}
 					add_social(data[i][j])
 				}
 			}
@@ -1520,4 +1535,52 @@ function purchase(name){
 function getFreeTrial(){
 	document.getElementById("bonus-code-field").value = "FreeTrial"
 	changeTab("bonus-code")
+}
+
+
+function verify_user(method, button){
+	button.onclick = ""
+	button.classList.add("disabled")
+	button.innerHTML = loader(size=20)
+
+	function after_req(result=false){
+		button.classList.remove("disabled")
+		if (result){
+			button.innerHTML = "✔️"
+		} else{
+			button.innerHTML = "❌"
+		}
+		setTimeout(function(){
+			if (result){
+				if (document.querySelector("#verify_zone > details").open){
+					document.querySelector("#verify_zone > details > summary").click()
+				}
+			} else{
+				button.innerHTML = LANG.verification_button
+				button.onclick = _=>{verify_user(method, button)}
+			}
+		}, 2000)
+	}
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", `/api/verify_user`)
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.onload = function() {
+		if (xhr.status == 200){
+			let answer = JSON.parse(xhr.response);
+			if (answer.successfully){
+				after_req(true)
+				return
+			}
+			else{
+				notice.Error(get_decode_error(answer.reason))
+			}
+		}
+		after_req()
+	}
+	xhr.send(JSON.stringify({
+		'user': local_storage.userName,
+		'password': local_storage.userPassword,
+		"method": method
+	}))
 }

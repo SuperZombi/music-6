@@ -9,6 +9,7 @@ import requests
 from flask_cors import CORS
 import json
 from user_agents import parse as ua_parse
+from urllib.parse import urlparse
 import filetype
 from PIL import Image, ImageSequence
 from io import BytesIO
@@ -339,6 +340,16 @@ def register_user(data):
 
 def edit_user(user, data):
 	for i in data.keys():
+		if i == "social":
+			if user.get('advantages'):
+				if user['advantages'].get('verified_with'):
+					socials = user.get('social', [])
+					old_link = next((link for link in socials if user['advantages'].get('verified_with') in link), "")
+					new_link = next((link for link in data[i] if user['advantages'].get('verified_with') in link), "")
+					if old_link != new_link:
+						del user['advantages']["official"]
+						del user['advantages']["verified_with"]
+
 		if i == "name" or i == "password" or i == "public_fields":
 			pass
 		else:
@@ -953,8 +964,11 @@ def get_profile_info():
 			if user['role'] == 'banned' and "banned_until" in user.keys():
 				answer['banned'] = user["banned_until"]
 
-		if 'advantages' in user.keys() and 'premium' in user['advantages'].keys():
-			answer['premium'] = user['advantages']['premium']
+		if 'advantages' in user.keys():
+			if 'premium' in user['advantages'].keys():
+				answer['premium'] = user['advantages']['premium']
+			if 'official' in user['advantages'].keys():
+				answer['official'] = user['advantages']['official']
 
 		if 'used_bonus_codes' in user.keys():
 			if "FREETRIAL" in user['used_bonus_codes']:
@@ -996,7 +1010,11 @@ def get_user_profile_public():
 				except: pass
 			answer["public_fields"] = public_fields;
 		if "advantages" in temp.keys():
-			answer["advantages"] = temp["advantages"]
+			answer["advantages"] = {}
+			for key, item in temp["advantages"].items():
+				if key == "verified_with": None
+				else:
+					answer["advantages"][key] = item
 		if "social" in temp.keys():
 			answer["social"] = temp["social"]
 		return jsonify({'successfully': True, **answer})
@@ -1155,20 +1173,52 @@ def bonus_code():
 		return jsonify({'successfully': False, **y})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
+@app.route('/api/verify_user', methods=['POST'])
+def verify_user():
+	def get_youtube_links(url):
+		r = requests.get(f'{url}/about')
+		regex = re.compile(r'"url":"(https:\/\/www\.youtube\.com\/redirect\?event=channel_description.*?)"')
+		arr = regex.findall(str(r.content))
+		arr = list(map(lambda x: 
+						re.findall(r'q=(https:\/\/+.*)',
+							requests.utils.unquote(x)
+						)
+			, arr))
+		flat_list = [item for sublist in arr for item in sublist]
+		return set(flat_list)
 
-# def verify_user():
-# 	def get_youtube_links(url):
-# 		r = requests.get(f'{url}/about')
-# 		regex = re.compile(r'"url":"(https:\/\/www\.youtube\.com\/redirect\?event=channel_description.*?)"')
-# 		arr = regex.findall(str(r.content))
-# 		arr = list(map(lambda x: 
-# 						re.findall(r'q=(https:\/\/+.*)',
-# 							requests.utils.unquote(x)
-# 						)
-# 			, arr))
-# 		flat_list = [item for sublist in arr for item in sublist]
-# 		return set(flat_list)
+	user = users.get(request.json['user'])
+	if user:
+		ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+		x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+		if x['successfully']:
+			if 'advantages' in user.keys() and user['advantages'].get("official"):
+				return jsonify({'successfully': True})
 
+			def convert_url(url):
+				return urlparse(url)._replace(scheme='').geturl().strip("/")
+
+			if request.json['method'] == "youtube":
+				socials = user.get('social')
+				if socials:
+					youtube_link = next((link for link in socials if "youtube.com" in link), None)
+					if youtube_link:
+						user_links = get_youtube_links(youtube_link)
+						required_link = convert_url(request.url_root + user.get('path'))
+						result = next((True for i in user_links if convert_url(i) == required_link), False)
+						if result:
+							if not 'advantages' in user.keys():
+								user['advantages'] = {}
+							user['advantages']["official"] = True
+							user['advantages']["verified_with"] = "youtube"
+							users.save()
+							return jsonify({'successfully': True})
+
+				return jsonify({'successfully': False, 'reason': Errors.required_verify_link_not_found.name})
+			else:
+				return jsonify({'successfully': False, 'reason': Errors.invalid_verify_method.name})
+
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
 
 def delete_user(user):

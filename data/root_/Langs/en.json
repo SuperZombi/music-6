@@ -236,4 +236,9 @@
 	"confirm_redirect": "Are you sure you want to follow an external link?",
 	"confirm_redirect_go": "Go to Site",
 	"confirm_redirect_back": "Come Back",
+
+	// Verification
+	"verification_title": "Verification",
+	"verification_button": "Verify",
+	"verification_desc": "For verification, add a link to your Zombi Music account %link% to one of the selected resources:"
 }
