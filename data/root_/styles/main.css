@@ -537,14 +537,13 @@ hr{
 
 .config_link{
 	display: inline-block;
-	margin-top: 50px;
 	font-family: sans-serif;
 	font-size: 13pt;
 	color: var(--contrast-color);
 	border-bottom: 1px dashed var(--contrast-color);
 	padding-bottom: 1px;
 	text-decoration: none;
-	transition: 0.3s;
+	transition: 0.2s;
 }
 .config_link:hover{
 	color: blue;

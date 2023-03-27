@@ -7,6 +7,7 @@
 	"all": "All tracks",
 	"last_upd": "Last Updates",
 	"recommend_for_you": "Recommend for you",
+	"help": "Help",
 
 	"main_link": "Home",
 	"track": "Track",
@@ -240,5 +241,6 @@
 	// Verification
 	"verification_title": "Verification",
 	"verification_button": "Verify",
+	"verification_empty": "Firstly, add a link to your social net",
 	"verification_desc": "For verification, add a link to your Zombi Music account %link% to one of the selected resources:"
 }

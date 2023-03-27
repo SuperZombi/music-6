@@ -10,6 +10,7 @@
 	"all": "Все треки",
 	"last_upd": "Новинки",
 	"recommend_for_you": "Для вас",
+	"help": "Помощь",
 
 	"main_link": "Главная",
 	"track": "Трек",
@@ -243,5 +244,6 @@
 	// Verification
 	"verification_title": "Верификация",
 	"verification_button": "Подтвердить",
+	"verification_empty": "Для начала, добавьте ссылку на свою соцсеть",
 	"verification_desc": "Для верификации добавьте ссылку своего аккаунта Zombi Music %link% на один из выбранных ресурсов:"
 }
