@@ -851,6 +851,7 @@ hr{
 	transition: 0.3s;
 	margin: 5px 10px;
 	cursor: pointer;
+	user-select: none;
 }
 .link_button.disabled{
 	cursor: not-allowed;

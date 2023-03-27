@@ -1563,7 +1563,7 @@ function verify_user(method, button){
 	}
 
 	let xhr = new XMLHttpRequest();
-	xhr.open("POST", `/api/verify_user`)
+	xhr.open("POST", '/api/verify_user', true)
 	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 	xhr.onload = function() {
 		if (xhr.status == 200){
