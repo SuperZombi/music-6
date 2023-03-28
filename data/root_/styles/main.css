@@ -637,9 +637,13 @@ hr{
 .center > .category_body{
 	text-align: center;
 }
+.artist_image_container{
+	position: relative;
+	display: inline-block;
+}
 .artist_image_wrapper{
 	position: relative;
-	display: flex;
+	display: inline-flex;
 	justify-content: center;
 	border-radius: 50%;
 	overflow: hidden;
@@ -655,6 +659,23 @@ hr{
 	max-height: 100%;
 	border-radius: 50%;
 	object-fit: cover;
+}
+#online-marker{
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	top: 75%;
+	right: 0;
+	border: 5px solid;
+}
+#online-marker.online{
+	background: lime;
+	background: linear-gradient(320deg, rgba(0,128,0,1) 0%, rgba(0,255,0,1) 95%);
+}
+#online-marker.offline{
+	background: #c80000;
+	background: linear-gradient(320deg, rgba(150,0,0,1) 0%, rgba(255,0,0,1) 75%);
 }
 
 
@@ -1039,6 +1060,10 @@ hr{
 	#artist_image{
 		min-height: 150px;
 		min-width: 150px;
+	}
+	#online-marker{
+		width: 20px;
+		height: 20px;
 	}
 }
 
