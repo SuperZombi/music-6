@@ -445,7 +445,7 @@ def register():
 		if len(value.strip()) == 0:
 			return jsonify({'successfully': False, 'reason': Errors.forbidden_character.name})
 	
-	if request.json['name'].lower() == "admin":
+	if request.json['name'].lower() == "admin" or request.json['name'].lower() == "system":
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
 	if users.get(request.json['name']):
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})

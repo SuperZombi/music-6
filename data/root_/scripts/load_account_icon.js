@@ -78,7 +78,11 @@ document.querySelectorAll(".menu-area").forEach(menuArea =>{
 			el.prepend(back)
 		}
 	})
-	menuArea.querySelectorAll(".menu, .submenu").forEach(menu=>{
+	let submenus = menuArea.querySelectorAll(".menu, .submenu");
+	setTimeout(_=>{
+		menuArea.style.minWidth = Math.max(...Array.from(submenus).map(x=>x.scrollWidth)) + "px"
+	}, 1)
+	submenus.forEach(menu=>{
 		menu.querySelectorAll("li[submenu]").forEach(sub=>{
 			let target = menuArea.querySelector(`.submenu[name=${sub.getAttribute("submenu")}]`)
 			sub.onclick = _=>{
@@ -89,7 +93,7 @@ document.querySelectorAll(".menu-area").forEach(menuArea =>{
 			target.addEventListener('submenu_close', _=> {
 				menu.style.filter = ""
 				target.style.left = ""
-				menuArea.style.minHeight = ""
+				menuArea.style.minHeight = menu.scrollHeight + "px"
 			});
 		})
 		menu.querySelectorAll("li[href]").forEach(li=>{
@@ -107,15 +111,16 @@ document.querySelectorAll(".menu-area").forEach(menuArea =>{
 	})
 })
 function exitAllSubMenus(){
-	document.querySelector("#main_menu").querySelectorAll(".menu, .submenu").forEach(menu=>{
+	document.querySelector("#main_menu").querySelectorAll(".submenu").forEach(menu=>{
 		menu.dispatchEvent(new Event('submenu_close'));
+		document.querySelector("#main_menu").style.minHeight = ""
 	})
 }
 function initSelectedMenuElement(li_name, html_atribute, change_handler){
 	function update_changes(element, selected_){
 		element.querySelector(".helper").innerHTML = selected_.textContent
 	}
-	let main_el = document.querySelector(`#main_menu .menu li[submenu='${li_name}']`)
+	let main_el = document.querySelector(`#main_menu li[submenu='${li_name}']`)
 	let submenu = document.querySelector(`#main_menu .submenu[name='${li_name}']`)
 	let selected = submenu.querySelector(`li[value="${html_atribute}"]`)
 	main_el.innerHTML += `: <span class='helper'>${selected.textContent}</span>`

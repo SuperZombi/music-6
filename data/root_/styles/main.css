@@ -468,6 +468,7 @@ hr{
 	transition: left 0.5s, background 1s;
 	top: 0;
 	left: -100%;
+	min-width: fit-content;
 }
 .back_button{
 	background: lightgrey;
