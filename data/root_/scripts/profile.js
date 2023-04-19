@@ -774,10 +774,14 @@ function loadSettings() {
 					input.value = isoDateString
 				}
 				else{
-					try{
-						let input = document.querySelector(`.settings_element input[name=${i}]`)
-						input.value = data[i];
-					}catch{}
+					let input = document.querySelector(`.settings_element input[name=${i}]`)
+					if (input){
+						if (input.type == "checkbox"){
+							input.checked = data[i];
+						} else{
+							input.value = data[i];
+						}
+					}
 				}
 				if ("public_fields" in data){
 					if (data.public_fields.includes(i)){
@@ -850,6 +854,11 @@ function saveSettings(){
 					final.public_fields.push(e.name.replace("toggle_", ""));
 				}
 			}
+			return;
+		}
+		else if (e.type == "checkbox"){
+			final[e.name] = e.checked;
+			final_all[e.name] = e.checked;
 			return;
 		}
 		else if (e.type == "date"){

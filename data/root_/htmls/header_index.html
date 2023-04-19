@@ -19,6 +19,8 @@
 		</svg>
 	</a>
 
+	<div class="notification-dot" style="display:none;"></div>
+
 	<div id="account_popup">
 		<div class="menu-area" id="main_menu">
 			<div class="back_button">
@@ -37,6 +39,11 @@
 				<li submenu="settings">
 					<i class="fa-solid fa-gear"></i>
 					${LANG.settings}
+				</li>
+				<li href="account/messenger" >
+					<i class="fa-solid fa-bell"></i>
+					${LANG.notifications}
+					<span class="helper" style="color: red; font-weight: bold;" id="notification-count"></span>
 				</li>
 			</ul>
 

@@ -486,6 +486,17 @@ hr{
 	color: lightgrey;
 }
 
+.myAccountElement .notification-dot{
+	width: 10px;
+	height: 10px;
+	background: red;
+	border-radius: 50px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform: translate(50%, 50%);
+}
+
 
 #limits{
 	border: 2px solid var(--contrast-color);

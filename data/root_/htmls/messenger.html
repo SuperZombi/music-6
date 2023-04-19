@@ -1,0 +1,44 @@
+<div id="notifications"></div>
+
+<div id="new-chat-popup">
+	<h2>${LANG.new_chat}</h2>
+	<input type="text" placeholder="${LANG.user_name}">
+	<div role="button" class="expanding-link" style="font-size: 14pt;">OK</div>
+</div>
+
+<div id="chats-wrapper">
+	<div id="chats" class="show">
+		<div class="chat" id="askNewChat">
+			<div class="chat-icon"><img src="/root_/images/plus.svg"></div>
+			<div class="chat-name">${LANG.new_chat}</div>
+		</div>
+	</div>
+
+	<div id="chat-body">
+		<div id="chat-info">
+			<div id="back-button">
+				<i class="fa fa-arrow-left"></i>
+			</div>
+			<a class="url" target="_blank">
+				<div class="chat-icon"><img src=""></div>
+				<div class="chat-name"></div>
+			</a>
+		</div>
+
+		<div id="messages-container">
+			<div id="messages"></div>
+			<div id="scroll-bottom">
+				<i class="fa fa-circle-arrow-down"></i>
+			</div>
+		</div>
+
+		<div class="chat-input">
+			<textarea id="message-input" type="text" placeholder="${LANG.write_message_placeholder}"></textarea>
+			<div id="send" class="disabled">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 173.64 149.826">
+				  <path d="M163.299 59.426 23.199 1.289A16.767 16.767 0 0 0 .528 20.924l12.471 48.901h61.053a5.0875 5.0875 0 0 1 0 10.175H12.999L.529 128.9a16.768 16.768 0 0 0 22.67 19.632l140.1-58.132a16.767 16.767 0 0 0 0-30.974Z"/>
+				</svg>
+			</div>
+		</div>
+	</div>
+</div>

@@ -240,6 +240,18 @@
 	"confirm_redirect": "Ви впевнені, що хочете перейти за зовнішнім посиланням?",
 	"confirm_redirect_go": "Перейти",
 	"confirm_redirect_back": "Повернутись",
+	
+	// Messenger
+	"messenger": "Месенджер",
+	"receive_messages": "Отримувати повідомлення",
+	"notifications": "Повідомлення",
+	"failed_send_message": "Неможливо відправити повідомлення",
+	"user_not_found": "Користувач не знайдений",
+	"saved_messages": "Збережені повідомлення",
+	"new_chat": "Новий чат",
+	"user_name": "Ім'я користувача",
+	"write_message": "Написати повідомлення",
+	"write_message_placeholder": "Напишіть повідомлення",
 
 	// Verification
 	"verification_title": "Верифікація",

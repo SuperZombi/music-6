@@ -231,6 +231,11 @@ function buildAbout(arr){
 			td1.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-phone"></i>')
 			td2.innerHTML = `<a href="tel:${arr[e]}">${arr[e]}</a>`
 		}
+		else if (e == "receive-messages"){
+			td1.innerHTML = LANG.messenger;
+			td1.insertAdjacentHTML("afterbegin", '<i class="fa-solid fa-message"></i>')
+			td2.innerHTML = `<a href="/account/messenger?new-chat#${ARTIST}" target="_blank">${LANG.write_message}</a>`
+		}
 	})
 }
 

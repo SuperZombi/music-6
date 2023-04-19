@@ -7,6 +7,7 @@ from dateutil import parser as dataparse
 from flask import Flask, request, jsonify, send_from_directory, send_file, abort, redirect, Response
 import requests
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 import json
 from user_agents import parse as ua_parse
 from urllib.parse import urlparse
@@ -28,6 +29,7 @@ from textwrap import dedent
 import random
 import math
 from threading import Thread
+import sqlite3
 from tools import predict_ai
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -1004,6 +1006,7 @@ def get_user_profile_public():
 		temp = dict(user)
 		answer = {}
 		public_fields = {}
+		public_fields["receive-messages"] = user.get("receive-messages", True)
 		if "public_fields" in temp.keys():
 			for i in temp["public_fields"]:
 				try: public_fields[i] = temp[i]
@@ -1017,6 +1020,7 @@ def get_user_profile_public():
 					answer["advantages"][key] = item
 		if "social" in temp.keys():
 			answer["social"] = temp["social"]
+
 		return jsonify({'successfully': True, **answer})
 	else:
 		return jsonify({'successfully': False, 'reason': Errors.user_dont_exist.name})
@@ -1172,6 +1176,116 @@ def bonus_code():
 		y['reason'] = Errors.too_many_wrong_attempts.name
 		return jsonify({'successfully': False, **y})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+
+
+@app.route('/api/messenger/get_chats', methods=['POST'])
+def get_chats():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		def get_chat_image(chat):
+			user = users.get(chat)
+			if user and user.get('image'):
+				user_folder_public = chat.lower().replace(" ", "-")
+				return os.path.join(request.origin, os.path.normpath(os.path.join(user_folder_public, user.get('image')))).replace("\\", "/") + "?size=small"
+			else:
+				return f"https://ui-avatars.com/api/?name={chat}&length=1&color=fff&background=random&bold=true&format=svg&size=512"
+
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+				SELECT DISTINCT CASE
+					WHEN from_user = '{request.json['user']}' THEN to_user
+					ELSE from_user
+				END AS chat_user,
+				SUM(CASE WHEN is_read = 0 AND to_user = '{request.json['user']}' THEN 1 ELSE 0 END) AS unread_messages_count
+				FROM messages
+				WHERE '{request.json['user']}' IN (from_user, to_user)
+				GROUP BY chat_user;
+			''')
+			results = cursor.fetchall()
+			result_array = [{"chat_name": t[0],
+							"unread_messages_count": t[1],
+							"readOnly": t[0].lower() == "admin" or t[0].lower() == "system",
+							"chat_image": get_chat_image(t[0])} for t in results]
+			return jsonify({'successfully': True, 'chats': result_array})
+		
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+@app.route('/api/messenger/get_messages', methods=['POST'])
+def get_messages():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		chat_name = request.json['chat']
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+				SELECT * FROM messages
+				WHERE (from_user = '{request.json['user']}' AND to_user = '{chat_name}')
+				OR (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
+			''')
+			results = cursor.fetchall()
+			column_names = [column[0] for column in cursor.description]
+			result_array = [dict(zip(column_names, row)) for row in results]
+			cursor.execute(f'''
+				UPDATE messages
+				SET is_read = 1
+				WHERE (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
+			''')
+			return jsonify({'successfully': True, 'messages': result_array})
+		
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+@app.route('/api/messenger/send_message', methods=['POST'])
+def send_message():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		user = users.get(request.json['user'])
+		if is_banned(user):
+			return jsonify({'successfully': False, 'reason': Errors.you_are_banned.name})
+
+		chat_name = request.json['chat']
+		if chat_name.lower() == "admin" or chat_name.lower() == "system":
+			return jsonify({'successfully': False, 'reason': Errors.user_dont_exist.name})
+		target_user = users.get(chat_name)
+		if not target_user:
+			return jsonify({'successfully': False, 'reason': Errors.user_dont_exist.name})
+		if not target_user.get("receive-messages", True):
+			return jsonify({'successfully': False, 'reason': Errors.prohibition_sending_messages.name})
+
+		message = request.json['message']
+		time_now = int(time.time())
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+				INSERT INTO messages (from_user, to_user, message, time)
+				VALUES ('{request.json['user']}', '{chat_name}', '{message}', '{time_now}');
+			''')
+			cursor.execute(f'''
+				UPDATE messages
+				SET is_read = 1
+				WHERE (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
+			''')
+			conn.commit()
+
+			msg = {
+				"from_user": request.json['user'],
+				"chat": chat_name,
+				"message": message,
+				"time": time_now
+			}
+
+			sid = socket_users.get(chat_name, None)
+			if sid:
+				emit('new_message', msg, namespace='/', broadcast=True, room=sid)
+			return jsonify({'successfully': True, "message": msg})
+		
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+
 
 @app.route('/api/verify_user', methods=['POST'])
 def verify_user():
@@ -1477,6 +1591,25 @@ def is_admin():
 	return jsonify({'successfully': False, 'reason': "user_not_admin"})
 
 
+socketio = SocketIO(app, path='/api/messenger/socket.io')
+
+socket_users = {}
+
+@socketio.on('connect')
+def handle_connect():
+	username = request.cookies.get("userName")
+	socket_users[username] = request.sid
+
+@socketio.on('disconnect')
+def handle_disconnect():
+	key = list(filter(lambda i: socket_users[i]==request.sid, socket_users))
+	if key:
+		key = key.pop()
+		del socket_users[key]
+
+
+
 if __name__ == '__main__':
+	print("Running...")
 	# app.run(debug=True)
-	app.run(host='0.0.0.0', port='80')
+	socketio.run(app, host='0.0.0.0', port=80)

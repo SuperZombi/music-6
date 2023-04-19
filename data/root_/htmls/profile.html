@@ -18,6 +18,11 @@
 			<span class="menu-text">${LANG.statistics}</span>
 		</div>
 
+		<a class="menu-element" href="messenger" title="${LANG.messenger}">
+			<span class="menu-icon">💬</span>
+			<span class="menu-text">${LANG.messenger}</span>
+		</a>
+
 		<div class="menu-element" data="premium" title="${LANG.premium}">
 			<span class="menu-icon">👑</span>
 			<span class="menu-text">${LANG.premium}</span>
@@ -232,7 +237,7 @@
 						</div>
 					</div>
 
-					<div class="settings_element center-wrap ignore-divide" style="justify-content:space-evenly;">
+					<div class="settings_element center-wrap" style="justify-content:space-evenly;">
 						<p style="font-size:18px;">${LANG.favorites_title}:<span style="cursor: help;" title="${LANG.favorites_prompt}">❓</span></p>
 						
 						<div class="switcher">
@@ -240,6 +245,13 @@
 							<label for="toggle_favorites-off" class="btn" title="${LANG.private}">🔒</label>
 							<input id="toggle_favorites-on" class="toggle toggle-right" name="toggle_favorites" value="true" type="radio">
 							<label for="toggle_favorites-on" class="btn" title="${LANG.public}"><img src="../root_/images/eye.svg"></label>
+						</div>
+					</div>
+
+					<div class="settings_element center-wrap" style="justify-content:space-evenly;">
+						<p style="font-size:18px;">${LANG.receive_messages}:</p>
+						<div class="switcher">
+							<input class="form-switch" type="checkbox" name="receive-messages"checked>
 						</div>
 					</div>
 				</div>

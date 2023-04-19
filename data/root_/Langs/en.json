@@ -238,6 +238,18 @@
 	"confirm_redirect_go": "Go to Site",
 	"confirm_redirect_back": "Come Back",
 
+	// Messenger
+	"messenger": "Messenger",
+	"receive_messages": "Receive messages",
+	"notifications": "Notifications",
+	"failed_send_message": "Failed to send message",
+	"user_not_found": "User is not found",
+	"saved_messages": "Saved messages",
+	"new_chat": "New chat",
+	"user_name": "User name",
+	"write_message": "Write a message",
+	"write_message_placeholder": "Write a message",
+
 	// Verification
 	"verification_title": "Verification",
 	"verification_button": "Verify",

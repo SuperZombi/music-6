@@ -196,3 +196,30 @@ function initMenuIcons(){
 	})
 }
 initMenuIcons()
+
+function get_notifications(){
+	let userName = localStorage.getItem('userName')
+	let userPassword = localStorage.getItem('userPassword')
+	if (userName && userPassword){
+		let xhr = new XMLHttpRequest();
+		xhr.open("POST", '/api/messenger/get_chats')
+		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+		xhr.onload = function() {
+			if (xhr.status == 200){ 
+				let answer = JSON.parse(xhr.response);
+				if (answer.successfully){
+					const chatsWithUnreadMessages = answer.chats.filter(chat => chat.unread_messages_count > 0);
+					if (chatsWithUnreadMessages.length > 0){
+						document.querySelector(".notification-dot").style.display = "block"
+						document.querySelector("#notification-count").innerHTML = chatsWithUnreadMessages.length
+					}
+				}
+			}
+		}
+		xhr.send(JSON.stringify({
+			'user': userName,
+			'password': userPassword
+		}))	
+	}
+}
+get_notifications()

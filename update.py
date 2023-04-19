@@ -1,7 +1,7 @@
 import os
 import shutil
 server_current = ""
-server_updates = "music-5"
+server_updates = "music-6"
 
 for dname, dirs, files in os.walk(server_updates):
 	for fname in files:

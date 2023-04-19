@@ -146,11 +146,18 @@
 	padding: 10px 40px;
 	transition: 0.35s;
 }
-#about table tr td:first-child { text-transform: capitalize; }
+#about table tr td:first-child {
+	text-transform: capitalize;
+	text-align: left;
+	white-space: nowrap;
+}
 #about table tr:last-child td { border-bottom: none; }
 #about table td:last-child { border-right: none; }
 
-#about table td i { margin-right: 5px; }
+#about table td i {
+	width: 35px;
+	text-align: center;
+}
 #about table td a {
 	text-decoration: none;
 	transition: 0.35s;
@@ -198,7 +205,7 @@
 		height: 36px;
 	}
 	#about table td{
-		padding: 8px 15px;
+		padding: 8px 10px;
 	}
 	.social_area{
 		width: 90%;

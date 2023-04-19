@@ -240,6 +240,18 @@
 	"confirm_redirect": "Вы уверены, что хотите перейти по внешней ссылке?",
 	"confirm_redirect_go": "Перейти",
 	"confirm_redirect_back": "Вернуться",
+	
+	// Messenger
+	"messenger": "Мессенджер",
+	"receive_messages": "Получать сообщения",
+	"notifications": "Уведомления",
+	"failed_send_message": "Не удалось отправить сообщение",
+	"user_not_found": "Пользователь не найден",
+	"saved_messages": "Сохранённые сообщения",
+	"new_chat": "Новый чат",
+	"user_name": "Имя Пользователя",
+	"write_message": "Написать сообщение",
+	"write_message_placeholder": "Напишите сообщение",
 
 	// Verification
 	"verification_title": "Верификация",

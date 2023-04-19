@@ -89,6 +89,9 @@ class Errors(Enum):
 	invalid_verify_method = {
 		'en': "Invalid verify method"
 	}
+	prohibition_sending_messages = {
+		'en': "Prohibition of sending messages"
+	}
 	required_verify_link_not_found = {
 		'en': "Required link for verification not found",
 		'ru': "Необходимая ссылка для верификации не найдена",
