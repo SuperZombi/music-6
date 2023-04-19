@@ -48,6 +48,19 @@ bonus_codes = {
 }
 bonus_codes = {k.upper(): v for k, v in bonus_codes.items()}
 
+with sqlite3.connect('database/messages.db') as conn:
+	c = conn.cursor()
+	c.execute('''
+	    CREATE TABLE IF NOT EXISTS "messages" (
+			"from_user" TEXT NOT NULL,
+			"to_user"   TEXT NOT NULL,
+			"message"   TEXT,
+			"time"      NUMERIC,
+			"is_read"   INTEGER DEFAULT 0
+		);
+	''')
+	conn.commit()
+
 
 def refit_ai():
 	predict_ai.init("database/users.bd", "database/tracks.bd")
