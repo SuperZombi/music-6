@@ -212,6 +212,7 @@ function get_notifications(){
 					if (chatsWithUnreadMessages.length > 0){
 						document.querySelector(".notification-dot").style.display = "block"
 						document.querySelector("#notification-count").innerHTML = chatsWithUnreadMessages.length
+						document.querySelector("#notification-count").style.visibility = "visible"
 					}
 				}
 			}

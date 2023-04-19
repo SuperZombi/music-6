@@ -486,11 +486,23 @@ hr{
 	color: lightgrey;
 }
 
-.myAccountElement .notification-dot{
+.notification-dot{
+	color: white;
+	background: red;
+	width: 18px;
+	height: 18px;
+	font-size: 15px !important;
+	font-weight: bold;
+	font-family: monospace;
+	border-radius: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.myAccountElement .notification-dot.floating{
 	width: 10px;
 	height: 10px;
-	background: red;
-	border-radius: 50px;
 	position: absolute;
 	top: 0;
 	right: 0;

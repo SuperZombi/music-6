@@ -136,6 +136,7 @@
 	margin: 2px 5px;
 	position: relative;
 	overflow: hidden;
+	align-items: center;
 }
 #menu .menu-element:before{
 	content: '';
@@ -1460,6 +1461,11 @@ details[open] > summary:before {
 .tooltip:hover .tooltip-body{
 	opacity: 1;
 	visibility: visible;
+}
+
+#notification-count{
+	margin-left: auto;
+	visibility: hidden;
 }
 
 

@@ -225,6 +225,28 @@ async function submain() {
 
 	initTabs();
 	get_limits();
+	get_notifications();
+}
+function get_notifications(){
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", '/api/messenger/get_chats')
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.onload = function() {
+		if (xhr.status == 200){ 
+			let answer = JSON.parse(xhr.response);
+			if (answer.successfully){
+				const chatsWithUnreadMessages = answer.chats.filter(chat => chat.unread_messages_count > 0);
+				if (chatsWithUnreadMessages.length > 0){
+					document.querySelector("#notification-count").innerHTML = chatsWithUnreadMessages.length
+					document.querySelector("#notification-count").style.visibility = "visible"
+				}
+			}
+		}
+	}
+	xhr.send(JSON.stringify({
+		'user': local_storage.userName,
+		'password': local_storage.userPassword
+	}))
 }
 
 function getProfileInfo(){

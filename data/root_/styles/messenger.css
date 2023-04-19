@@ -67,16 +67,8 @@ html{
 	border-radius: 50%;
 }
 #chats .chat .notification-dot{
-	width: 20px;
-	height: 20px;
-	border-radius: 50%;
-	background: red;
 	position: absolute;
 	right: 5px;
-	font-family: monospace;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 }
 #chats .chat .notification-dot.hidden{
 	opacity: 0;

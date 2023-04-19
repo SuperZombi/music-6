@@ -52,8 +52,8 @@ bonus_codes = {k.upper(): v for k, v in bonus_codes.items()}
 with sqlite3.connect('database/messages.db') as conn:
 	c = conn.cursor()
 	c.execute('''
-	    CREATE TABLE IF NOT EXISTS "messages" (
-	    	"id"        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		CREATE TABLE IF NOT EXISTS "messages" (
+			"id"        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			"from_user" TEXT NOT NULL,
 			"to_user"   TEXT NOT NULL,
 			"message"   TEXT,
@@ -513,7 +513,7 @@ def login():
 			ua = ua_parse(request.headers.get('User-Agent'))
 			ua_device = ua.is_pc and "PC" or ua.device.family
 			ua_os = ("%s %s" % (ua.os.family, ua.os.version_string)).strip()
-			location = get_ip_info_location('178.217.208.3')
+			location = get_ip_info_location(ip)
 			loc = ", ".join([location.get('city'), location.get('country')])
 			send_system_message(request.json['name'], systemMessage.login.value.format(
 				system=ua_os, device=ua_device, location=loc)
