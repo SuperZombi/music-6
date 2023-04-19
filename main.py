@@ -24,6 +24,7 @@ import copy
 from tools.DataBase import DataBase
 from tools.serverErrors import Errors
 from tools.BrootForceProtection import BrootForceProtection
+from tools.systemMessages import systemMessage
 import tools.htmlTemplates as htmlTemplates
 from textwrap import dedent
 import random
@@ -52,6 +53,7 @@ with sqlite3.connect('database/messages.db') as conn:
 	c = conn.cursor()
 	c.execute('''
 	    CREATE TABLE IF NOT EXISTS "messages" (
+	    	"id"        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			"from_user" TEXT NOT NULL,
 			"to_user"   TEXT NOT NULL,
 			"message"   TEXT,
@@ -506,13 +508,28 @@ def fast_login(user, password):
 
 @app.route("/api/login", methods=["POST"])
 def login():
+	def send_message():
+		try:
+			ua = ua_parse(request.headers.get('User-Agent'))
+			ua_device = ua.is_pc and "PC" or ua.device.family
+			ua_os = ("%s %s" % (ua.os.family, ua.os.version_string)).strip()
+			location = get_ip_info_location('178.217.208.3')
+			loc = ", ".join([location.get('city'), location.get('country')])
+			send_system_message(request.json['name'], systemMessage.login.value.format(
+				system=ua_os, device=ua_device, location=loc)
+			)
+		except: None
+
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
 	x = BrootForceProtection(request.json['name'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		send_message()
 	if not x['successfully']:
 		identifier = users.find(email=request.json['name'])
 		if identifier:
 			x = BrootForceProtection(identifier, request.json['password'], ip, fast_login)()
 			if x['successfully']:
+				send_message()
 				x['username'] = identifier
 				return jsonify(x)
 		else:
@@ -1209,14 +1226,14 @@ def get_chats():
 			cursor = conn.cursor()
 			cursor.execute(f'''
 				SELECT DISTINCT CASE
-					WHEN from_user = '{request.json['user']}' THEN to_user
+					WHEN from_user = :user THEN to_user
 					ELSE from_user
 				END AS chat_user,
-				SUM(CASE WHEN is_read = 0 AND to_user = '{request.json['user']}' THEN 1 ELSE 0 END) AS unread_messages_count
+				SUM(CASE WHEN is_read = 0 AND to_user = :user THEN 1 ELSE 0 END) AS unread_messages_count
 				FROM messages
-				WHERE '{request.json['user']}' IN (from_user, to_user)
+				WHERE :user IN (from_user, to_user)
 				GROUP BY chat_user;
-			''')
+			''', {"user": request.json['user']})
 			results = cursor.fetchall()
 			result_array = [{"chat_name": t[0],
 							"unread_messages_count": t[1],
@@ -1236,17 +1253,18 @@ def get_messages():
 			cursor = conn.cursor()
 			cursor.execute(f'''
 				SELECT * FROM messages
-				WHERE (from_user = '{request.json['user']}' AND to_user = '{chat_name}')
-				OR (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
-			''')
+				WHERE (from_user = :user AND to_user = :chat)
+				OR (from_user = :chat AND to_user = :user);
+			''', {"user": request.json['user'], "chat": chat_name})
 			results = cursor.fetchall()
 			column_names = [column[0] for column in cursor.description]
 			result_array = [dict(zip(column_names, row)) for row in results]
+			result_array = [{**d, "is_read": bool(d["is_read"])} for d in result_array]
 			cursor.execute(f'''
 				UPDATE messages
 				SET is_read = 1
-				WHERE (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
-			''')
+				WHERE (from_user = ? AND to_user = ?);
+			''', (chat_name, request.json['user']))
 			return jsonify({'successfully': True, 'messages': result_array})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1275,20 +1293,24 @@ def send_message():
 			cursor = conn.cursor()
 			cursor.execute(f'''
 				INSERT INTO messages (from_user, to_user, message, time)
-				VALUES ('{request.json['user']}', '{chat_name}', '{message}', '{time_now}');
-			''')
+				VALUES (?, ?, ?, '{time_now}')
+				RETURNING id;
+			''', (request.json['user'], chat_name, message))
+			row_id = cursor.fetchone()[0]
 			cursor.execute(f'''
 				UPDATE messages
 				SET is_read = 1
-				WHERE (from_user = '{chat_name}' AND to_user = '{request.json['user']}');
-			''')
+				WHERE (from_user = ? AND to_user = ?);
+			''', (chat_name, request.json['user']))
 			conn.commit()
 
 			msg = {
+				"id": row_id,
 				"from_user": request.json['user'],
 				"chat": chat_name,
 				"message": message,
-				"time": time_now
+				"time": time_now,
+				"is_read": False
 			}
 
 			sid = socket_users.get(chat_name, None)
@@ -1297,6 +1319,69 @@ def send_message():
 			return jsonify({'successfully': True, "message": msg})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+@app.route('/api/messenger/delete_message', methods=['POST'])
+def delete_message():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		message_id = request.json['message_id']
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+				DELETE FROM messages WHERE id = {message_id}
+				RETURNING from_user, to_user;
+			''')
+			users_to_send = cursor.fetchone()
+			users_to_send = list(filter(lambda x: x != request.json['user'], users_to_send)) if users_to_send else []
+			conn.commit()
+			for user in users_to_send:
+				sid = socket_users.get(user, None)
+				if sid:
+					emit('delete_message', {"id": message_id}, namespace='/', broadcast=True, room=sid)
+
+			return jsonify({'successfully': True})
+		
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+@app.route('/api/messenger/mark_chat_as_readed', methods=['POST'])
+def mark_chat_as_readed():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+					UPDATE messages
+					SET is_read = 1
+					WHERE (from_user = ? AND to_user = ?);
+				''', (request.json['chat'], request.json['user']))
+			conn.commit()
+		return jsonify({'successfully': True})
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
+
+def send_system_message(user, message):
+	with sqlite3.connect('database/messages.db') as conn:
+		cursor = conn.cursor()
+		time_now = int(time.time())
+		cursor.execute(f'''
+			INSERT INTO messages (from_user, to_user, message, time)
+			VALUES ('SYSTEM', ?, ?, '{time_now}')
+			RETURNING id;
+		''', (user, message))
+		row_id = cursor.fetchone()[0]
+		conn.commit()
+		msg = {
+			"id": row_id,
+			"from_user": 'SYSTEM',
+			"chat": user,
+			"message": message,
+			"time": time_now
+		}
+		sid = socket_users.get(user, None)
+		if sid:
+			emit('new_message', msg, namespace='/', broadcast=True, room=sid)
 
 
 

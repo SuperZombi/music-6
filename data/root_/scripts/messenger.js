@@ -107,6 +107,12 @@ function submain(){
 		else{
 			document.getElementById("new-chat-popup").classList.remove("show")
 		}
+		if (!path.filter(y=>y.classList && y.classList.contains("message")).length > 0){
+			document.querySelectorAll("#messages-container .message.hovered").forEach(e=>{
+				e.classList.remove("hovered")
+				e.querySelector(".helper-body").classList.remove("show")
+			})
+		}
 	})
 
 	document.querySelector("#back-button").onclick = _=>{
@@ -160,6 +166,7 @@ function submain(){
 		let active_chat = chats.querySelector(".active")
 		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
 			prepareMessage(msg)
+			markChatAsReaded(active_chat.getAttribute("chat-name"))
 		} else{
 			let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
 			if (target){
@@ -175,6 +182,12 @@ function submain(){
 					addChat(msg.from_user, url, 1)
 				})
 			}
+		}
+	});
+	socket.on('delete_message', function(msg) {
+		let el = document.querySelector(`.message[message-id='${msg.id}']`)
+		if (el){
+			el.remove()
 		}
 	});
 
@@ -225,6 +238,17 @@ function submain(){
 	if (search.has("new-chat")){
 		newChat()
 	}
+}
+
+function markChatAsReaded(chatName){
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", '/api/messenger/mark_chat_as_readed')
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.send(JSON.stringify({
+		'user': local_storage.userName,
+		'password': local_storage.userPassword,
+		'chat': chatName
+	}))
 }
 
 function newChat(){
@@ -386,26 +410,62 @@ function addInfoNewMessages(){
 		</div>
 	`
 }
-function addMessage(text, from, time){
+function addMessage(id, text, from, time){
 	let scrollAfter = false;
 	if (messages.scrollTop + messages.clientHeight + 10 >= messages.scrollHeight || from == local_storage.userName){
 		scrollAfter = true;
 	}
-	messages.innerHTML += `
-		<div class="message ${from == local_storage.userName ? "from-me": "from-other"}">
-			<div class="message-body">
-				
-				<div class="tail">
-					<div class="text">${text}</div>
-					<time>${time}</time>
-				</div>
+	let msg = document.createElement('div')
+	msg.className = "message"
+	msg.setAttribute("message-id", id)
+	msg.classList.add(from == local_storage.userName ? "from-me": "from-other")
+
+	// ${from == local_storage.userName ? "": `<div class="user">${from}</div>`}
+	msg.innerHTML = `
+		<div class="message-body">
+
+			<div class="tail">
+				<div class="text"></div>
+				<time>${time}</time>
+			</div>
+		</div>
+
+		<div class="helper">
+			<i class="fa fa-ellipsis"></i>
+			<div class="helper-body">
+				<div action="delete">${LANG.delete}</div>
 			</div>
 		</div>
 	`
+	msg.querySelector(".text").innerHTML = marked.parseInline(text)
+	msg.querySelector(".helper").onclick = _=>{
+		msg.querySelector(".helper-body").classList.toggle("show")
+		msg.classList.toggle("hovered")
+	}
+	msg.querySelector('[action="delete"]').onclick = _=>{
+		if (confirm(LANG.delete_message)){
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", '/api/messenger/delete_message')
+			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+			xhr.onload = function() {
+				if (xhr.status == 200){ 
+					let answer = JSON.parse(xhr.response);
+					if (answer.successfully){
+						msg.remove()
+					}
+				}
+			}
+			xhr.send(JSON.stringify({
+				'user': local_storage.userName,
+				'password': local_storage.userPassword,
+				"message_id": msg.getAttribute("message-id")
+			}))		
+		}
+	}
+	messages.appendChild(msg)
 	if (scrollAfter){
 		messages.scrollTop = messages.scrollHeight;
 	}
-	// ${from == local_storage.userName ? "": `<div class="user">${from}</div>`}
 }
 function prepareMessage(msg){
 	let date = new Date(msg.time * 1000)
@@ -427,7 +487,7 @@ function prepareMessage(msg){
 	}
 
 	let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-	addMessage(msg.message, msg.from_user, time)
+	addMessage(msg.id, msg.message, msg.from_user, time)
 }
 function buildMessages(array){
 	messages.classList.remove("smooth")
@@ -435,7 +495,7 @@ function buildMessages(array){
 	let current_year = new Date().getFullYear();
 	let new_messages_showed = false;
 	array.forEach(msg=>{
-		if (msg.is_read == 0 && msg.from_user != local_storage.userName && !new_messages_showed){
+		if (!msg.is_read && msg.from_user != local_storage.userName && !new_messages_showed){
 			addInfoNewMessages()
 			new_messages_showed = true;
 		}
@@ -454,7 +514,7 @@ function buildMessages(array){
 			last_date = new_date
 		}
 		let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-		addMessage(msg.message, msg.from_user, time)
+		addMessage(msg.id, msg.message, msg.from_user, time)
 	})
 
 	if (new_messages_showed){

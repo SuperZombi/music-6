@@ -252,7 +252,8 @@
 	"user_name": "Ім'я користувача",
 	"write_message": "Написати повідомлення",
 	"write_message_placeholder": "Напишіть повідомлення",
-
+	"delete_message": "Видалити це повідомлення?",
+	
 	// Verification
 	"verification_title": "Верифікація",
 	"verification_button": "Підтвердити",

@@ -252,6 +252,7 @@
 	"user_name": "Имя Пользователя",
 	"write_message": "Написать сообщение",
 	"write_message_placeholder": "Напишите сообщение",
+	"delete_message": "Удалить это сообщение?",
 
 	// Verification
 	"verification_title": "Верификация",

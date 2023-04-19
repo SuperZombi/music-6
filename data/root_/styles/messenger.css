@@ -20,8 +20,11 @@ html{
 	bottom: 0;
 	left: 0;
 	position: fixed;
-	background: url(https://oir.mobi/uploads/posts/2022-08/1661337069_2-oir-mobi-p-fon-dlya-telegram-oboi-2.jpg);
+	background: url(https://oir.mobi/uploads/posts/2022-08/1661337097_1-oir-mobi-p-fon-dlya-telegram-oboi-1.png);
 	background-size: cover;
+}
+.dark #chats-wrapper{
+	background: url(https://oir.mobi/uploads/posts/2022-08/1661337069_2-oir-mobi-p-fon-dlya-telegram-oboi-2.jpg);
 }
 #chats{
 	display: flex;
@@ -200,14 +203,58 @@ html{
 }
 #chat-body .message{
 	margin: 6px 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 #chat-body .message.from-me{
-	text-align: right;
+	justify-content: flex-end;
 }
 #chat-body .message.info{
 	text-align: center;
 	font-size: 0.75em;
 	user-select: none;
+	justify-content: center;
+}
+#chat-body .message .helper{
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	background: rgb(100, 100, 100, 0.75);
+	cursor: pointer;
+	color: white;
+	position: relative;
+}
+#chat-body .message:hover .helper,
+#chat-body .message.hovered .helper{
+	display: flex;
+}
+#chat-body .message .helper-body{
+	position: absolute;
+	background: rgb(100, 100, 100, 0.75);
+	top: 50%;
+	left: calc(100% + 6px);
+	transform: translateY(-50%) scale(0);
+	padding: 5px 10px;
+	border-radius: 8px;
+	visibility: hidden;
+	opacity: 0;
+	transition: all 0.5s cubic-bezier(0.65, -0.55, 0.25, 1.55);
+}
+#chat-body .message.from-me .helper-body{
+	left: unset;
+	right: calc(100% + 6px);
+}
+#chat-body .message .helper-body.show{
+	visibility: visible;
+	transform: translateY(-50%) scale(1);
+	opacity: 1;
+}
+#chat-body .message.from-me .helper{
+	order: -1;
 }
 #chat-body .message-body{
 	display: inline-flex;
@@ -243,6 +290,16 @@ html{
 }
 #chat-body .message-body .text{
 	display: inline-block;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+#chat-body .message-body .text img{
+	width: 100%;
+	border-radius: 6px;
+}
+#chat-body .message-body .text > *{
+	color: var(--contrast-color);
+	width: 100%;
 }
 #chat-body .message-body time{
 	align-self: flex-end;
