@@ -433,6 +433,7 @@ html{
 	transition: 0.2s;
 	cursor: pointer;
 	z-index: 2;
+	filter: drop-shadow(0 0 2px black);
 }
 #media-fullscreener .close:hover{
 	color: red;
