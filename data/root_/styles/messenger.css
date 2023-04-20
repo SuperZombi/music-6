@@ -6,12 +6,15 @@ html{
 	--foreign-message: #b261ff;
 	--info-message: #00c0ff;
 	--info-message-new: hotpink;
+	--message-not-readed: red;
+	--message-readed: blue;
 }
 .dark:root{
 	--my-message: #2a2aa7;
 	--foreign-message: #6e18c0;
 	--info-message: #3e7eff;
 	--info-message-new: red;
+	--message-readed: lime;
 }
 #chats-wrapper{
 	display: flex;
@@ -98,9 +101,7 @@ html{
 	font-size: 14pt;
 	transition: 1s;
 }
-#chat-body #chat-info #back-button{
-	position: absolute;
-	left: 5px;
+#chat-body #chat-info .chat-info-button{
 	padding: 10px;
 	width: 20px;
 	height: 20px;
@@ -110,10 +111,17 @@ html{
 	border-radius: 50%;
 	cursor: pointer;
 	transition: 0.15s;
-	display: none;
 }
-#chat-body #chat-info #back-button:hover{
+#chat-body #chat-info .chat-info-button:hover{
 	background: var(--details_border);
+}
+#chat-body #chat-info #back-button{
+	position: absolute;
+	left: 5px;
+}
+#chat-body #chat-info #clear-chat{
+	position: absolute;
+	right: 5px;
 }
 #chat-body #chat-info .url{
 	height: 100%;
@@ -346,6 +354,21 @@ html{
 	font-family: monospace;
 	font-size: 0.65em;
 	user-select: none;
+}
+#chat-body .message.from-me .message-body time:before{
+	content: '';
+	display: block;
+	height: 8px;
+	width: 8px;
+	border-radius: 50%;
+	display: inline-block;
+	margin-right: 5px;
+}
+#chat-body .message.from-me.not-readed .message-body time:before{
+	background: var(--message-not-readed);
+}
+#chat-body .message.from-me.readed .message-body time:before{
+	background: var(--message-readed);
 }
 
 #messages-container{

@@ -139,6 +139,12 @@ function submain(){
 			window.history.pushState(null, '', url_.toString());
 		}
 	}
+	document.querySelector("#clear-chat").onclick = _=>{
+		if (confirm(LANG.deleting_chat_confirm)){
+			let name = document.querySelector("#chat-info .chat-name").innerHTML
+			deleteChat(name)
+		}
+	}
 	window.addEventListener("hashchange", _=>{
 		if (location.hash == ""){
 			document.querySelector("#back-button").onclick()
@@ -217,6 +223,24 @@ function submain(){
 		let el = document.querySelector(`.message[message-id='${msg.id}']`)
 		if (el){
 			el.remove()
+		}
+	});
+	socket.on('delete_chat', function(msg) {
+		let active_chat = chats.querySelector(".active")
+		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
+			messages.innerHTML = ""
+		}
+		let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
+		if (target){
+			target.remove()
+		}
+	});
+	socket.on('chat_readed', function(msg) {
+		let active_chat = chats.querySelector(".active")
+		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
+			messages.querySelectorAll(".message.not-readed").forEach(e=>{
+				e.classList.remove("not-readed")
+			})
 		}
 	});
 
@@ -449,12 +473,12 @@ function addInfoNewMessages(){
 	messages.innerHTML += `
 		<div class="message info new">
 			<div class="message-body">
-				Новые сообщения
+				${LANG.new_messages}
 			</div>
 		</div>
 	`
 }
-function addMessage(id, text, from, time){
+function addMessage(id, text, from, time, readed=null){
 	let scrollAfter = false;
 	if (messages.scrollTop + messages.clientHeight + 10 >= messages.scrollHeight || from == local_storage.userName){
 		scrollAfter = true;
@@ -463,7 +487,10 @@ function addMessage(id, text, from, time){
 	msg.className = "message"
 	msg.setAttribute("message-id", id)
 	msg.classList.add(from == local_storage.userName ? "from-me": "from-other")
-
+	if (readed != null && from == local_storage.userName){
+		msg.classList.add(readed ? null : "not-readed")
+	}
+	
 	// ${from == local_storage.userName ? "": `<div class="user">${from}</div>`}
 	msg.innerHTML = `
 		<div class="message-body">
@@ -540,7 +567,7 @@ function prepareMessage(msg){
 	}
 
 	let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-	addMessage(msg.id, msg.message, msg.from_user, time)
+	addMessage(msg.id, msg.message, msg.from_user, time, msg.is_read)
 }
 function buildMessages(array){
 	messages.classList.remove("smooth")
@@ -568,7 +595,7 @@ function buildMessages(array){
 			last_date = new_date
 		}
 		let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-		addMessage(msg.id, msg.message, msg.from_user, time)
+		addMessage(msg.id, msg.message, msg.from_user, time, msg.is_read)
 	})
 
 	setTimeout(_=>{
@@ -579,6 +606,30 @@ function buildMessages(array){
 		}
 		messages.classList.add("smooth")
 	}, 10)
+}
+
+
+function deleteChat(chatName){
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", '/api/messenger/delete_chat')
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.onload = function() {
+		if (xhr.status == 200){ 
+			let answer = JSON.parse(xhr.response);
+			if (answer.successfully){
+				messages.innerHTML = ""
+				let target = chats.querySelector(`[chat-name="${chatName}"]`)
+				if (target){
+					target.remove()
+				}
+			}
+		}
+	}
+	xhr.send(JSON.stringify({
+		'user': local_storage.userName,
+		'password': local_storage.userPassword,
+		"chat": chatName
+	}))
 }
 
 

@@ -250,10 +250,12 @@
 	"saved_messages": "Сохранённые сообщения",
 	"new_chat": "Новый чат",
 	"user_name": "Имя Пользователя",
+	"new_messages": "Новые сообщения",
 	"write_message": "Написать сообщение",
 	"write_message_placeholder": "Напишите сообщение",
 	"delete_message": "Удалить это сообщение?",
 	"max_files_count": "Максимальное количество файлов!",
+	"deleting_chat_confirm": "Вы уверены, что хотите удалить этот чат?\nЧат также будет удален у вашего собеседника!",
 
 	// Verification
 	"verification_title": "Верификация",

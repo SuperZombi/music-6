@@ -1264,6 +1264,10 @@ def get_messages():
 				SET is_read = 1
 				WHERE (from_user = ? AND to_user = ?);
 			''', (chat_name, request.json['user']))
+
+			sid = socket_users.get(chat_name, None)
+			if sid:
+				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
 			return jsonify({'successfully': True, 'messages': result_array})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1343,6 +1347,29 @@ def delete_message():
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
+@app.route('/api/messenger/delete_chat', methods=['POST'])
+def delete_chat():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		from_user = request.json['user']
+		to_user = request.json['chat']
+		with sqlite3.connect('database/messages.db') as conn:
+			cursor = conn.cursor()
+			cursor.execute(f'''
+				DELETE FROM messages
+				WHERE (from_user = :from_user AND to_user = :to_user)
+				OR (from_user = :to_user AND to_user = :from_user);
+			''', {"from_user": from_user, "to_user": to_user})
+			conn.commit()
+			sid = socket_users.get(to_user, None)
+			if sid:
+				emit('delete_chat', {"from_user": from_user}, namespace='/', broadcast=True, room=sid)
+
+			return jsonify({'successfully': True})
+		
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
 @app.route('/api/messenger/mark_chat_as_readed', methods=['POST'])
 def mark_chat_as_readed():
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -1356,6 +1383,9 @@ def mark_chat_as_readed():
 					WHERE (from_user = ? AND to_user = ?);
 				''', (request.json['chat'], request.json['user']))
 			conn.commit()
+			sid = socket_users.get(request.json['chat'], None)
+			if sid:
+				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
 		return jsonify({'successfully': True})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 

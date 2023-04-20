@@ -247,10 +247,12 @@
 	"saved_messages": "Saved messages",
 	"new_chat": "New chat",
 	"user_name": "User name",
+	"new_messages": "New messages",
 	"write_message": "Write a message",
 	"write_message_placeholder": "Write a message",
 	"delete_message": "Delete this message?",
 	"max_files_count": "Maximum number of files!",
+	"deleting_chat_confirm": "Are you sure you want to delete this chat?\nThe chat will also be deleted from your interlocutor!",
 
 	// Verification
 	"verification_title": "Verification",
