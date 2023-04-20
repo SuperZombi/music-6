@@ -203,6 +203,7 @@ html{
 	transition: 0.15s;
 	cursor: pointer;
 	color: white;
+	filter: drop-shadow(0 0 2px black);
 }
 #attachments .attachment .remove:hover{
 	color: hotpink;
