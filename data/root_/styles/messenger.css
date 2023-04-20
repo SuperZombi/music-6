@@ -328,7 +328,7 @@ html{
 #chat-body .message-body .text{
 	display: inline-block;
 	white-space: pre-wrap;
-	word-break: break-all;
+	word-break: break-word;
 }
 #chat-body .message-body .text img{
 	width: 100%;
