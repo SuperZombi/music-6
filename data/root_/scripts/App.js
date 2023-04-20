@@ -263,7 +263,7 @@ function ifFileExist(src, max_retries=5, delay=500){
 
 function setCookie(name, value, options = {}) {
 	options = {path: '/', ...options};
-	let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+	let updatedCookie = name + "=" + value;
 	for (let optionKey in options) {
 		updatedCookie += "; " + optionKey;
 		let optionValue = options[optionKey];
