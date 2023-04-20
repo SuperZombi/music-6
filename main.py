@@ -1237,7 +1237,9 @@ def get_chats():
 			result_array = [{"chat_name": t[0],
 							"unread_messages_count": t[1],
 							"readOnly": t[0].lower() == "admin" or t[0].lower() == "system",
-							"chat_image": get_chat_image(t[0])} for t in results]
+							"chat_image": get_chat_image(t[0]),
+							"online": True if socket_users.get(t[0], None) else False
+							} for t in results]
 			return jsonify({'successfully': True, 'chats': result_array})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1268,6 +1270,7 @@ def get_messages():
 			sid = socket_users.get(chat_name, None)
 			if sid:
 				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
+			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True, 'messages': result_array})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1319,6 +1322,7 @@ def send_message():
 			sid = socket_users.get(chat_name, None)
 			if sid:
 				emit('new_message', msg, namespace='/', broadcast=True, room=sid)
+			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True, "message": msg})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1342,7 +1346,7 @@ def delete_message():
 				sid = socket_users.get(user, None)
 				if sid:
 					emit('delete_message', {"id": message_id}, namespace='/', broadcast=True, room=sid)
-
+			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1365,7 +1369,7 @@ def delete_chat():
 			sid = socket_users.get(to_user, None)
 			if sid:
 				emit('delete_chat', {"from_user": from_user}, namespace='/', broadcast=True, room=sid)
-
+			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True})
 		
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
@@ -1386,6 +1390,7 @@ def mark_chat_as_readed():
 			sid = socket_users.get(request.json['chat'], None)
 			if sid:
 				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
+			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 		return jsonify({'successfully': True})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
@@ -1726,6 +1731,7 @@ socket_users = {}
 def handle_connect():
 	username = request.cookies.get("userName")
 	socket_users[username] = request.sid
+	emit('user_online', {"from_user": username}, broadcast=True)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -1733,6 +1739,7 @@ def handle_disconnect():
 	if key:
 		key = key.pop()
 		del socket_users[key]
+		emit('user_offline', {"from_user": key}, broadcast=True)
 
 
 

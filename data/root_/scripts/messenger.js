@@ -167,7 +167,7 @@ function submain(){
 			if (answer.successfully){
 				answer.chats.forEach(chat=>{
 					if (chat.chat_name == local_storage.userName){return}
-					addChat(chat.chat_name, chat.chat_image, chat.unread_messages_count, chat.readOnly)
+					addChat(chat.chat_name, chat.chat_image, chat.unread_messages_count, chat.readOnly, chat.online)
 				})
 				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
 				if (count > 0){
@@ -210,7 +210,8 @@ function submain(){
 				}
 			} else{
 				loadProfileImage(msg.from_user, url=>{
-					addChat(msg.from_user, url, 1)
+					let ch = addChat(msg.from_user, url, 1)
+					ch.classList.add("online")
 				})
 			}
 			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
@@ -243,6 +244,30 @@ function submain(){
 			})
 		}
 	});
+	socket.on('user_online', function(msg) {
+		if (msg.from_user != local_storage.userName){
+			let chat = chats.querySelector(`[chat-name=${msg.from_user}]`)
+			if (chat){
+				chat.classList.add("online")
+				let active_chat = chats.querySelector(".active")
+				if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
+					document.querySelector("#chat-info .chat-icon").classList.add("online")
+				}
+			}
+		}
+	});
+	socket.on('user_offline', function(msg) {
+		if (msg.from_user != local_storage.userName){
+			let chat = chats.querySelector(`[chat-name=${msg.from_user}]`)
+			if (chat){
+				chat.classList.remove("online")
+				let active_chat = chats.querySelector(".active")
+				if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
+					document.querySelector("#chat-info .chat-icon").classList.remove("online")
+				}
+			}
+		}
+	});
 
 	send.onclick = _=>{
 		if (send.classList.contains("disabled")){return}
@@ -270,6 +295,7 @@ function submain(){
 					message_input.oninput()
 					send.classList.add("disabled")
 					document.querySelector("#attachments").innerHTML = ""
+					document.querySelector("#chat-info .chat-icon").classList.remove("online")
 					prepareMessage(answer.message)
 
 					let name = document.querySelector("#chat-info .chat-name").innerHTML
@@ -342,6 +368,8 @@ function newChat(){
 		document.title = `${LANG.messenger} • ${chatName}`
 		document.getElementById("new-chat-popup").classList.remove("show")
 		messages.innerHTML = ""
+		document.querySelector("#attachments").innerHTML = ""
+		document.querySelector("#chat-info .chat-icon").classList.remove("online")
 	}, error=>{
 		document.getElementById("chat-body").classList.remove("show")
 		chats.classList.add("show")
@@ -381,10 +409,13 @@ function addFavorites(){
 	})
 }
 
-function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
+function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, online=false){
 	let div = document.createElement("div")
 	div.className = "chat"
 	div.setAttribute("chat-name", chatName)
+	if (chatName != local_storage.userName){
+		online ? div.classList.add("online") : null
+	}
 	let chat_name = document.createElement("div")
 	chat_name.className = "chat-name"
 	chat_name.innerHTML = chatName
@@ -413,6 +444,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
 		document.querySelector("#message-input").value = ""
 		document.querySelector("#attachments").innerHTML = ""
 		document.getElementById("chat-body").classList.add("show")
+		document.querySelector("#chat-info .chat-icon").classList.remove("online")
 		chats.querySelectorAll(".active").forEach(e=>{
 			e.classList.remove("active")
 		})
@@ -429,6 +461,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
 		} else{
 			url.href = new URL("/" + chatName.toLocaleLowerCase(), window.location.href).href
 		}
+		div.classList.contains("online") ? document.querySelector("#chat-info .chat-icon").classList.add("online") : null;
 
 		window.location.hash = chatName
 		document.title = `${LANG.messenger} • ${chatName}`
@@ -488,7 +521,7 @@ function addMessage(id, text, from, time, readed=null){
 	msg.setAttribute("message-id", id)
 	msg.classList.add(from == local_storage.userName ? "from-me": "from-other")
 	if (readed != null && from == local_storage.userName){
-		msg.classList.add(readed ? null : "not-readed")
+		readed ? null : msg.classList.add("not-readed")
 	}
 	
 	// ${from == local_storage.userName ? "": `<div class="user">${from}</div>`}

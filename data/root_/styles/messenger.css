@@ -62,12 +62,33 @@ html{
 #chats .chat > .chat-icon{
 	height: 90%;
 	aspect-ratio: 1 / 1;
+	position: relative;
 }
 #chats .chat > .chat-icon > img{
 	height: 100%;
 	width: 100%;
 	object-fit: cover;
 	border-radius: 50%;
+}
+#chats .chat > .chat-icon:after,
+#chat-info .chat-icon:after{
+	content: '';
+	filter: drop-shadow(0 0 2px black);
+	width: 10px;
+	height: 10px;
+	display: block;
+	position: absolute;
+	z-index: 1;
+	border-radius: 50%;
+	top: 75%;
+	right: 0;
+	transition: 0.3s;
+	transform: scale(0);
+}
+#chats .chat.online > .chat-icon:after,
+#chat-info .chat-icon.online:after{
+	background: lime;
+	transform: scale(1);
 }
 #chats .chat .notification-dot{
 	position: absolute;
@@ -133,6 +154,7 @@ html{
 #chat-body #chat-info .chat-icon{
 	height: 75%;
 	aspect-ratio: 1 / 1;
+	position: relative;
 }
 #chat-body #chat-info .chat-icon > img{
 	height: 100%;
