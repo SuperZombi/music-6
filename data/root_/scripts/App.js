@@ -262,7 +262,8 @@ function ifFileExist(src, max_retries=5, delay=500){
 }
 
 function setCookie(name, value, options = {}) {
-	options = {path: '/', ...options};
+	let age_time = Math.floor(new Date().getTime() / 1000) + (365 * 24 * 60 * 60);
+	options = {path: '/', 'max-age': age_time, ...options};
 	let updatedCookie = name + "=" + value;
 	for (let optionKey in options) {
 		updatedCookie += "; " + optionKey;
