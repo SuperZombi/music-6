@@ -28,6 +28,14 @@ function goToLogin(){
 	login.searchParams.append('redirect', filename);
 	window.location.href = decodeURIComponent(login.href)
 }
+function loader(width, height){
+	return `
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:block;margin:auto;" width="${width}" height="${height}" viewBox="0 0 100 100">
+		<circle cx="50" cy="50" fill="none" stroke="#007EFF" stroke-width="10" r="35" stroke-dasharray="165 57">
+			<animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+		</circle>
+	</svg>`
+}
 function main(){
 	document.title = LANG.messenger
 	
@@ -59,7 +67,10 @@ function submain(){
 	}
 	window.onkeydown = e=>{
 		if (e.keyCode == 27){
-			if (document.querySelector("#new-chat-popup").classList.contains("show")){
+			if (!document.querySelector("#media-fullscreener").classList.contains("hide")){
+				document.querySelector("#media-fullscreener").classList.add("hide")
+			}
+			else if (document.querySelector("#new-chat-popup").classList.contains("show")){
 				document.getElementById("new-chat-popup").classList.remove("show")
 			} else{
 				document.querySelector("#back-button").onclick()
@@ -128,8 +139,18 @@ function submain(){
 			window.history.pushState(null, '', url_.toString());
 		}
 	}
+	window.addEventListener("hashchange", _=>{
+		if (location.hash == ""){
+			document.querySelector("#back-button").onclick()
+			if (window.innerHeight < window.innerWidth){
+				document.querySelector("#chat-body").classList.remove("show")
+				messages.innerHTML = ""
+			}
+		}
+	});
 
 	addFavorites()
+	initAtachments()
 
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", '/api/messenger/get_chats')
@@ -251,8 +272,6 @@ function submain(){
 	if (search.has("new-chat")){
 		newChat()
 	}
-
-	initAtachments()
 }
 
 function markChatAsReaded(chatName){
@@ -323,9 +342,10 @@ function loadProfileImage(userName, callback, error){
 }
 
 function addFavorites(){
+	let div = addChat(local_storage.userName)
+	div.querySelector(".chat-name").innerHTML = LANG.saved_messages
 	loadProfileImage(local_storage.userName, url=>{
-		let div = addChat(local_storage.userName, url)
-		div.querySelector(".chat-name").innerHTML = LANG.saved_messages
+		div.querySelector(".chat-icon img").src = url
 	})
 }
 
@@ -371,7 +391,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
 		let img_ = document.querySelector("#chat-info .chat-icon img")
 		let url = document.querySelector("#chat-info .url")
 		name.innerHTML = chatName
-		img_.src = chatImage
+		img_.src = img.src
 		if (chatName == local_storage.userName){
 			url.href = new URL("/account/", window.location.href).href
 		} else{
@@ -388,7 +408,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
 	return div
 }
 function loadChat(chatName){
-	messages.innerHTML = ""
+	messages.innerHTML = loader("80px", "100%")
 
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", '/api/messenger/get_messages')
@@ -455,6 +475,7 @@ function addMessage(id, text, from, time){
 	`
 	msg.querySelector(".text").innerHTML = marked.parseInline(text)
 	msg.querySelector(".helper").onclick = _=>{
+		window.navigator.vibrate(50);
 		msg.querySelector(".helper-body").classList.toggle("show")
 		msg.classList.toggle("hovered")
 	}
@@ -464,24 +485,27 @@ function addMessage(id, text, from, time){
 		}
 	})
 	msg.querySelector('[action="delete"]').onclick = _=>{
-		if (confirm(LANG.delete_message)){
-			let xhr = new XMLHttpRequest();
-			xhr.open("POST", '/api/messenger/delete_message')
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-			xhr.onload = function() {
-				if (xhr.status == 200){ 
-					let answer = JSON.parse(xhr.response);
-					if (answer.successfully){
-						msg.remove()
+		window.navigator.vibrate(100);
+		setTimeout(_=>{
+			if (confirm(LANG.delete_message)){
+				let xhr = new XMLHttpRequest();
+				xhr.open("POST", '/api/messenger/delete_message')
+				xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+				xhr.onload = function() {
+					if (xhr.status == 200){ 
+						let answer = JSON.parse(xhr.response);
+						if (answer.successfully){
+							msg.remove()
+						}
 					}
 				}
+				xhr.send(JSON.stringify({
+					'user': local_storage.userName,
+					'password': local_storage.userPassword,
+					"message_id": msg.getAttribute("message-id")
+				}))
 			}
-			xhr.send(JSON.stringify({
-				'user': local_storage.userName,
-				'password': local_storage.userPassword,
-				"message_id": msg.getAttribute("message-id")
-			}))		
-		}
+		}, 50)
 	}
 	messages.appendChild(msg)
 	if (scrollAfter){
@@ -512,6 +536,7 @@ function prepareMessage(msg){
 }
 function buildMessages(array){
 	messages.classList.remove("smooth")
+	messages.innerHTML = ""
 	last_date = ""
 	let current_year = new Date().getFullYear();
 	let new_messages_showed = false;
@@ -538,12 +563,14 @@ function buildMessages(array){
 		addMessage(msg.id, msg.message, msg.from_user, time)
 	})
 
-	if (new_messages_showed){
-		messages.querySelector(".info.new").scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
-	} else{
-		messages.scrollTop = messages.scrollHeight;
-	}
-	messages.classList.add("smooth")
+	setTimeout(_=>{
+		if (new_messages_showed){
+			messages.querySelector(".info.new").scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+		} else{
+			messages.scrollTop = messages.scrollHeight;
+		}
+		messages.classList.add("smooth")
+	}, 10)
 }
 
 
