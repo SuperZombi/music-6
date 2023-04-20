@@ -163,6 +163,10 @@ function submain(){
 					if (chat.chat_name == local_storage.userName){return}
 					addChat(chat.chat_name, chat.chat_image, chat.unread_messages_count, chat.readOnly)
 				})
+				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+				if (count > 0){
+					document.title = `${LANG.messenger} • (${count})`
+				}
 				if (window.location.href){
 					let openedChat = decodeURI(window.location.hash).substring(1)
 					let chatEl = chats.querySelector(`[chat-name="${openedChat}"]`)
@@ -202,6 +206,10 @@ function submain(){
 				loadProfileImage(msg.from_user, url=>{
 					addChat(msg.from_user, url, 1)
 				})
+			}
+			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+			if (count > 0){
+				document.title = `${LANG.messenger} • (${count})`
 			}
 		}
 	});
