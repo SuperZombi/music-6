@@ -250,6 +250,7 @@
 	"write_message": "Write a message",
 	"write_message_placeholder": "Write a message",
 	"delete_message": "Delete this message?",
+	"max_files_count": "Maximum number of files!",
 
 	// Verification
 	"verification_title": "Verification",

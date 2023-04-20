@@ -149,22 +149,69 @@ html{
 }
 #message-input{
 	width: 100%;
-	height: 100%;
 	border: none;
 	outline: none;
 	background: transparent;
 	resize: none;
 	font-size: 14pt;
-	min-height: 45px;
+	min-height: 25px;
 	max-height: 175px;
 }
 .dark #message-input{
 	color-scheme: dark;
 }
+#add-attachment{
+	display: flex;
+	min-width: 25px;
+	margin-right: 5px;
+	fill: #5289c1;
+	cursor: pointer;
+	transition: 0.15s;
+	position: relative;
+}
+#add-attachment:hover{
+	fill: #3e7eff;
+}
+
+#attachments{
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+#attachments:has(.attachment){
+	width: 100%;
+}
+#attachments:has(.attachment) ~ #message-input{
+	display: none;
+}
+#attachments .attachment{
+	width: 100px;
+	height: 100px;
+	position: relative;
+}
+#attachments .attachment img{
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	border-radius: 12px;
+}
+#attachments .attachment .remove{
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 20px;
+	transition: 0.15s;
+	cursor: pointer;
+	color: white;
+}
+#attachments .attachment .remove:hover{
+	color: hotpink;
+}
+
 #send{
 	height: 25px;
 	width: 25px;
-	padding: 10px;
+	padding: 5px 10px;
 	border-radius: 50%;
 	cursor: pointer;
 	transition: 0.25s;
@@ -262,9 +309,7 @@ html{
 }
 #chat-body .message-body .tail{
 	display: inline-flex;
-	flex-direction: row;
-	gap: 6px;
-	justify-content: space-between;
+	flex-direction: column;
 }
 #chat-body .message.info .message-body{
 	background: var(--info-message);
@@ -287,7 +332,9 @@ html{
 }
 #chat-body .message-body .text img{
 	width: 100%;
+	max-height: 40vh;
 	border-radius: 6px;
+	object-fit: cover;
 }
 #chat-body .message-body .text > *{
 	color: var(--contrast-color);
@@ -365,6 +412,42 @@ html{
 }
 
 
+#media-fullscreener{
+	background: rgb(0, 0, 0, 0.75);
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 10;
+}
+#media-fullscreener.hide{
+	display: none;
+}
+#media-fullscreener .close{
+	font-size: 24pt;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	color: white;
+	transition: 0.2s;
+	cursor: pointer;
+	z-index: 2;
+}
+#media-fullscreener .close:hover{
+	color: red;
+}
+#media-fullscreener img{
+	max-height: 90%;
+	max-width: 90%;
+	object-fit: contain;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+
 /* Phone  */
 @media all and (max-width: 500px) {
 	#chats{
@@ -387,5 +470,11 @@ html{
 	}	
 	#new-chat-popup{
 		width: 99%;
+	}
+	#attachments:has(.attachment:nth-last-child(n+3)){
+		justify-content: center;
+	}
+	#media-fullscreener img{
+		max-width: 100%;
 	}
 }

@@ -253,6 +253,7 @@
 	"write_message": "Написати повідомлення",
 	"write_message_placeholder": "Напишіть повідомлення",
 	"delete_message": "Видалити це повідомлення?",
+	"max_files_count": "Максимальна кількість файлів!",
 	
 	// Verification
 	"verification_title": "Верифікація",

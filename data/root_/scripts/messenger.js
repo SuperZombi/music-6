@@ -47,11 +47,11 @@ function submain(){
 	var send = document.getElementById("send")
 	var scrollBottom = document.getElementById("scroll-bottom")
 
-	var input = document.getElementById("message-input")
-	input.oninput = _=>{
-		input.style.height = '0';
-		if (input.value != ""){
-			input.style.height = input.scrollHeight + 'px';
+	var message_input = document.getElementById("message-input")
+	message_input.oninput = _=>{
+		message_input.style.height = '0';
+		if (message_input.value != ""){
+			message_input.style.height = message_input.scrollHeight + 'px';
 			send.classList.remove("disabled")
 		} else{
 			send.classList.add("disabled")
@@ -73,7 +73,7 @@ function submain(){
 			}
 		}
 	}
-	input.onkeydown = e=>{
+	message_input.onkeydown = e=>{
 		if (e.keyCode == 13 && !e.shiftKey){
 			e.preventDefault();
 			send.onclick()
@@ -193,21 +193,30 @@ function submain(){
 
 	send.onclick = _=>{
 		if (send.classList.contains("disabled")){return}
+		let attachments = document.querySelectorAll("#attachments > *")
+		if (attachments.length > 0){
+			let imgs = document.querySelectorAll("#attachments .attachment > img")
+			imgs.forEach(img=>{
+				message_input.value += img.outerHTML
+			})
+		}
+		if (message_input.value.trim() == ""){return}
 		send.classList.add("disabled")
-		input.readOnly = true;
+		message_input.readOnly = true;
 
 		let xhr = new XMLHttpRequest();
 		xhr.open("POST", '/api/messenger/send_message')
 		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 		xhr.onload = function() {
-			input.readOnly = false;
+			message_input.readOnly = false;
 			send.classList.remove("disabled")
 			if (xhr.status == 200){ 
 				let answer = JSON.parse(xhr.response);
 				if (answer.successfully){
-					input.value = ""
-					input.oninput()
+					message_input.value = ""
+					message_input.oninput()
 					send.classList.add("disabled")
+					document.querySelector("#attachments").innerHTML = ""
 					prepareMessage(answer.message)
 
 					let name = document.querySelector("#chat-info .chat-name").innerHTML
@@ -234,7 +243,7 @@ function submain(){
 			'user': local_storage.userName,
 			'password': local_storage.userPassword,
 			"chat": decodeURI(window.location.hash).substring(1),
-			"message": input.value.trim()
+			"message": message_input.value.trim()
 		}))
 	}
 
@@ -242,6 +251,8 @@ function submain(){
 	if (search.has("new-chat")){
 		newChat()
 	}
+
+	initAtachments()
 }
 
 function markChatAsReaded(chatName){
@@ -348,6 +359,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false){
 			document.querySelector(".chat-input").classList.remove("readonly")
 		}
 		document.querySelector("#message-input").value = ""
+		document.querySelector("#attachments").innerHTML = ""
 		document.getElementById("chat-body").classList.add("show")
 		chats.querySelectorAll(".active").forEach(e=>{
 			e.classList.remove("active")
@@ -446,6 +458,11 @@ function addMessage(id, text, from, time){
 		msg.querySelector(".helper-body").classList.toggle("show")
 		msg.classList.toggle("hovered")
 	}
+	msg.querySelectorAll("img").forEach(img=>{
+		img.onclick =_=>{
+			openImageFullScreen(img)
+		}
+	})
 	msg.querySelector('[action="delete"]').onclick = _=>{
 		if (confirm(LANG.delete_message)){
 			let xhr = new XMLHttpRequest();
@@ -527,4 +544,138 @@ function buildMessages(array){
 		messages.scrollTop = messages.scrollHeight;
 	}
 	messages.classList.add("smooth")
+}
+
+
+function initAtachments(){
+	document.querySelector("#add-attachment").onclick = _=>{
+		if (document.querySelectorAll("#attachments > *").length >= 4){
+			notice.Error(LANG.max_files_count)
+			return
+		}
+		let input = document.createElement('input');
+		input.type = 'file';
+		input.accept = "image/*";
+		input.onchange = async e => { 
+			var file = e.target.files[0];
+			if (file && file['type'].split('/')[0] === 'image'){
+				var _URL = window.URL || window.webkitURL;
+				var img = new Image();
+				var objectUrl = _URL.createObjectURL(file);
+				img.onload = function () {
+					var onSuccessResize = (image)=>{
+						toBase64(image, result=>{
+							if (result){
+								document.getElementById("message-input").value = ""
+								send.classList.remove("disabled")
+								let imgel = document.createElement("img")
+								imgel.src = result
+								
+								let div = document.createElement("div")
+								div.className = "attachment"
+								let close = document.createElement("div")
+								close.className = "remove"
+								close.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>'
+								close.onclick = _=>{
+									div.remove()
+									if (document.querySelectorAll("#attachments > *").length == 0){
+										send.classList.add("disabled")
+									}
+								}
+								div.appendChild(imgel)
+								div.appendChild(close)
+								document.querySelector("#attachments").appendChild(div)
+							}
+						})
+					}
+					ResizeRequest(file, onSuccessResize, ...resizeWithRatio(this.width, this.height, 720, 720));
+				}
+				img.src = objectUrl;
+			}
+		}
+		input.click();
+	}
+}
+function ResizeRequest(file, callback, desired_W=1280, desired_H=1280){
+	if (file.type.split('/')[0] == 'image'){
+		var new_name = file.name.split('.').slice(0, -1).join() + ".jpg"
+		var onSuccess = function (newImage){
+			fetch(newImage).then(res => res.blob()).then(resizedImage => {
+				var file = new File([resizedImage], new_name, {type: 'image/jpeg'});
+				callback(file)
+			})
+		};
+
+		var reader = new FileReader();
+		reader.onload = function (readerEvent) {
+			let image_src = readerEvent.target.result;
+			resizeImage(image_src, desired_W, desired_H, 0.9, onSuccess)
+		}
+		reader.readAsDataURL(file);
+	}
+}
+function resizeImage(imageUrl, newWidth, newHeight, quality, onReady, onError) {
+    var image = document.createElement('img');
+    image.onload = function() {
+        var canvas = document.createElement('canvas');
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, newWidth, newHeight);
+        try {
+            // quality (from 0 to 1.0)
+            var dataUrl = canvas.toDataURL('image/jpeg', quality);
+            onReady(dataUrl);
+        } catch (e) {
+            if (onError) {
+                onError('Image saving error.');
+            }
+        }
+    };
+    image.onerror = function() {
+        if (onError) {
+            onError('Image loading error.');
+        }
+    };
+    image.src = imageUrl;
+}
+function resizeWithRatio(width, height, max_W, max_H){
+    if (width > height) {
+        if (width > max_W) {
+            height *= max_W / width;
+            width = max_W;
+        }
+    } else {
+        if (height > max_H) {
+            width *= max_H / height;
+            height = max_H;
+        }
+    }
+    return [parseInt(width), parseInt(height)];
+}
+function toBase64(file, callback) {
+	var reader = new FileReader();
+	reader.readAsDataURL(file);
+	reader.onload = function () {
+		callback(reader.result);
+	};
+	reader.onerror = function (error) {
+		console.error(error);
+		callback('');
+	};
+}
+
+function openImageFullScreen(img){
+	document.querySelector("#media-fullscreener img").src = img.src
+	document.querySelector("#media-fullscreener").classList.remove("hide")
+}
+function closeFullScreener(){
+	document.querySelector("#media-fullscreener").classList.add("hide")
+}
+document.querySelector("#media-fullscreener").onclick = event=>{
+	let path = event.path || (event.composedPath && event.composedPath());
+	if (path.includes(document.querySelector("#media-fullscreener img"))){return}
+	else{
+		closeFullScreener()
+	}
 }
