@@ -22,7 +22,7 @@ function goToLogin(){
 		filename += `${window.location.search}`
 	}
 	if (window.location.hash){
-		filename += `>${window.location.hash.substring(1)}`
+		filename += `>${decodeURI(window.location.hash).substring(1)}`
 	}
 	let login = new URL("login", window.location.href);
 	login.searchParams.append('redirect', filename);
@@ -143,7 +143,7 @@ function submain(){
 					addChat(chat.chat_name, chat.chat_image, chat.unread_messages_count, chat.readOnly)
 				})
 				if (window.location.href){
-					let openedChat = window.location.hash.substring(1)
+					let openedChat = decodeURI(window.location.hash).substring(1)
 					let chatEl = chats.querySelector(`[chat-name="${openedChat}"]`)
 					if (chatEl){
 						chatEl.onclick()
@@ -210,14 +210,18 @@ function submain(){
 					send.classList.add("disabled")
 					prepareMessage(answer.message)
 
+					let name = document.querySelector("#chat-info .chat-name").innerHTML
+					let ch_ = chats.querySelector(`[chat-name="${name}"]`)
+					if (ch_){
+						ch_.classList.add("active")
+					} else{
+						let img_ = document.querySelector("#chat-info .chat-icon img")
+						let chat = addChat(name, img_.src)
+						chat.classList.add("active")
+					}
+
 					const url_ = new URL(window.location);
 					if (url_.searchParams.has('new-chat')){
-						let name = document.querySelector("#chat-info .chat-name")
-						let img_ = document.querySelector("#chat-info .chat-icon img")
-						
-						let chat = addChat(name.innerHTML, img_.src)
-						chat.classList.add("active")
-
 						url_.searchParams.delete('new-chat');
 						window.history.pushState(null, '', url_.toString());
 					}
@@ -229,7 +233,7 @@ function submain(){
 		xhr.send(JSON.stringify({
 			'user': local_storage.userName,
 			'password': local_storage.userPassword,
-			"chat": window.location.hash.substring(1),
+			"chat": decodeURI(window.location.hash).substring(1),
 			"message": input.value.trim()
 		}))
 	}
@@ -252,10 +256,11 @@ function markChatAsReaded(chatName){
 }
 
 function newChat(){
-	let chatName = window.location.hash.substring(1);
+	let chatName = decodeURI(window.location.hash).substring(1);
 	let chatEl = chats.querySelector(`[chat-name="${chatName}"]`)
 	if (chatEl){
 		chatEl.onclick();
+		document.getElementById("new-chat-popup").classList.remove("show")
 		return
 	}
 	document.getElementById("chat-body").classList.add("show")
@@ -273,9 +278,8 @@ function newChat(){
 	loadProfileImage(chatName, url=>{
 		img_.src = url
 		document.title = `${LANG.messenger} • ${chatName}`
-		if (document.querySelector("#new-chat-popup").classList.contains("show")){
-			document.getElementById("new-chat-popup").classList.remove("show")
-		}
+		document.getElementById("new-chat-popup").classList.remove("show")
+		messages.innerHTML = ""
 	}, error=>{
 		document.getElementById("chat-body").classList.remove("show")
 		chats.classList.add("show")
