@@ -1035,13 +1035,12 @@ def get_user_profile_public():
 		premium_available(user)
 		temp = dict(user)
 		answer = {}
-		public_fields = {}
-		public_fields["receive-messages"] = user.get("receive-messages", True)
+		answer["public_fields"] = {}
+		answer["public_fields"]["receive-messages"] = user.get("receive-messages", True)
 		if "public_fields" in temp.keys():
 			for i in temp["public_fields"]:
-				try: public_fields[i] = temp[i]
+				try: answer["public_fields"][i] = temp[i]
 				except: pass
-			answer["public_fields"] = public_fields;
 		if "advantages" in temp.keys():
 			answer["advantages"] = {}
 			for key, item in temp["advantages"].items():
