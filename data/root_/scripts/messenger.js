@@ -140,10 +140,13 @@ function submain(){
 		}
 	}
 	document.querySelector("#clear-chat").onclick = _=>{
-		if (confirm(LANG.deleting_chat_confirm)){
-			let name = document.querySelector("#chat-info .chat-name").innerHTML
-			deleteChat(name)
-		}
+		window.navigator.vibrate(100);
+		setTimeout(_=>{
+			if (confirm(LANG.deleting_chat_confirm)){
+				let name = document.querySelector("#chat-info .chat-name").innerHTML
+				deleteChat(name)
+			}
+		}, 50)
 	}
 	window.addEventListener("hashchange", _=>{
 		if (location.hash == ""){
