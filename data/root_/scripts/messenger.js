@@ -118,7 +118,7 @@ function submain(){
 		else{
 			document.getElementById("new-chat-popup").classList.remove("show")
 		}
-		if (!path.filter(y=>y.classList && y.classList.contains("message")).length > 0){
+		if (!path.filter(y=>y.classList && y.classList.contains("hovered")).length > 0){
 			document.querySelectorAll("#messages-container .message.hovered").forEach(e=>{
 				e.classList.remove("hovered")
 				e.querySelector(".helper-body").classList.remove("show")
