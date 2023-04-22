@@ -462,7 +462,7 @@ def register():
 		if len(value.strip()) == 0:
 			return jsonify({'successfully': False, 'reason': Errors.forbidden_character.name})
 	
-	if request.json['name'].lower() == "admin" or request.json['name'].lower() == "system" or request.json['name'].lower() == "all":
+	if request.json['name'].lower() == "admin" or request.json['name'].lower() == "system":
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
 	if users.get(request.json['name']):
 		return jsonify({'successfully': False, 'reason': Errors.name_already_taken.name})
@@ -1231,7 +1231,7 @@ def get_chats():
 				SUM(CASE WHEN is_read = 0 AND to_user = :user THEN 1 ELSE 0 END) AS unread_messages_count,
 				MAX(time) AS last_message_time
 				FROM messages
-				WHERE :user IN (from_user, to_user) OR to_user = 'ALL'
+				WHERE :user IN (from_user, to_user)
 				GROUP BY chat_user
 				ORDER BY last_message_time DESC;
 			''', {"user": request.json['user']})
@@ -1257,8 +1257,7 @@ def get_messages():
 			cursor.execute(f'''
 				SELECT * FROM messages
 				WHERE (from_user = :user AND to_user = :chat)
-				OR (from_user = :chat AND to_user = :user)
-				OR (from_user = :chat AND to_user = 'ALL');
+				OR (from_user = :chat AND to_user = :user);
 			''', {"user": request.json['user'], "chat": chat_name})
 			results = cursor.fetchall()
 			column_names = [column[0] for column in cursor.description]
@@ -1288,7 +1287,7 @@ def send_message():
 			return jsonify({'successfully': False, 'reason': Errors.you_are_banned.name})
 
 		chat_name = request.json['chat']
-		if chat_name.lower() == "admin" or chat_name.lower() == "system" or chat_name.lower() == "all":
+		if chat_name.lower() == "admin" or chat_name.lower() == "system":
 			return jsonify({'successfully': False, 'reason': Errors.user_dont_exist.name})
 		target_user = users.get(chat_name)
 		if not target_user:
