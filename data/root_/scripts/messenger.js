@@ -198,11 +198,14 @@ function submain(){
 	socket.on('new_message', function(msg) {
 		if (msg.from_user == msg.chat){return}
 		let active_chat = chats.querySelector(".active")
+		let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
+		if (target){
+			chats.prepend(target)
+		}
 		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
 			prepareMessage(msg)
 			markChatAsReaded(active_chat.getAttribute("chat-name"))
 		} else{
-			let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
 			if (target){
 				let notif = target.querySelector(".notification-dot")
 				if (notif.classList.contains("hidden")){
@@ -215,6 +218,7 @@ function submain(){
 				loadProfileImage(msg.from_user, url=>{
 					let ch = addChat(msg.from_user, url, 1)
 					ch.classList.add("online")
+					chats.prepend(ch)
 				})
 			}
 			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
@@ -305,10 +309,12 @@ function submain(){
 					let ch_ = chats.querySelector(`[chat-name="${name}"]`)
 					if (ch_){
 						ch_.classList.add("active")
+						chats.prepend(ch_)
 					} else{
 						let img_ = document.querySelector("#chat-info .chat-icon img")
 						let chat = addChat(name, img_.src)
 						chat.classList.add("active")
+						chats.prepend(chat)
 					}
 
 					const url_ = new URL(window.location);
@@ -407,6 +413,7 @@ function loadProfileImage(userName, callback, error){
 function addFavorites(){
 	let div = addChat(local_storage.userName)
 	div.querySelector(".chat-name").innerHTML = LANG.saved_messages
+	div.style.order = -1;
 	loadProfileImage(local_storage.userName, url=>{
 		div.querySelector(".chat-icon img").src = url
 	})

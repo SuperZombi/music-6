@@ -5,6 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chivo+Mono&display=swap');
 
 :root{
 	scroll-behavior: smooth;
@@ -491,9 +492,9 @@ hr{
 	background: red;
 	width: 18px;
 	height: 18px;
-	font-size: 16px !important;
+	font-size: 14px !important;
 	font-weight: bold;
-	font-family: monospace;
+	font-family: 'Chivo Mono', monospace;
 	border-radius: 50px;
 	display: flex;
 	align-items: center;

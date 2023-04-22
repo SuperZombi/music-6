@@ -64,6 +64,11 @@ html{
 #chats .chat.active{
 	background: var(--details_border);
 }
+#chats .chat > .chat-name{
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: calc(100% - 80px);
+}
 #chats .chat > .chat-icon{
 	height: 90%;
 	aspect-ratio: 1 / 1;
@@ -527,7 +532,7 @@ html{
 		display: block;
 	}
 	#chat-body .message-body{
-		max-width: 60%;
+		max-width: 65%;
 	}	
 	#new-chat-popup{
 		width: 99%;

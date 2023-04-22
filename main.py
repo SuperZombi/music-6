@@ -1228,10 +1228,12 @@ def get_chats():
 					WHEN from_user = :user THEN to_user
 					ELSE from_user
 				END AS chat_user,
-				SUM(CASE WHEN is_read = 0 AND to_user = :user THEN 1 ELSE 0 END) AS unread_messages_count
+				SUM(CASE WHEN is_read = 0 AND to_user = :user THEN 1 ELSE 0 END) AS unread_messages_count,
+				MAX(time) AS last_message_time
 				FROM messages
 				WHERE :user IN (from_user, to_user)
-				GROUP BY chat_user;
+				GROUP BY chat_user
+				ORDER BY last_message_time DESC;
 			''', {"user": request.json['user']})
 			results = cursor.fetchall()
 			result_array = [{"chat_name": t[0],
