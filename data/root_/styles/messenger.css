@@ -3,11 +3,13 @@ html{
 }
 :root{
 	--my-message: lightblue;
-	--foreign-message: #b261ff;
+	--foreign-message: #bc76ff;
 	--info-message: #00c0ff;
 	--info-message-new: hotpink;
 	--message-not-readed: red;
 	--message-readed: blue;
+	--button-hover: rgb(200,200,200, 0.5);
+	--button-active: rgb(125,125,125, 0.5);
 }
 .dark:root{
 	--my-message: #2a2aa7;
@@ -15,6 +17,8 @@ html{
 	--info-message: #3e7eff;
 	--info-message-new: red;
 	--message-readed: lime;
+	--button-hover: rgb(125,125,125, 0.5);
+	--button-active: rgb(200,200,200, 0.5);
 }
 #chats-wrapper{
 	display: flex;
@@ -23,11 +27,12 @@ html{
 	bottom: 0;
 	left: 0;
 	position: fixed;
-	background: url(https://oir.mobi/uploads/posts/2022-08/1661337097_1-oir-mobi-p-fon-dlya-telegram-oboi-1.png);
+	background: url("/root_/images/messenger/chat-background-light.png");
 	background-size: cover;
 }
 .dark #chats-wrapper{
-	background: url(https://oir.mobi/uploads/posts/2022-08/1661337069_2-oir-mobi-p-fon-dlya-telegram-oboi-2.jpg);
+	background: url("/root_/images/messenger/chat-background-dark.jpg");
+	background-size: cover;
 }
 #chats{
 	display: flex;
@@ -134,7 +139,10 @@ html{
 	transition: 0.15s;
 }
 #chat-body #chat-info .chat-info-button:hover{
-	background: var(--details_border);
+	background: var(--button-hover);
+}
+#chat-body #chat-info .chat-info-button:active{
+	background: var(--button-active);
 }
 #chat-body #chat-info #back-button{
 	position: absolute;
@@ -143,6 +151,12 @@ html{
 #chat-body #chat-info #clear-chat{
 	position: absolute;
 	right: 5px;
+}
+#chat-body #chat-info #clear-chat:hover{
+	background: rgb(255, 80, 70, 0.5);
+}
+#chat-body #chat-info #clear-chat:active{
+	background: rgb(255, 80, 70, 0.75);
 }
 #chat-body #chat-info .url{
 	height: 100%;
