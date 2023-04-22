@@ -552,11 +552,23 @@ function addMessage(id, text, from, time, readed=null){
 		</div>
 	`
 	function embedYoutube(text){
-		return text.replaceAll(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)?/gm,
-				(match, contents)=>{ return `<iframe src="https://www.youtube.com/embed/${contents}" frameborder="0" allowfullscreen></iframe>` }
-			)
+		var el = document.createElement( 'html' );
+		el.innerHTML = text
+		el.querySelectorAll("a").forEach(e=>{
+			let reg = [...e.href.matchAll(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/|be\.com\/shorts\/)([\w\-\_]*)?/gm)]
+			if (reg.length > 0){
+				let vid_id = reg[0][1]
+				let iframe = document.createElement("iframe")
+				iframe.src = `https://www.youtube.com/embed/${vid_id}`
+				iframe.setAttribute("frameborder", 0)
+				iframe.setAttribute("allowfullscreen", true)
+				e.after(iframe)
+				e.remove()
+			}
+		})
+		return el.innerHTML
 	}
-	msg.querySelector(".text").innerHTML = marked.parseInline(embedYoutube(text))
+	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(text))
 	msg.querySelector(".helper").onclick = _=>{
 		window.navigator.vibrate(50);
 		msg.querySelector(".helper-body").classList.toggle("show")
