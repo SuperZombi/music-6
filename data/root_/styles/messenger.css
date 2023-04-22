@@ -386,6 +386,9 @@ html{
 	border-radius: 6px;
 	object-fit: cover;
 }
+#chat-body .message-body .text iframe{
+	border-radius: 8px;
+}
 #chat-body .message-body .text > *{
 	color: var(--contrast-color);
 	width: 100%;
