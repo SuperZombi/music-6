@@ -7,3 +7,8 @@ System: {system}
 Device: {device}
 Location: {location}
 	""".strip()
+
+	password_reset = """
+Warning!
+Your password has been reset!
+	""".strip()

@@ -544,6 +544,7 @@ def reset():
 		user = users.get(request.json['user'])
 		user["password"] = request.json['new_password']
 		users.save()
+		send_system_message(request.json['user'], systemMessage.password_reset.value)
 		return jsonify({'successfully': True})
 	else:
 		x['reason'] = Errors.incorrect_name_or_password.name
