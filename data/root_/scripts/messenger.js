@@ -748,6 +748,22 @@ function initAtachments(){
 		e.preventDefault()
 		e.stopPropagation()
 	})
+
+	document.onpaste = function(event){
+		var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+		for (let index in items) {
+			var item = items[index];
+			if (item.kind === 'file') {
+				var blob = item.getAsFile();
+				let current = document.querySelectorAll("#attachments > *").length
+				if (current >= MAX_FILES_COUNT){
+					notice.Error(LANG.max_files_count); return;
+				} else {
+					addFileToAttachments(blob)
+				}
+			}
+		}
+	}
 }
 function addFileToAttachments(file){
 	if (file && file['type'].split('/')[0] === 'image'){
