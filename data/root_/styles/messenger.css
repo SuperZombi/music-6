@@ -248,9 +248,9 @@ html{
 	justify-content: center;
 	align-items: center;
 	box-sizing: border-box;
-	border: 3px dashed green;
+	color: #26cc00;
+	border: 3px dashed;
 	border-radius: 12px;
-	color: green;
 	font-size: 40px;
 }
 #attachments.drag ~ #message-input{
@@ -261,6 +261,7 @@ html{
 	width: 100px;
 	height: 100px;
 	position: relative;
+	filter: drop-shadow(0 0 2px black);
 }
 #attachments .attachment img{
 	height: 100%;
