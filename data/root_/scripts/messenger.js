@@ -551,7 +551,12 @@ function addMessage(id, text, from, time, readed=null){
 			</div>
 		</div>
 	`
-	msg.querySelector(".text").innerHTML = marked.parseInline(text)
+	function embedYoutube(text){
+		return text.replaceAll(/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)?/gm,
+				(match, contents)=>{ return `<iframe src="https://www.youtube.com/embed/${contents}" frameborder="0" allowfullscreen></iframe>` }
+			)
+	}
+	msg.querySelector(".text").innerHTML = marked.parseInline(embedYoutube(text))
 	msg.querySelector(".helper").onclick = _=>{
 		window.navigator.vibrate(50);
 		msg.querySelector(".helper-body").classList.toggle("show")
