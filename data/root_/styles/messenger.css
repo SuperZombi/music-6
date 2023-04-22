@@ -233,6 +233,30 @@ html{
 #attachments:has(.attachment) ~ #message-input{
 	display: none;
 }
+
+#attachments.drag{
+	width: 100%;
+	border: 2px dashed;
+	border-radius: 17px;
+	padding: 5px;
+}
+#attachments.drag:after{
+	content: '+';
+	display: flex;
+	height: 100px;
+	width: 100px;
+	justify-content: center;
+	align-items: center;
+	box-sizing: border-box;
+	border: 3px dashed green;
+	border-radius: 12px;
+	color: green;
+	font-size: 40px;
+}
+#attachments.drag ~ #message-input{
+	display: none;
+}
+
 #attachments .attachment{
 	width: 100px;
 	height: 100px;

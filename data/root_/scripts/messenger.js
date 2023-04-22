@@ -694,52 +694,95 @@ function deleteChat(chatName){
 
 
 function initAtachments(){
+	var MAX_FILES_COUNT = 6
 	document.querySelector("#add-attachment").onclick = _=>{
-		if (document.querySelectorAll("#attachments > *").length >= 4){
+		if (document.querySelectorAll("#attachments > *").length >= MAX_FILES_COUNT){
 			notice.Error(LANG.max_files_count)
 			return
 		}
 		let input = document.createElement('input');
 		input.type = 'file';
 		input.accept = "image/*";
-		input.onchange = async e => { 
-			var file = e.target.files[0];
-			if (file && file['type'].split('/')[0] === 'image'){
-				var _URL = window.URL || window.webkitURL;
-				var img = new Image();
-				var objectUrl = _URL.createObjectURL(file);
-				img.onload = function () {
-					var onSuccessResize = (image)=>{
-						toBase64(image, result=>{
-							if (result){
-								document.getElementById("message-input").value = ""
-								send.classList.remove("disabled")
-								let imgel = document.createElement("img")
-								imgel.src = result
-								
-								let div = document.createElement("div")
-								div.className = "attachment"
-								let close = document.createElement("div")
-								close.className = "remove"
-								close.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>'
-								close.onclick = _=>{
-									div.remove()
-									if (document.querySelectorAll("#attachments > *").length == 0){
-										send.classList.add("disabled")
-									}
-								}
-								div.appendChild(imgel)
-								div.appendChild(close)
-								document.querySelector("#attachments").appendChild(div)
-							}
-						})
-					}
-					ResizeRequest(file, onSuccessResize, ...resizeWithRatio(this.width, this.height, 720, 720));
-				}
-				img.src = objectUrl;
+		input.multiple = true;
+		input.onchange = async e => {
+			let current = document.querySelectorAll("#attachments > *").length
+			if (current + e.target.files.length > MAX_FILES_COUNT){
+				notice.Error(LANG.max_files_count)
+			}
+			for (let i=0, j=current; j<MAX_FILES_COUNT; i++, j++){
+				addFileToAttachments(e.target.files[i])
 			}
 		}
 		input.click();
+	}
+	var dragTimer;
+	['dragenter', 'dragover'].forEach(eventName => {
+		document.querySelector(".chat-input").addEventListener(eventName, e=>{
+			let dt = e.dataTransfer;
+			if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
+				document.querySelector("#attachments").classList.add("drag")
+				clearTimeout(dragTimer);
+			}
+			e.preventDefault()
+			e.stopPropagation()
+		})
+	})
+	document.querySelector(".chat-input").addEventListener("dragleave", e=>{
+		dragTimer = setTimeout(function() {
+			document.querySelector("#attachments").classList.remove("drag")
+		}, 25);
+		e.preventDefault()
+		e.stopPropagation()
+	})
+	document.querySelector(".chat-input").addEventListener("drop", e=>{
+		let dt = e.dataTransfer
+		let files = dt.files
+		document.querySelector("#attachments").classList.remove("drag")
+		let current = document.querySelectorAll("#attachments > *").length
+		if (current + files.length > MAX_FILES_COUNT){
+			notice.Error(LANG.max_files_count)
+		}
+		for (let i=0, j=current; j<MAX_FILES_COUNT; i++, j++){
+			addFileToAttachments(files[i])
+		}
+		e.preventDefault()
+		e.stopPropagation()
+	})
+}
+function addFileToAttachments(file){
+	if (file && file['type'].split('/')[0] === 'image'){
+		var _URL = window.URL || window.webkitURL;
+		var img = new Image();
+		var objectUrl = _URL.createObjectURL(file);
+		img.onload = function () {
+			var onSuccessResize = (image)=>{
+				toBase64(image, result=>{
+					if (result){
+						document.getElementById("message-input").value = ""
+						send.classList.remove("disabled")
+						let imgel = document.createElement("img")
+						imgel.src = result
+						
+						let div = document.createElement("div")
+						div.className = "attachment"
+						let close = document.createElement("div")
+						close.className = "remove"
+						close.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>'
+						close.onclick = _=>{
+							div.remove()
+							if (document.querySelectorAll("#attachments > *").length == 0){
+								send.classList.add("disabled")
+							}
+						}
+						div.appendChild(imgel)
+						div.appendChild(close)
+						document.querySelector("#attachments").appendChild(div)
+					}
+				})
+			}
+			ResizeRequest(file, onSuccessResize, ...resizeWithRatio(this.width, this.height, 720, 720));
+		}
+		img.src = objectUrl;
 	}
 }
 function ResizeRequest(file, callback, desired_W=1280, desired_H=1280){
