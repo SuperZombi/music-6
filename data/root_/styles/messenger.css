@@ -341,6 +341,7 @@ html{
 	cursor: pointer;
 	color: white;
 	position: relative;
+	user-select: none;
 }
 #chat-body .message:hover .helper,
 #chat-body .message.hovered .helper{
@@ -532,6 +533,20 @@ html{
 	visibility: visible;
 	transform: translate(-50%, -50%) scale(1);
 }
+.close_popup{
+	height: 35px;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+	transition: all 0.3s, background 0s;
+	z-index: 5;
+	background: inherit;
+	border-radius: 50%;
+}
+.close_popup:hover{
+	transform: rotate(-90deg);
+}
 
 #new-chat-popup{
 	display: flex;
@@ -633,6 +648,9 @@ html{
 	}
 	#chat-body .message-body .tail .text:has(img){
 		grid-template-columns: 1fr;
+	}
+	#chat-body .message .helper-body > *{
+		padding: 10px 10px;
 	}
 	#chat-body .message .helper-body.hide-caption > * > .caption{
 		display: none;

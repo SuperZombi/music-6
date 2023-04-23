@@ -123,8 +123,15 @@ function submain(){
 		document.querySelector("#new-chat-popup input").value = ""
 		document.getElementById("new-chat-popup").classList.add("show")
 	}
+	document.querySelector("#new-chat-popup .close_popup").onclick = _=>{
+		document.getElementById("new-chat-popup").classList.remove("show")
+	}
+
 	document.getElementById("settings").onclick = _=>{
 		document.getElementById("settings-popup").classList.add("show")
+	}
+	document.querySelector("#settings-popup .close_popup").onclick = _=>{
+		document.getElementById("settings-popup").classList.remove("show")
 	}
 
 	document.querySelector("#new-chat-popup [role=button]").onclick = _=>{
