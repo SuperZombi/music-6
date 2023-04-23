@@ -1,20 +1,10 @@
 main()
 function logout(){
-	if (localStorage.getItem('adminName') && localStorage.getItem('adminPassword')){
-		localStorage.setItem('userName', localStorage.getItem('adminName'))
-		localStorage.setItem('userPassword', localStorage.getItem('adminPassword'))
-		setCookie('userName', localStorage.getItem('adminName'))
-		setCookie('userPassword', localStorage.getItem('adminPassword'))
-		window.localStorage.removeItem("adminName")
-		window.localStorage.removeItem("adminPassword")
-		window.location.reload()
-	} else{
-		window.localStorage.removeItem("userName")
-		window.localStorage.removeItem("userPassword")
-		deleteCookie("userName")
-		deleteCookie("userPassword")
-		goToLogin()
-	}
+	window.localStorage.removeItem("userName")
+	window.localStorage.removeItem("userPassword")
+	deleteCookie("userName")
+	deleteCookie("userPassword")
+	goToLogin()
 }
 function goToLogin(){
 	let filename = window.location.pathname;
@@ -41,9 +31,13 @@ function main(){
 	
 	local_storage = { ...localStorage };
 	if (local_storage.userName && local_storage.userPassword){
-		notice = Notification('#notifications');
-		document.querySelector("#notifications").classList.add("notifications_top")
-		submain()
+		if (getCookie("userName") && getCookie("userPassword")){
+			notice = Notification('#notifications');
+			document.querySelector("#notifications").classList.add("notifications_top")
+			submain()
+		} else{
+			logout()
+		}
 	}
 	else{
 		goToLogin()
