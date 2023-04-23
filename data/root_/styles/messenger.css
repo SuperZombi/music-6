@@ -575,7 +575,7 @@ html{
 	flex-direction: column;
 	gap: 5px;
 }
-#settings-popup label, #settings-popup label input{
+#settings-popup label, #settings-popup label input:not([type="text"]){
 	cursor: pointer;
 }
 

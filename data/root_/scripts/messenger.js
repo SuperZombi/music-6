@@ -45,6 +45,14 @@ function main(){
 }
 function initSettings(){
 	let settings = document.querySelector("#settings-popup")
+
+	settings.querySelector("input[name='translate-messages']").onchange = _=>{
+		localStorage.setItem("translate-messages", settings.querySelector("input[name='translate-messages']").checked)
+	}
+	if (localStorage.getItem("translate-messages")){
+		settings.querySelector("input[name='translate-messages']").checked = JSON.parse(localStorage.getItem("translate-messages"))
+	}
+
 	let translation_lang = settings.querySelector("input[type='text'][name='translation-lang']")
 	if (localStorage.getItem("translation-lang")){
 		translation_lang.value = localStorage.getItem("translation-lang")
@@ -688,24 +696,26 @@ function addMessage(id, text, from, time, readed=null){
 		}
 		msg.querySelector(".helper .helper-body").prepend(copier)
 
-		let translator = document.createElement("div")
-		translator.setAttribute("action", "translate")
-		translator.innerHTML = `
-			<span class="icon"><i class="fa-solid fa-language"></i></span>
-		 	<span class="caption">${LANG.translate}</span>
-		`
-		translator.onclick = _=>{
-			getTextNodes(msg.querySelector(".text")).forEach(node=>{
-				let lang = 	document.querySelector("#settings-popup input[type='text'][name='translation-lang']").value
-				translate(node.textContent, lang, res=>{
-					node.textContent = res
+		if (document.querySelector("input[name='translate-messages']").checked){
+			let translator = document.createElement("div")
+			translator.setAttribute("action", "translate")
+			translator.innerHTML = `
+				<span class="icon"><i class="fa-solid fa-language"></i></span>
+			 	<span class="caption">${LANG.translate}</span>
+			`
+			translator.onclick = _=>{
+				getTextNodes(msg.querySelector(".text")).forEach(node=>{
+					let lang = 	document.querySelector("#settings-popup input[type='text'][name='translation-lang']").value
+					translate(node.textContent, lang, res=>{
+						node.textContent = res
+					})
 				})
-			})
-			setTimeout(_=>{
-				translator.remove()
-			}, 500)
+				setTimeout(_=>{
+					translator.remove()
+				}, 500)
+			}
+			msg.querySelector(".helper .helper-body").prepend(translator)		
 		}
-		msg.querySelector(".helper .helper-body").prepend(translator)
 	}
 
 	messages.appendChild(msg)

@@ -15,16 +15,23 @@
 <div id="settings-popup" class="popup">
 	<img src="/root_/images/close.svg" class="close_popup">
 	<fieldset>
-		<legend>${LANG.translation_lang}</legend>
-		<label>
-			<input type="radio" name="translation-lang" value="default" checked>
-			${LANG.default}
-		</label>
-		<label>
-			<input type="radio" name="translation-lang" value="custom">
-			${LANG.custom}
-			<input type="text" name="translation-lang" maxlength="2" style="width: 30px; vertical-align: top; text-align: center;">
-		</label>
+		<legend style="display: flex; gap: 10px;">
+			<span>${LANG.translate_messages}</span>
+			<input class="form-switch" type="checkbox" name="translate-messages" checked>
+		</legend>
+
+		<div style="display: flex; flex-direction: column; gap: 10px;">
+			<div>${LANG.translation_lang}:</div>
+			<label>
+				<input type="radio" name="translation-lang" value="default" checked>
+				${LANG.default}
+			</label>
+			<label>
+				<input type="radio" name="translation-lang" value="custom">
+				${LANG.custom}
+				<input type="text" name="translation-lang" maxlength="2" style="width: 30px; vertical-align: top; text-align: center; font-size: revert">
+			</label>
+		</div>
 	</fieldset>
 </div>
 
