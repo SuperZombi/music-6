@@ -628,6 +628,18 @@ function addMessage(id, text, from, time, readed=null){
 		})
 		return el.innerHTML
 	}
+	function from_embed_to_link(element){
+		let temp_element = document.createElement("div")
+		temp_element.innerHTML = element.innerHTML
+		temp_element.querySelectorAll("iframe").forEach(e=>{
+			if (e.src.startsWith("https://www.youtube.com/embed/")){
+				let reg = e.src.split(/https:\/\/www\.youtube\.com\/embed\/(.*)/gm).filter(x=>x)[0]
+				e.after(`\nhttps://www.youtube.com/watch?v=${reg}`)
+				e.remove()
+			}
+		})
+		return temp_element.innerHTML
+	}
 	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(text))
 	msg.querySelector(".helper").onclick = _=>{
 		window.navigator.vibrate(50);
@@ -679,7 +691,10 @@ function addMessage(id, text, from, time, readed=null){
 		}, 50)
 	}
 
-	if (getTextNodes(msg.querySelector(".text")).length > 0){
+	let textNodes = getTextNodes(msg.querySelector(".text"))
+	let iframes = [...msg.querySelectorAll(".text iframe")].filter(x=>x.src.startsWith("https://www.youtube.com/embed/"))
+
+	if (textNodes.length > 0 || iframes.length > 0){
 		let copier = document.createElement("div")
 		copier.setAttribute("action", "copy")
 		copier.innerHTML = `
@@ -687,8 +702,10 @@ function addMessage(id, text, from, time, readed=null){
 			<span class="caption">${LANG.copy}</span>
 		`
 		copier.onclick = _=>{
+			let text = from_embed_to_link(msg.querySelector(".text"))
+
 			const elem = document.createElement('textarea');
-			elem.value = msg.querySelector(".text").innerText
+			elem.value = text
 			document.body.appendChild(elem);
 			elem.select();
 			document.execCommand('copy');
@@ -696,7 +713,7 @@ function addMessage(id, text, from, time, readed=null){
 		}
 		msg.querySelector(".helper .helper-body").prepend(copier)
 
-		if (document.querySelector("input[name='translate-messages']").checked){
+		if (textNodes.length > 0 && document.querySelector("input[name='translate-messages']").checked){
 			let translator = document.createElement("div")
 			translator.setAttribute("action", "translate")
 			translator.innerHTML = `
@@ -704,7 +721,7 @@ function addMessage(id, text, from, time, readed=null){
 			 	<span class="caption">${LANG.translate}</span>
 			`
 			translator.onclick = _=>{
-				getTextNodes(msg.querySelector(".text")).forEach(node=>{
+				textNodes.forEach(node=>{
 					let lang = 	document.querySelector("#settings-popup input[type='text'][name='translation-lang']").value
 					translate(node.textContent, lang, res=>{
 						node.textContent = res
