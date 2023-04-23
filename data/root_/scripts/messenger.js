@@ -498,22 +498,25 @@ function loadChat(chatName){
 }
 
 function addInfoMessage(date, timestamp){
-	messages.innerHTML += `
-		<div class="message info time" unix="${timestamp}">
-			<div class="message-body">
-				${date}
-			</div>
+	let msg = document.createElement("div")
+	msg.className = "message info time"
+	msg.setAttribute("unix", timestamp)
+	msg.innerHTML = `
+		<div class="message-body">
+			${date}
 		</div>
 	`
+	messages.appendChild(msg)
 }
 function addInfoNewMessages(){
-	messages.innerHTML += `
-		<div class="message info new">
-			<div class="message-body">
-				${LANG.new_messages}
-			</div>
+	let msg = document.createElement("div")
+	msg.className = "message info new"
+	msg.innerHTML = `
+		<div class="message-body">
+			${LANG.new_messages}
 		</div>
 	`
+	messages.appendChild(msg)
 }
 function addMessage(id, text, from, time, readed=null){
 	let scrollAfter = false;
@@ -568,7 +571,7 @@ function addMessage(id, text, from, time, readed=null){
 		msg.querySelector(".helper-body").classList.toggle("show")
 		msg.classList.toggle("hovered")
 	}
-	msg.querySelectorAll("img").forEach(img=>{
+	msg.querySelectorAll(".text img").forEach(img=>{
 		img.onclick =_=>{
 			openImageFullScreen(img)
 		}
