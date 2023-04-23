@@ -386,6 +386,15 @@ html{
 	display: inline-flex;
 	flex-direction: column;
 }
+#chat-body .message-body .tail .text:has(img){
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 5px;
+	margin-bottom: 2px;
+}
+#chat-body .message-body .tail .text:has(img) :last-child:nth-child(odd) {
+	grid-column: span 2;
+}
 #chat-body .message.info .message-body{
 	background: var(--info-message);
 }
@@ -407,6 +416,7 @@ html{
 }
 #chat-body .message-body .text img{
 	width: 100%;
+	height: 100%;
 	max-height: 40vh;
 	border-radius: 6px;
 	object-fit: cover;
@@ -570,5 +580,8 @@ html{
 	}
 	#media-fullscreener img{
 		max-width: 100%;
+	}
+	#chat-body .message-body .tail .text:has(img){
+		grid-template-columns: 1fr;
 	}
 }
