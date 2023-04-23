@@ -71,7 +71,7 @@ def refit_ai():
 		predict_ai.init("database/users.bd", "database/tracks.bd")
 	Thread(target=setTimeout, daemon=True, args=(600,)).start()
 
-refit_ai()
+Thread(target=refit_ai, daemon=True).start()
 
 
 @app.route("/status")

@@ -359,10 +359,11 @@ html{
 	transition: all 0.5s cubic-bezier(0.65, -0.55, 0.25, 1.55);
 }
 #chat-body .message .helper-body.topper{
-	top: 100%;
+	top: -50%;
+	transform: none !important;
 }
 #chat-body .message .helper-body.bottomer{
-	top: 0;
+	top: -100%;
 }
 #chat-body .message.from-me .helper-body{
 	left: unset;

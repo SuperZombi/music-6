@@ -53,16 +53,17 @@ function initSettings(){
 		settings.querySelector("input[name='translate-messages']").checked = JSON.parse(localStorage.getItem("translate-messages"))
 	}
 
+	let lang = window.navigator.language.substr(0, 2).toLowerCase()
 	let translation_lang = settings.querySelector("input[type='text'][name='translation-lang']")
 	if (localStorage.getItem("translation-lang")){
 		translation_lang.value = localStorage.getItem("translation-lang")
 		settings.querySelector("input[type='radio'][name='translation-lang'][value='custom']").checked = true
 	} else{
-		translation_lang.value = document.documentElement.getAttribute("lang")
+		translation_lang.value = lang
 	}
 	settings.querySelector("input[type='radio'][name='translation-lang'][value='default']").onclick = _=>{
 		localStorage.removeItem("translation-lang")
-		translation_lang.value = document.documentElement.getAttribute("lang")
+		translation_lang.value = lang
 	}
 	translation_lang.onchange = _=>{
 		settings.querySelector("input[type='radio'][name='translation-lang'][value='custom']").checked = true
@@ -654,11 +655,12 @@ function addMessage(id, text, from, time, readed=null){
 			else if (parrent.bottom < target.bottom){
 				msg.querySelector(".helper-body").classList.add("bottomer")
 			}
-			else if (parrent.left > target.left || parrent.right < target.right){
-				msg.querySelector(".helper-body").classList.add("hide-caption")
-			}
 			else{
 				msg.querySelector(".helper-body").classList.remove("topper", "bottomer")
+			}
+			
+			if (parrent.left > target.left || parrent.right < target.right){
+				msg.querySelector(".helper-body").classList.add("hide-caption")
 			}
 		}, 500)
 	}
