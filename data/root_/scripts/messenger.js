@@ -43,7 +43,27 @@ function main(){
 		goToLogin()
 	}
 }
+function initSettings(){
+	let settings = document.querySelector("#settings-popup")
+	let translation_lang = settings.querySelector("input[type='text'][name='translation-lang']")
+	if (localStorage.getItem("translation-lang")){
+		translation_lang.value = localStorage.getItem("translation-lang")
+		settings.querySelector("input[type='radio'][name='translation-lang'][value='custom']").checked = true
+	} else{
+		translation_lang.value = document.documentElement.getAttribute("lang")
+	}
+	settings.querySelector("input[type='radio'][name='translation-lang'][value='default']").onclick = _=>{
+		localStorage.removeItem("translation-lang")
+		translation_lang.value = document.documentElement.getAttribute("lang")
+	}
+	translation_lang.onchange = _=>{
+		settings.querySelector("input[type='radio'][name='translation-lang'][value='custom']").checked = true
+		localStorage.setItem("translation-lang", translation_lang.value)
+	}
+}
 function submain(){
+	initSettings()
+
 	var chats = document.getElementById("chats")
 	var messages = document.getElementById("messages")
 	var send = document.getElementById("send")
@@ -63,6 +83,9 @@ function submain(){
 		if (e.keyCode == 27){
 			if (!document.querySelector("#media-fullscreener").classList.contains("hide")){
 				document.querySelector("#media-fullscreener").classList.add("hide")
+			}
+			else if (document.querySelector("#settings-popup").classList.contains("show")){
+				document.getElementById("settings-popup").classList.remove("show")
 			}
 			else if (document.querySelector("#new-chat-popup").classList.contains("show")){
 				document.getElementById("new-chat-popup").classList.remove("show")
@@ -100,6 +123,10 @@ function submain(){
 		document.querySelector("#new-chat-popup input").value = ""
 		document.getElementById("new-chat-popup").classList.add("show")
 	}
+	document.getElementById("settings").onclick = _=>{
+		document.getElementById("settings-popup").classList.add("show")
+	}
+
 	document.querySelector("#new-chat-popup [role=button]").onclick = _=>{
 		let chatName = document.querySelector("#new-chat-popup input").value.trim()
 		if (chatName){
@@ -109,9 +136,11 @@ function submain(){
 	}
 	document.getElementById("chats-wrapper").addEventListener("click", event=>{
 		let path = event.path || (event.composedPath && event.composedPath());
-		if (path.includes(document.querySelector("#askNewChat"))){return}
-		else{
+		if (!path.includes(document.querySelector("#askNewChat"))){
 			document.getElementById("new-chat-popup").classList.remove("show")
+		}
+		if (!path.includes(document.querySelector("#settings"))){
+			document.getElementById("settings-popup").classList.remove("show")
 		}
 		if (!path.filter(y=>y.classList && y.classList.contains("hovered")).length > 0){
 			document.querySelectorAll("#messages-container .message.hovered").forEach(e=>{
@@ -509,6 +538,21 @@ function addInfoMessage(date, timestamp){
 	`
 	messages.appendChild(msg)
 }
+function getTextNodes(element){
+	let nodes = []
+	if (element.hasChildNodes()){
+		element.childNodes.forEach(node=>{
+			if(node.nodeType === 3){
+				if (node.textContent.trim() != ""){
+					nodes.push(node)
+				}
+			} else{
+				nodes.push(...getTextNodes(node))
+			}
+		})
+	}
+	return nodes
+}
 function addInfoNewMessages(){
 	let msg = document.createElement("div")
 	msg.className = "message info new"
@@ -545,7 +589,10 @@ function addMessage(id, text, from, time, readed=null){
 		<div class="helper">
 			<i class="fa fa-ellipsis"></i>
 			<div class="helper-body">
-				<div action="delete">${LANG.delete}</div>
+				<div action="delete">
+					<span class="icon"><i class="fa-solid fa-trash"></i></span>
+					<span class="caption">${LANG.delete}</span>
+				</div>
 			</div>
 		</div>
 	`
@@ -571,6 +618,22 @@ function addMessage(id, text, from, time, readed=null){
 		window.navigator.vibrate(50);
 		msg.querySelector(".helper-body").classList.toggle("show")
 		msg.classList.toggle("hovered")
+		setTimeout(_=>{
+			let parrent = messages.getBoundingClientRect()
+			let target = msg.querySelector(".helper-body").getBoundingClientRect()
+			if (parrent.top > target.top){
+				msg.querySelector(".helper-body").classList.add("topper")
+			}
+			else if (parrent.bottom < target.bottom){
+				msg.querySelector(".helper-body").classList.add("bottomer")
+			}
+			else if (parrent.left > target.left || parrent.right < target.right){
+				msg.querySelector(".helper-body").classList.add("hide-caption")
+			}
+			else{
+				msg.querySelector(".helper-body").classList.remove("topper", "bottomer")
+			}
+		}, 500)
 	}
 	msg.querySelectorAll(".text img").forEach(img=>{
 		img.onclick =_=>{
@@ -600,6 +663,44 @@ function addMessage(id, text, from, time, readed=null){
 			}
 		}, 50)
 	}
+
+	if (getTextNodes(msg.querySelector(".text")).length > 0){
+		let copier = document.createElement("div")
+		copier.setAttribute("action", "copy")
+		copier.innerHTML = `
+			<span class="icon"><i class="fa-solid fa-copy"></i></span>
+			<span class="caption">${LANG.copy}</span>
+		`
+		copier.onclick = _=>{
+			const elem = document.createElement('textarea');
+			elem.value = msg.querySelector(".text").innerText
+			document.body.appendChild(elem);
+			elem.select();
+			document.execCommand('copy');
+			document.body.removeChild(elem);
+		}
+		msg.querySelector(".helper .helper-body").prepend(copier)
+
+		let translator = document.createElement("div")
+		translator.setAttribute("action", "translate")
+		translator.innerHTML = `
+			<span class="icon"><i class="fa-solid fa-language"></i></span>
+		 	<span class="caption">${LANG.translate}</span>
+		`
+		translator.onclick = _=>{
+			getTextNodes(msg.querySelector(".text")).forEach(node=>{
+				let lang = 	document.querySelector("#settings-popup input[type='text'][name='translation-lang']").value
+				translate(node.textContent, lang, res=>{
+					node.textContent = res
+				})
+			})
+			setTimeout(_=>{
+				translator.remove()
+			}, 500)
+		}
+		msg.querySelector(".helper .helper-body").prepend(translator)
+	}
+
 	messages.appendChild(msg)
 	if (scrollAfter){
 		messages.scrollTop = messages.scrollHeight;
@@ -881,4 +982,21 @@ document.querySelector("#media-fullscreener").onclick = event=>{
 	else{
 		closeFullScreener()
 	}
+}
+
+function translate(text, target, callback) {
+	let sl = "auto"
+	let tl = target
+	let encodedText = encodeURI(text)
+	let translateUrl = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + sl + "&tl=" + tl + "&dt=t&q=" + encodedText;
+	let xhr = new XMLHttpRequest();
+	xhr.open("GET", translateUrl);
+	xhr.onload = function() {
+		if (xhr.status == 200){
+			let result = JSON.parse(xhr.response)[0];
+			let answer = result.map(e=>{return e[0]}).join("")
+			callback(answer)
+		}
+	}
+	xhr.send();
 }

@@ -257,6 +257,11 @@
 	"max_files_count": "Максимальное количество файлов!",
 	"deleting_chat_confirm": "Вы уверены, что хотите удалить этот чат?\nЧат также будет удален у вашего собеседника!",
 
+	"translate": "Перевести",
+	"translation_lang": "Язык перевода",
+	"default": "По умолчанию",
+	"custom": "Выбранный",
+
 	// Verification
 	"verification_title": "Верификация",
 	"verification_button": "Подтвердить",
