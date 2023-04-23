@@ -634,11 +634,11 @@ function addMessage(id, text, from, time, readed=null){
 		temp_element.querySelectorAll("iframe").forEach(e=>{
 			if (e.src.startsWith("https://www.youtube.com/embed/")){
 				let reg = e.src.split(/https:\/\/www\.youtube\.com\/embed\/(.*)/gm).filter(x=>x)[0]
-				e.after(`\nhttps://www.youtube.com/watch?v=${reg}`)
+				e.after(`https://www.youtube.com/watch?v=${reg}`)
 				e.remove()
 			}
 		})
-		return temp_element.innerHTML
+		return temp_element.innerText
 	}
 	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(text))
 	msg.querySelector(".helper").onclick = _=>{
@@ -724,7 +724,7 @@ function addMessage(id, text, from, time, readed=null){
 				textNodes.forEach(node=>{
 					let lang = 	document.querySelector("#settings-popup input[type='text'][name='translation-lang']").value
 					translate(node.textContent, lang, res=>{
-						node.textContent = res
+						node.textContent = res + "\n"
 					})
 				})
 				setTimeout(_=>{
