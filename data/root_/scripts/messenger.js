@@ -93,6 +93,9 @@ function submain(){
 			if (!document.querySelector("#media-fullscreener").classList.contains("hide")){
 				document.querySelector("#media-fullscreener").classList.add("hide")
 			}
+			else if (document.querySelector("#quotes").classList.contains("show")){
+				cancelQuote()
+			}
 			else if (document.querySelector("#settings-popup").classList.contains("show")){
 				document.getElementById("settings-popup").classList.remove("show")
 			}
@@ -104,7 +107,7 @@ function submain(){
 				messages.innerHTML = ""
 			}
 		}
-		else if (e.keyCode == 13 && !e.shiftKey){
+		else if (e.keyCode == 13 && !e.shiftKey && window.innerWidth > window.innerHeight){
 			if (document.querySelector("#new-chat-popup").classList.contains("show")){
 				document.querySelector("#new-chat-popup [role=button]").onclick()
 			}
@@ -161,7 +164,7 @@ function submain(){
 		if (!path.filter(y=>y.classList && y.classList.contains("hovered")).length > 0){
 			document.querySelectorAll("#messages-container .message.hovered").forEach(e=>{
 				e.classList.remove("hovered")
-				e.querySelector(".helper-body").classList.remove("show")
+				e.querySelector(".helper-body").classList.remove("show", "topper", "bottomer")
 			})
 		}
 	})
@@ -178,6 +181,7 @@ function submain(){
 			url_.searchParams.delete('new-chat');
 			window.history.pushState(null, '', url_.toString());
 		}
+		cancelQuote()
 	}
 	document.querySelector("#clear-chat").onclick = _=>{
 		window.navigator.vibrate(100);
@@ -197,6 +201,16 @@ function submain(){
 			}
 		}
 	});
+
+	document.querySelector("#quote_message").addEventListener("click", _=>{
+		let msg;
+		if (document.querySelector("#quotes").getAttribute("edit-mode")){
+			msg = document.querySelector("#quote_message").getAttribute("edit-message-id")
+		} else{
+			msg = document.querySelector("#quote_message").getAttribute("reply-to-message-id")
+		}
+		focusMessage(msg)
+	})
 
 	addFavorites()
 	initAtachments()
@@ -283,6 +297,17 @@ function submain(){
 			target.remove()
 		}
 	});
+	socket.on('edit_message', function(msg) {
+		let old_element = messages.querySelector(`.message[message-id="${msg.id}"]`)
+		if (old_element){
+			let date = new Date(msg.time * 1000)
+			let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
+			msg.time = time
+
+			let new_message = buildMessage(msg)
+			old_element.replaceWith(new_message)		
+		}
+	});
 	socket.on('chat_readed', function(msg) {
 		let active_chat = chats.querySelector(".active")
 		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
@@ -329,6 +354,23 @@ function submain(){
 		send.classList.add("disabled")
 		message_input.readOnly = true;
 
+		let data = {
+			'user': local_storage.userName,
+			'password': local_storage.userPassword,
+			"chat": decodeURI(window.location.hash).substring(1),
+			"message": message_input.value.trim()
+		}
+
+		if (document.querySelector("#quote_message").innerHTML != ""){
+			if (document.querySelector("#quotes").getAttribute("edit-mode")){
+				msg_id = document.querySelector("#quote_message").getAttribute("edit-message-id")
+				data = {...data, "edit_message": msg_id}
+			} else{
+				msg_id = document.querySelector("#quote_message").getAttribute("reply-to-message-id")
+				data = {...data, "reply_to_message": msg_id}
+			}
+		}
+
 		let xhr = new XMLHttpRequest();
 		xhr.open("POST", '/api/messenger/send_message')
 		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -343,36 +385,43 @@ function submain(){
 					send.classList.add("disabled")
 					document.querySelector("#attachments").innerHTML = ""
 					document.querySelector("#chat-info .chat-icon").classList.remove("online")
-					prepareMessage(answer.message)
 
-					let name = document.querySelector("#chat-info .chat-name").innerHTML
-					let ch_ = chats.querySelector(`[chat-name="${name}"]`)
-					if (ch_){
-						ch_.classList.add("active")
-						chats.prepend(ch_)
+					if (document.querySelector("#quotes").getAttribute("edit-mode")){
+						let date = new Date(answer.message.time * 1000)
+						let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
+						answer.message.time = time
+
+						let new_message = buildMessage(answer.message)
+						let old_element = messages.querySelector(`.message[message-id="${answer.message.id}"]`)
+						old_element.replaceWith(new_message)
 					} else{
-						let img_ = document.querySelector("#chat-info .chat-icon img")
-						let chat = addChat(name, img_.src)
-						chat.classList.add("active")
-						chats.prepend(chat)
-					}
+						prepareMessage(answer.message)
 
-					const url_ = new URL(window.location);
-					if (url_.searchParams.has('new-chat')){
-						url_.searchParams.delete('new-chat');
-						window.history.pushState(null, '', url_.toString());
+						let name = document.querySelector("#chat-info .chat-name").innerHTML
+						let ch_ = chats.querySelector(`[chat-name="${name}"]`)
+						if (ch_){
+							ch_.classList.add("active")
+							chats.prepend(ch_)
+						} else{
+							let img_ = document.querySelector("#chat-info .chat-icon img")
+							let chat = addChat(name, img_.src)
+							chat.classList.add("active")
+							chats.prepend(chat)
+						}
+
+						const url_ = new URL(window.location);
+						if (url_.searchParams.has('new-chat')){
+							url_.searchParams.delete('new-chat');
+							window.history.pushState(null, '', url_.toString());
+						}
 					}
+					cancelQuote()
 					return
 				}
 			}
 			notice.Error(LANG.failed_send_message)
 		}
-		xhr.send(JSON.stringify({
-			'user': local_storage.userName,
-			'password': local_storage.userPassword,
-			"chat": decodeURI(window.location.hash).substring(1),
-			"message": message_input.value.trim()
-		}))
+		xhr.send(JSON.stringify(data))
 	}
 
 	let search = new URLSearchParams(window.location.search)
@@ -493,6 +542,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		}
 		document.querySelector("#message-input").value = ""
 		document.querySelector("#attachments").innerHTML = ""
+		cancelQuote()
 		document.getElementById("chat-body").classList.add("show")
 		document.querySelector("#chat-info .chat-icon").classList.remove("online")
 		chats.querySelectorAll(".active").forEach(e=>{
@@ -579,32 +629,39 @@ function addInfoNewMessages(){
 	`
 	messages.appendChild(msg)
 }
-function addMessage(id, text, from, time, readed=null){
-	let scrollAfter = false;
-	if (messages.scrollTop + messages.clientHeight + 10 >= messages.scrollHeight || from == local_storage.userName){
-		scrollAfter = true;
-	}
+function buildMessage(message){
 	let msg = document.createElement('div')
 	msg.className = "message"
-	msg.setAttribute("message-id", id)
-	msg.classList.add(from == local_storage.userName ? "from-me": "from-other")
-	if (readed != null && from == local_storage.userName){
-		readed ? null : msg.classList.add("not-readed")
+	msg.setAttribute("message-id", message.id)
+	msg.classList.add(message.from_user == local_storage.userName ? "from-me": "from-other")
+	if (message.readed != null && message.from_user == local_storage.userName){
+		message.readed ? null : msg.classList.add("not-readed")
 	}
-	
-	// ${from == local_storage.userName ? "": `<div class="user">${from}</div>`}
+
+	// ${message.from_user == local_storage.userName ? "": `<div class="user">${message.from_user}</div>`}
 	msg.innerHTML = `
 		<div class="message-body">
 
+			${message.reply_to_message ?
+				`<div class="reply-to-message" message-id="${message.reply_to_message}">
+					${message.reply_to_message_text}
+				</div>` : ""
+			}
 			<div class="tail">
 				<div class="text"></div>
-				<time>${time}</time>
+				<time>${message.time}</time>
 			</div>
 		</div>
 
 		<div class="helper">
 			<i class="fa fa-ellipsis"></i>
 			<div class="helper-body">
+				${document.querySelector(".chat-input").classList.contains("readonly") ? "" : `
+					<div action="reply" style="order: -1">
+						<span class="icon"><i class="fa-solid fa-reply"></i></span>
+						<span class="caption">Reply</span>
+					</div>
+				`}
 				<div action="delete">
 					<span class="icon"><i class="fa-solid fa-trash"></i></span>
 					<span class="caption">${LANG.delete}</span>
@@ -641,9 +698,10 @@ function addMessage(id, text, from, time, readed=null){
 		})
 		return temp_element.innerText
 	}
-	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(text))
+	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(message.message))
 	msg.querySelector(".helper").onclick = _=>{
 		window.navigator.vibrate(50);
+		msg.querySelector(".helper-body").classList.remove("topper", "bottomer")
 		msg.querySelector(".helper-body").classList.toggle("show")
 		msg.classList.toggle("hovered")
 		setTimeout(_=>{
@@ -654,9 +712,6 @@ function addMessage(id, text, from, time, readed=null){
 			}
 			else if (parrent.bottom < target.bottom){
 				msg.querySelector(".helper-body").classList.add("bottomer")
-			}
-			else{
-				msg.querySelector(".helper-body").classList.remove("topper", "bottomer")
 			}
 			
 			if (parrent.left > target.left || parrent.right < target.right){
@@ -669,6 +724,27 @@ function addMessage(id, text, from, time, readed=null){
 			openImageFullScreen(img)
 		}
 	})
+
+	let replyer = msg.querySelector('[action="reply"]')
+	if (replyer){
+		replyer.onclick = _=>{
+			cancelQuote()
+			document.querySelector("#quotes").classList.add("show")
+			document.querySelector("#quote_message").setAttribute("reply-to-message-id", message.id)
+			document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
+			document.querySelector("#message-input").focus()
+		}
+		msg.ondblclick = e=>{
+			if(document.selection && document.selection.empty) {
+				document.selection.empty();
+			} else if(window.getSelection) {
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+			}
+
+			msg.querySelector('[action="reply"]').onclick()
+		}
+	}
 	msg.querySelector('[action="delete"]').onclick = _=>{
 		window.navigator.vibrate(100);
 		setTimeout(_=>{
@@ -715,6 +791,24 @@ function addMessage(id, text, from, time, readed=null){
 		}
 		msg.querySelector(".helper .helper-body").prepend(copier)
 
+		if (message.from_user == local_storage.userName){
+			let editor = document.createElement("div")
+			editor.setAttribute("action", "edit")
+			editor.innerHTML = `
+				<span class="icon"><i class="fa-solid fa-pen"></i></span>
+				<span class="caption">${LANG.edit}</span>
+			`
+			editor.onclick = _=>{
+				document.querySelector("#message-input").value = message.message
+				document.querySelector("#quotes").classList.add("show")
+				document.querySelector("#quotes").setAttribute("edit-mode", true)
+				document.querySelector("#quote_message").setAttribute("edit-message-id", message.id)
+				document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
+				document.querySelector("#message-input").focus()
+			}
+			msg.querySelector(".helper .helper-body").prepend(editor)
+		}
+
 		if (textNodes.length > 0 && document.querySelector("input[name='translate-messages']").checked){
 			let translator = document.createElement("div")
 			translator.setAttribute("action", "translate")
@@ -737,11 +831,45 @@ function addMessage(id, text, from, time, readed=null){
 		}
 	}
 
+	if (message.reply_to_message){
+		msg.querySelector(".reply-to-message").onclick = _=>{
+			focusMessage(message.reply_to_message)
+		}	
+	}
+
+	return msg
+}
+function addMessage(message){
+	let scrollAfter = false;
+	if (messages.scrollTop + messages.clientHeight + 10 >= messages.scrollHeight || message.from_user == local_storage.userName){
+		scrollAfter = true;
+	}
+
+	let msg = buildMessage(message)
 	messages.appendChild(msg)
 	if (scrollAfter){
 		messages.scrollTop = messages.scrollHeight;
 	}
 }
+
+function cancelQuote(){
+	document.querySelector("#quotes").classList.remove("show")
+	document.querySelector("#quote_message").removeAttribute("reply-to-message-id")
+	document.querySelector("#quote_message").innerHTML = ""
+	if (document.querySelector("#quotes").getAttribute("edit-mode")){
+		document.querySelector("#quotes").removeAttribute("edit-mode")
+		document.querySelector("#message-input").value = ""
+	}
+}
+function focusMessage(id){
+	let el = messages.querySelector(`.message[message-id="${id}"]`)
+	el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+	el.classList.add("highlight")
+	setTimeout(_=>{
+		el.classList.remove("highlight")
+	}, 500)
+}
+
 function prepareMessage(msg){
 	let date = new Date(msg.time * 1000)
 
@@ -762,7 +890,8 @@ function prepareMessage(msg){
 	}
 
 	let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-	addMessage(msg.id, msg.message, msg.from_user, time, msg.is_read)
+	msg.time = time
+	addMessage(msg)
 }
 function buildMessages(array){
 	messages.classList.remove("smooth")
@@ -790,7 +919,8 @@ function buildMessages(array){
 			last_date = new_date
 		}
 		let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-		addMessage(msg.id, msg.message, msg.from_user, time, msg.is_read)
+		msg.time = time
+		addMessage(msg)
 	})
 
 	setTimeout(_=>{

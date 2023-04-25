@@ -53,12 +53,13 @@ with sqlite3.connect('database/messages.db') as conn:
 	c = conn.cursor()
 	c.execute('''
 		CREATE TABLE IF NOT EXISTS "messages" (
-			"id"        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			"from_user" TEXT NOT NULL,
-			"to_user"   TEXT NOT NULL,
-			"message"   TEXT,
-			"time"      NUMERIC,
-			"is_read"   INTEGER DEFAULT 0
+			"id"               INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"from_user"        TEXT NOT NULL,
+			"to_user"          TEXT NOT NULL,
+			"message"          TEXT,
+			"reply_to_message" INTEGER,
+			"time"             NUMERIC,
+			"is_read"          INTEGER DEFAULT 0
 		);
 	''')
 	conn.commit()
@@ -1256,9 +1257,11 @@ def get_messages():
 		with sqlite3.connect('database/messages.db') as conn:
 			cursor = conn.cursor()
 			cursor.execute(f'''
-				SELECT * FROM messages
-				WHERE (from_user = :user AND to_user = :chat)
-				OR (from_user = :chat AND to_user = :user);
+				SELECT m.*, r.message AS reply_to_message_text 
+				FROM messages m
+				LEFT JOIN messages r ON m.reply_to_message = r.id
+				WHERE (m.from_user = :user AND m.to_user = :chat)
+				OR (m.from_user = :chat AND m.to_user = :user);
 			''', {"user": request.json['user'], "chat": chat_name})
 			results = cursor.fetchall()
 			column_names = [column[0] for column in cursor.description]
@@ -1300,31 +1303,75 @@ def send_message():
 		time_now = int(time.time())
 		with sqlite3.connect('database/messages.db') as conn:
 			cursor = conn.cursor()
-			cursor.execute(f'''
-				INSERT INTO messages (from_user, to_user, message, time)
-				VALUES (?, ?, ?, '{time_now}')
-				RETURNING id;
-			''', (request.json['user'], chat_name, message))
-			row_id = cursor.fetchone()[0]
-			cursor.execute(f'''
-				UPDATE messages
-				SET is_read = 1
-				WHERE (from_user = ? AND to_user = ?);
-			''', (chat_name, request.json['user']))
+
+			if request.json.get("edit_message", None):
+				cursor.execute(f'''
+					UPDATE messages
+					SET message = :message
+					WHERE (from_user = :from_user AND to_user = :to_user AND id = :edit_message_id)
+					RETURNING id;
+				''', {"from_user": request.json['user'],
+					  "to_user": chat_name,
+					  "message": message,
+					  "edit_message_id": request.json.get("edit_message")}
+				)
+				row_id = cursor.fetchone()[0]
+				cursor.execute(f'''
+					SELECT m.*, r.message AS reply_to_message_text 
+					FROM messages m
+					LEFT JOIN messages r ON m.reply_to_message = r.id
+					WHERE (m.id = {row_id});
+				''')
+				results = cursor.fetchall()[0]
+				column_names = [column[0] for column in cursor.description]
+				result_array = dict(zip(column_names, results))
+				msg = {**result_array, "is_read": bool(result_array["is_read"])}
+			else:
+				cursor.execute(f'''
+					INSERT INTO messages (from_user, to_user, message, reply_to_message, time)
+					VALUES (:from_user, :to_user, :message, :reply_to_message, '{time_now}')
+					RETURNING id;
+				''', {"from_user": request.json['user'],
+					  "to_user": chat_name,
+					  "message": message,
+					  "reply_to_message": request.json.get("reply_to_message", None)}
+				)
+				row_id = cursor.fetchone()[0]
+				cursor.execute(f'''
+					UPDATE messages
+					SET is_read = 1
+					WHERE (from_user = ? AND to_user = ?);
+				''', (chat_name, request.json['user']))
+
+				msg = {
+					"id": row_id,
+					"from_user": request.json['user'],
+					"chat": chat_name,
+					"message": message,
+					"time": time_now,
+					"is_read": False
+				}
+
 			conn.commit()
 
-			msg = {
-				"id": row_id,
-				"from_user": request.json['user'],
-				"chat": chat_name,
-				"message": message,
-				"time": time_now,
-				"is_read": False
-			}
+			if (request.json.get("reply_to_message", None)):
+				cursor.execute(f'''
+					SELECT message FROM messages
+					WHERE id = {request.json.get("reply_to_message")};
+				''')
+				message_text = cursor.fetchone()[0]
+
+				msg["reply_to_message"] = request.json.get("reply_to_message")
+				msg["reply_to_message_text"] = message_text
+
+			if request.json.get("edit_message", None):
+				event = 'edit_message'
+			else:
+				event = 'new_message'
 
 			sid = socket_users.get(chat_name, None)
 			if sid:
-				emit('new_message', msg, namespace='/', broadcast=True, room=sid)
+				emit(event, msg, namespace='/', broadcast=True, room=sid)
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True, "message": msg})
 		
