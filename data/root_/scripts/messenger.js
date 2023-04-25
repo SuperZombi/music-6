@@ -662,7 +662,7 @@ function buildMessage(message){
 						<span class="caption">${LANG.reply}</span>
 					</div>
 				`}
-				<div action="delete">
+				<div action="delete" style="order: 2">
 					<span class="icon"><i class="fa-solid fa-trash"></i></span>
 					<span class="caption">${LANG.delete}</span>
 				</div>
@@ -811,6 +811,7 @@ function buildMessage(message){
 
 		if (textNodes.length > 0 && document.querySelector("input[name='translate-messages']").checked){
 			let translator = document.createElement("div")
+			translator.style.order = "2";
 			translator.setAttribute("action", "translate")
 			translator.innerHTML = `
 				<span class="icon"><i class="fa-solid fa-language"></i></span>
