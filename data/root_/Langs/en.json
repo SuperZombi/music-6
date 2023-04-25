@@ -254,6 +254,7 @@
 	"max_files_count": "Maximum number of files!",
 	"deleting_chat_confirm": "Are you sure you want to delete this chat?\nThe chat will also be deleted from your interlocutor!",
 
+	"reply": "Reply",
 	"translate": "Translate",
 	"translate_messages": "Translate messages",
 	"translation_lang": "Translation language",

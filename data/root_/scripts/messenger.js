@@ -659,7 +659,7 @@ function buildMessage(message){
 				${document.querySelector(".chat-input").classList.contains("readonly") ? "" : `
 					<div action="reply" style="order: -1">
 						<span class="icon"><i class="fa-solid fa-reply"></i></span>
-						<span class="caption">Reply</span>
+						<span class="caption">${LANG.reply}</span>
 					</div>
 				`}
 				<div action="delete">
