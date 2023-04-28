@@ -73,6 +73,12 @@ function initSettings(){
 function submain(){
 	initSettings()
 
+	Notification.requestPermission().then(perm=>{
+		if (perm === "denied"){
+			notice.Error("Please allow notifications")
+		}
+	})
+
 	var chats = document.getElementById("chats")
 	var messages = document.getElementById("messages")
 	var send = document.getElementById("send")
@@ -287,6 +293,8 @@ function submain(){
 			prepareMessage(msg)
 			if (!document.hidden){
 				markChatAsReaded(active_chat.getAttribute("chat-name"))
+			} else{
+				pushNotifications(msg.from_user, msg.message, active_chat.querySelector(".chat-icon img").src)
 			}
 		} else{
 			if (target){
@@ -297,11 +305,13 @@ function submain(){
 				} else{
 					notif.innerHTML = parseInt(notif.innerHTML) + 1
 				}
+				pushNotifications(msg.from_user, msg.message, target.querySelector(".chat-icon img").src)
 			} else{
 				loadProfileImage(msg.from_user, url=>{
 					let ch = addChat(msg.from_user, url, 1)
 					ch.classList.add("online")
 					chats.prepend(ch)
+					pushNotifications(msg.from_user, msg.message, url)
 				})
 			}
 			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
@@ -459,6 +469,25 @@ function submain(){
 	}
 }
 
+var push_notifications = {}
+function pushNotifications(from_user, message, icon){
+	let notification = new Notification(from_user, {
+		body: message,
+		icon: icon,
+		tag: from_user,
+		renotify: true,
+		vibrate: [200, 100, 200]
+	})
+	notification.addEventListener("click", event=>{
+		let target = chats.querySelector(`[chat-name="${event.target.tag}"]`)
+		if (target){
+			window.parent.parent.focus();
+			target.onclick()
+		}
+	})
+	push_notifications[from_user] = notification
+}
+
 function markChatAsReaded(chatName){
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", '/api/messenger/mark_chat_as_readed')
@@ -597,6 +626,11 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		loadChat(chatName)
 		notification.classList.add("hidden")
 		notification.innerHTML = ""
+
+		if (push_notifications[chatName]){
+			push_notifications[chatName].close()
+			delete push_notifications[chatName];
+		}
 	}
 	chats.appendChild(div)
 	return div
