@@ -244,7 +244,6 @@
 	// Messenger
 	"messenger": "Мессенджер",
 	"receive_messages": "Получать сообщения",
-	"notifications": "Уведомления",
 	"failed_send_message": "Не удалось отправить сообщение",
 	"user_not_found": "Пользователь не найден",
 	"saved_messages": "Сохранённые сообщения",

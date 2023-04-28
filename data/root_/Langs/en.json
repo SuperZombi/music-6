@@ -241,7 +241,6 @@
 	// Messenger
 	"messenger": "Messenger",
 	"receive_messages": "Receive messages",
-	"notifications": "Notifications",
 	"failed_send_message": "Failed to send message",
 	"user_not_found": "User is not found",
 	"saved_messages": "Saved messages",

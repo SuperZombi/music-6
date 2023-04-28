@@ -139,13 +139,16 @@ function initSelectedMenuElement(li_name, html_atribute, change_handler){
 	})
 }
 function updateMenuElement(li_name, html_atribute){
-	let main_el = document.querySelector(`#main_menu .menu li[submenu='${li_name}']`)
+	let main_el = document.querySelector(`#main_menu li[submenu='${li_name}']`)
 	let submenu = document.querySelector(`#main_menu .submenu[name='${li_name}']`)
 	let selected_old = submenu.querySelector('li.selected')
 	selected_old.classList.remove('selected')
 	let selected = submenu.querySelector(`li[value="${html_atribute}"]`)
 	main_el.querySelector(".helper").innerHTML = selected.textContent
 	selected.classList.add("selected")
+	if (li_name == "theme"){
+		initMenuIcons()
+	}
 }
 
 if (document.querySelector('#main_menu')){
