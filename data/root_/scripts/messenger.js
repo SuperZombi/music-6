@@ -32,7 +32,7 @@ function main(){
 	local_storage = { ...localStorage };
 	if (local_storage.userName && local_storage.userPassword){
 		if (getCookie("userName") && getCookie("userPassword")){
-			notice = Notification('#notifications');
+			notice = new Notifications('#notifications');
 			document.querySelector("#notifications").classList.add("notifications_top")
 			submain()
 		} else{

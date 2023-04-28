@@ -256,7 +256,7 @@ function afterLogin(delay=1000){
 var phoneMask;
 function main(){
 	document.title = `${LANG.login_title} - Zombi Music`
-	notice = Notification('#notifications');
+	notice = new Notifications('#notifications');
 
 	const urlSearchParams = new URLSearchParams(window.location.search);
 	searchParams = Object.fromEntries(urlSearchParams.entries());

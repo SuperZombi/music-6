@@ -16,7 +16,7 @@ async function main(){
 	document.title = `${LANG.favorites_title} - Zombi Music`
 	local_storage = { ...localStorage };
 	if (local_storage.userName && local_storage.userPassword){
-		notice = Notification('#notifications');
+		notice = new Notifications('#notifications');
 		document.body.onclick = event => checkHideMenu(event)
 
 		if (document.getElementById('myAccount').getElementsByTagName('img')[0].src.split('.').pop() == "svg"){

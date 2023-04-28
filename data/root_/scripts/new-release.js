@@ -333,7 +333,7 @@ function goToLogin(){
 
 function main(){
     document.title = `${LANG.new_release} - Zombi Music`
-    notice = Notification('#notifications');
+    notice = new Notifications('#notifications');
     local_storage = { ...localStorage };
     if (local_storage.userName && local_storage.userPassword){
         document.getElementById("form_artist").value = local_storage.userName

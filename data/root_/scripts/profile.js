@@ -123,7 +123,7 @@ function main(){
 		a.innerHTML = local_storage.userName;
 		document.getElementById("user-name").appendChild(a);
 
-		notice = Notification('#notifications');
+		notice = new Notifications('#notifications');
 		document.querySelector("#notifications").classList.add("notifications_top")
 		document.querySelector(".logout > #logout-icon").style.display = "block"
 		document.querySelector(".logout > #logout-icon").onclick = logout
@@ -191,7 +191,7 @@ async function submain() {
 			document.querySelector("#bonus-code-field").value = code
 		}
 
-		bonusCodeNotice = Notification("#bonus-code-notice")
+		bonusCodeNotice = new Notifications("#bonus-code-notice")
 		function scrollNoticeTop(){
 			if (bonusCodeNotice.element.style.justifyContent != "unset"){
 				bonusCodeNotice.element.style.justifyContent = "unset"

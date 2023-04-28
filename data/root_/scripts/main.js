@@ -300,7 +300,7 @@ function main(){
 	}
 
 	local_storage = { ...localStorage };
-	notice = Notification('#notifications');
+	notice = new Notifications('#notifications');
 	player = local_storage.player ? local_storage.player : "simple";
 	loadStatistics()
 
