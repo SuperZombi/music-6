@@ -120,6 +120,33 @@ function submain(){
 			}
 		}
 	}
+	window.addEventListener('blur', _=> {
+		fetch("/api/messenger/change_user_status", {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				'user': local_storage.userName,
+				'password': local_storage.userPassword,
+				'status': "offline"
+			})
+		})
+	});
+	window.addEventListener('focus', _=> {
+		fetch("/api/messenger/change_user_status", {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				'user': local_storage.userName,
+				'password': local_storage.userPassword,
+				'status': "online"
+			})
+		})
+		let active_chat = chats.querySelector(".active")
+		if (active_chat){
+			markChatAsReaded(active_chat.getAttribute("chat-name"))
+		}
+	});
+
 	messages.addEventListener("scroll", _=>{
 		if (messages.scrollTop + messages.clientHeight + 100 <= messages.scrollHeight){
 			scrollBottom.classList.add("show")
@@ -258,7 +285,9 @@ function submain(){
 		}
 		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
 			prepareMessage(msg)
-			markChatAsReaded(active_chat.getAttribute("chat-name"))
+			if (!document.hidden){
+				markChatAsReaded(active_chat.getAttribute("chat-name"))
+			}
 		} else{
 			if (target){
 				let notif = target.querySelector(".notification-dot")
@@ -634,8 +663,8 @@ function buildMessage(message){
 	msg.className = "message"
 	msg.setAttribute("message-id", message.id)
 	msg.classList.add(message.from_user == local_storage.userName ? "from-me": "from-other")
-	if (message.readed != null && message.from_user == local_storage.userName){
-		message.readed ? null : msg.classList.add("not-readed")
+	if (message.is_read != null && message.from_user == local_storage.userName){
+		message.is_read ? null : msg.classList.add("not-readed")
 	}
 
 	// ${message.from_user == local_storage.userName ? "": `<div class="user">${message.from_user}</div>`}

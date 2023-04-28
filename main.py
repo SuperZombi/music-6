@@ -1444,6 +1444,23 @@ def mark_chat_as_readed():
 		return jsonify({'successfully': True})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
+@app.route('/api/messenger/change_user_status', methods=['POST'])
+def change_user_status():
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
+	if x['successfully']:
+		new_status = request.json['status'].lower()
+		if new_status in ('online', 'offline'):
+			if new_status == 'online':
+				emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
+			elif new_status == 'offline':
+				emit('user_offline', {"from_user": request.json['user']}, namespace='/', broadcast=True)
+			
+			return jsonify({'successfully': True})
+
+		return jsonify({'successfully': False, 'reason': Errors.invalid_parameters.name})
+	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
+
 
 def send_system_message(user, message):
 	with sqlite3.connect('database/messages.db') as conn:
