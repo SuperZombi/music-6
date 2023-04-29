@@ -72,12 +72,7 @@ function initSettings(){
 }
 function submain(){
 	initSettings()
-
-	Notification.requestPermission().then(perm=>{
-		if (perm === "denied"){
-			notice.Error("Please allow notifications")
-		}
-	})
+	initPushNotifications()
 
 	var chats = document.getElementById("chats")
 	var messages = document.getElementById("messages")
@@ -357,7 +352,7 @@ function submain(){
 	});
 	socket.on('user_online', function(msg) {
 		if (msg.from_user != local_storage.userName){
-			let chat = chats.querySelector(`[chat-name=${msg.from_user}]`)
+			let chat = chats.querySelector(`[chat-name="${msg.from_user}"]`)
 			if (chat){
 				chat.classList.add("online")
 				let active_chat = chats.querySelector(".active")
@@ -369,7 +364,7 @@ function submain(){
 	});
 	socket.on('user_offline', function(msg) {
 		if (msg.from_user != local_storage.userName){
-			let chat = chats.querySelector(`[chat-name=${msg.from_user}]`)
+			let chat = chats.querySelector(`[chat-name="${msg.from_user}"]`)
 			if (chat){
 				chat.classList.remove("online")
 				let active_chat = chats.querySelector(".active")
@@ -469,23 +464,53 @@ function submain(){
 	}
 }
 
-var push_notifications = {}
-function pushNotifications(from_user, message, icon){
-	let notification = new Notification(from_user, {
-		body: message,
-		icon: icon,
-		tag: from_user,
-		renotify: true,
-		vibrate: [200, 100, 200]
-	})
-	notification.addEventListener("click", event=>{
-		let target = chats.querySelector(`[chat-name="${event.target.tag}"]`)
-		if (target){
-			window.parent.parent.focus();
-			target.onclick()
+async function getSW(callback){
+	let reg = await navigator.serviceWorker.getRegistration('/root_/scripts/service-worker.js');
+	await reg.update()
+	callback(reg)
+}
+function initPushNotifications(){
+	Notification.requestPermission().then(perm=>{
+		if (perm === "denied"){
+			console.error("Notifications denied")
+		}
+		else if (perm == "granted"){
+			navigator.serviceWorker.register('/root_/scripts/service-worker.js').then(
+				registration=>{
+					if (registration) {
+						registration.update();
+					}
+				},
+				error=>{
+					console.error('ServiceWorker registration failed', error);
+				}
+			);
+
+			navigator.serviceWorker.addEventListener('message', function(event) {
+				if (event.data) {
+					if (event.data.open_chat){
+						let target = chats.querySelector(`[chat-name="${event.data.open_chat}"]`)
+						if (target){
+							target.onclick()
+							window.parent.parent.focus();
+						}
+					}
+				}
+			});
 		}
 	})
-	push_notifications[from_user] = notification
+}
+
+async function pushNotifications(from_user, message, icon){
+	getSW(reg=>{
+		message = message.length > 100 ? message.slice(0, 100) + "..." : message
+		reg.showNotification(from_user, {
+			body: message,
+			icon: icon,
+			tag: from_user,
+			renotify: true
+		});
+	})
 }
 
 function markChatAsReaded(chatName){
@@ -627,10 +652,11 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		notification.classList.add("hidden")
 		notification.innerHTML = ""
 
-		if (push_notifications[chatName]){
-			push_notifications[chatName].close()
-			delete push_notifications[chatName];
-		}
+		getSW(reg=>{
+			reg.active.postMessage({
+				delete_notification: chatName
+			})
+		})
 	}
 	chats.appendChild(div)
 	return div
