@@ -50,6 +50,7 @@ html{
 }
 #chats .chat{
 	height: 55px;
+	min-height: 55px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
