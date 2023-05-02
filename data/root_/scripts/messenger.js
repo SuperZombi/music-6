@@ -357,6 +357,14 @@ function submain(){
 			})
 		}
 		if (msg.from_user == local_storage.userName){
+			if (push_notify_allowed){
+				getSW(reg=>{
+					reg.active.postMessage({
+						delete_notification: msg.chat
+					})
+				})
+			}
+
 			let target = chats.querySelector(`[chat-name="${msg.chat}"]`)
 			if (target){
 				let notif = target.querySelector(".notification-dot")
@@ -656,14 +664,6 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		loadChat(chatName)
 		notification.classList.add("hidden")
 		notification.innerHTML = ""
-
-		if (push_notify_allowed){
-			getSW(reg=>{
-				reg.active.postMessage({
-					delete_notification: chatName
-				})
-			})
-		}
 	}
 	chats.appendChild(div)
 	return div
