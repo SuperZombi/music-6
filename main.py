@@ -1242,7 +1242,7 @@ def get_chats():
 							"unread_messages_count": t[1],
 							"readOnly": t[0].lower() == "admin" or t[0].lower() == "system",
 							"chat_image": get_chat_image(t[0]),
-							"online": True if socket_users.get(t[0], None) else False
+							"online": is_user_online(socket_users.get(t[0], None))
 							} for t in results]
 			return jsonify({'successfully': True, 'chats': result_array})
 		
@@ -1273,9 +1273,15 @@ def get_messages():
 				WHERE (from_user = ? AND to_user = ?);
 			''', (chat_name, request.json['user']))
 
-			sid = socket_users.get(chat_name, None)
-			if sid:
-				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
+			sessions = socket_users.get(chat_name, None)
+			if sessions:
+				for sid in sessions.keys():
+					emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
+			sessions = socket_users.get(request.json['user'], None)
+			if sessions:
+				for sid in sessions.keys():
+					emit('chat_readed', {"from_user": request.json['user'], "chat": chat_name}, namespace='/', broadcast=True, room=sid)
+			
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True, 'messages': result_array})
 		
@@ -1369,9 +1375,11 @@ def send_message():
 			else:
 				event = 'new_message'
 
-			sid = socket_users.get(chat_name, None)
-			if sid:
-				emit(event, msg, namespace='/', broadcast=True, room=sid)
+			for client in set([chat_name, request.json['user']]):
+				sessions = socket_users.get(client, None)
+				if sessions:
+					for sid in sessions:
+						emit(event, msg, namespace='/', broadcast=True, room=sid)
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True, "message": msg})
 		
@@ -1390,12 +1398,14 @@ def delete_message():
 				RETURNING from_user, to_user;
 			''')
 			users_to_send = cursor.fetchone()
-			users_to_send = list(filter(lambda x: x != request.json['user'], users_to_send)) if users_to_send else []
 			conn.commit()
-			for user in users_to_send:
-				sid = socket_users.get(user, None)
-				if sid:
-					emit('delete_message', {"id": message_id}, namespace='/', broadcast=True, room=sid)
+
+			for client in set(users_to_send):
+				sessions = socket_users.get(client, None)
+				if sessions:
+					for sid in sessions:
+						emit('delete_message', {"id": message_id}, namespace='/', broadcast=True, room=sid)
+
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True})
 		
@@ -1416,9 +1426,13 @@ def delete_chat():
 				OR (from_user = :to_user AND to_user = :from_user);
 			''', {"from_user": from_user, "to_user": to_user})
 			conn.commit()
-			sid = socket_users.get(to_user, None)
-			if sid:
-				emit('delete_chat', {"from_user": from_user}, namespace='/', broadcast=True, room=sid)
+
+			for client in set([to_user, from_user]):
+				sessions = socket_users.get(client, None)
+				if sessions:
+					for sid in sessions:
+						emit('delete_chat', {"from_user": from_user, "chat": to_user}, namespace='/', broadcast=True, room=sid)
+
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 			return jsonify({'successfully': True})
 		
@@ -1437,28 +1451,15 @@ def mark_chat_as_readed():
 					WHERE (from_user = ? AND to_user = ?);
 				''', (request.json['chat'], request.json['user']))
 			conn.commit()
-			sid = socket_users.get(request.json['chat'], None)
-			if sid:
-				emit('chat_readed', {"from_user": request.json['user']}, namespace='/', broadcast=True, room=sid)
+
+			for client in set([request.json['chat'], request.json['user']]):
+				sessions = socket_users.get(client, None)
+				if sessions:
+					for sid in sessions:
+						emit('chat_readed', {"from_user": request.json['user'], "chat": request.json['chat']}, namespace='/', broadcast=True, room=sid)
+
 			emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
 		return jsonify({'successfully': True})
-	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
-
-@app.route('/api/messenger/change_user_status', methods=['POST'])
-def change_user_status():
-	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-	x = BrootForceProtection(request.json['user'], request.json['password'], ip, fast_login)()
-	if x['successfully']:
-		new_status = request.json['status'].lower()
-		if new_status in ('online', 'offline'):
-			if new_status == 'online':
-				emit('user_online', {"from_user": request.json['user']}, namespace='/', broadcast=True)
-			elif new_status == 'offline':
-				emit('user_offline', {"from_user": request.json['user']}, namespace='/', broadcast=True)
-			
-			return jsonify({'successfully': True})
-
-		return jsonify({'successfully': False, 'reason': Errors.invalid_parameters.name})
 	return jsonify({'successfully': False, 'reason': Errors.incorrect_name_or_password.name})
 
 
@@ -1484,6 +1485,62 @@ def send_system_message(user, message):
 		if sid:
 			emit('new_message', msg, namespace='/', broadcast=True, room=sid)
 
+
+socketio = SocketIO(app, path='/api/messenger/socket.io')
+
+socket_users = {}
+
+def is_user_online(user_sids):
+	if user_sids:
+		return len(list( filter(lambda x: x == True, user_sids.values()) )) == 0
+	return False
+
+@socketio.on('connect')
+def handle_connect():
+	username = request.cookies.get("userName")
+	userpwd = request.cookies.get("userPassword")
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(username, userpwd, ip, fast_login)()
+	if x['successfully']:
+		if socket_users.get(username):
+			socket_users[username][request.sid] = True
+		else:
+			socket_users[username] = {request.sid: True}
+		emit('user_online', {"from_user": username}, broadcast=True)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+	username = request.cookies.get("userName")
+	userpwd = request.cookies.get("userPassword")
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(username, userpwd, ip, fast_login)()
+	if x['successfully']:
+		if socket_users.get(username):
+			del socket_users[username][request.sid]
+			if len(socket_users[username].keys()) == 0:
+				del socket_users[username]
+				emit('user_offline', {"from_user": username}, broadcast=True)
+			else:
+				if is_user_online(socket_users[username]):
+					emit('user_offline', {"from_user": username}, broadcast=True)
+
+@socketio.on('change_status')
+def change_user_status(status):
+	username = request.cookies.get("userName")
+	userpwd = request.cookies.get("userPassword")
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	x = BrootForceProtection(username, userpwd, ip, fast_login)()
+	if x['successfully']:
+		new_status = status.lower()
+		if new_status in ('online', 'offline'):
+			if socket_users.get(username):
+				if new_status == 'online':
+					socket_users[username][request.sid] = True
+					emit('user_online', {"from_user": username}, namespace='/', broadcast=True)
+				elif new_status == 'offline':
+					socket_users[username][request.sid] = False
+					if is_user_online(socket_users[username]):
+						emit('user_offline', {"from_user": username}, broadcast=True)
 
 
 @app.route('/api/verify_user', methods=['POST'])
@@ -1788,26 +1845,6 @@ def is_admin():
 				return jsonify({'successfully': True})
 
 	return jsonify({'successfully': False, 'reason': "user_not_admin"})
-
-
-socketio = SocketIO(app, path='/api/messenger/socket.io')
-
-socket_users = {}
-
-@socketio.on('connect')
-def handle_connect():
-	username = request.cookies.get("userName")
-	socket_users[username] = request.sid
-	emit('user_online', {"from_user": username}, broadcast=True)
-
-@socketio.on('disconnect')
-def handle_disconnect():
-	key = list(filter(lambda i: socket_users[i]==request.sid, socket_users))
-	if key:
-		key = key.pop()
-		del socket_users[key]
-		emit('user_offline', {"from_user": key}, broadcast=True)
-
 
 
 if __name__ == '__main__':

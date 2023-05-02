@@ -121,32 +121,6 @@ function submain(){
 			}
 		}
 	}
-	window.addEventListener('blur', _=> {
-		fetch("/api/messenger/change_user_status", {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				'user': local_storage.userName,
-				'password': local_storage.userPassword,
-				'status': "offline"
-			})
-		})
-	});
-	window.addEventListener('focus', _=> {
-		fetch("/api/messenger/change_user_status", {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				'user': local_storage.userName,
-				'password': local_storage.userPassword,
-				'status': "online"
-			})
-		})
-		let active_chat = chats.querySelector(".active")
-		if (active_chat){
-			markChatAsReaded(active_chat.getAttribute("chat-name"))
-		}
-	});
 
 	messages.addEventListener("scroll", _=>{
 		if (messages.scrollTop + messages.clientHeight + 100 <= messages.scrollHeight){
@@ -254,6 +228,7 @@ function submain(){
 					if (chat.chat_name == local_storage.userName){return}
 					addChat(chat.chat_name, chat.chat_image, chat.unread_messages_count, chat.readOnly, chat.online)
 				})
+				chats.querySelector("#chat_loading").style.display = "none";
 				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
 				if (count > 0){
 					document.title = `${LANG.messenger} • (${count})`
@@ -278,41 +253,59 @@ function submain(){
 	});
 
 	socket.on('new_message', function(msg) {
-		if (msg.from_user == msg.chat){return}
+		let chat_name = msg.from_user == local_storage.userName ? msg.chat : msg.from_user;
 		let active_chat = chats.querySelector(".active")
-		let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
+		let target = chats.querySelector(`[chat-name="${chat_name}"]`)
 		if (target){
 			chats.prepend(target)
-		}
-		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
-			prepareMessage(msg)
-			if (!document.hidden){
-				markChatAsReaded(active_chat.getAttribute("chat-name"))
-			} else{
-				pushNotifications(msg.from_user, msg.message, active_chat.querySelector(".chat-icon img").src)
-			}
-		} else{
-			if (target){
-				let notif = target.querySelector(".notification-dot")
-				if (notif.classList.contains("hidden")){
-					notif.classList.remove("hidden")
-					notif.innerHTML = "1"
-				} else{
-					notif.innerHTML = parseInt(notif.innerHTML) + 1
+
+			if (active_chat && chat_name == active_chat.getAttribute("chat-name")){
+				prepareMessage(msg)
+				if (!document.hidden){
+					markChatAsReaded(active_chat.getAttribute("chat-name"))
 				}
-				pushNotifications(msg.from_user, msg.message, target.querySelector(".chat-icon img").src)
+				else{
+					if (msg.from_user != local_storage.userName){
+						pushNotifications(msg.from_user, msg.message, document.querySelector("#chat-info .chat-icon img").src)
+					}
+				}
 			} else{
-				loadProfileImage(msg.from_user, url=>{
-					let ch = addChat(msg.from_user, url, 1)
+				if (msg.from_user != local_storage.userName){
+					let notif = target.querySelector(".notification-dot")
+					if (notif.classList.contains("hidden")){
+						notif.classList.remove("hidden")
+						notif.innerHTML = "1"
+					} else{
+						notif.innerHTML = parseInt(notif.innerHTML) + 1
+					}
+					pushNotifications(msg.from_user, msg.message, target.querySelector(".chat-icon img").src)
+				}
+			}
+		}
+		else {
+			let unreaded = msg.from_user == local_storage.userName ? 0 : 1
+			loadProfileImage(chat_name, url=>{
+				let ch = addChat(chat_name, url, unreaded)
+				chats.prepend(ch)
+				if (msg.from_user != local_storage.userName){
 					ch.classList.add("online")
-					chats.prepend(ch)
 					pushNotifications(msg.from_user, msg.message, url)
-				})
-			}
-			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
-			if (count > 0){
-				document.title = `${LANG.messenger} • (${count})`
-			}
+				}
+				let opened_chat_name = document.querySelector("#chat-info .chat-name").innerHTML
+				if (document.querySelector("#chat-body").classList.contains("show") && chat_name == opened_chat_name){
+					ch.classList.add("active")
+					prepareMessage(msg)
+				}
+				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+				if (count > 0){
+					document.title = `${LANG.messenger} • (${count})`
+				}
+			})
+		}
+
+		let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+		if (count > 0){
+			document.title = `${LANG.messenger} • (${count})`
 		}
 	});
 	socket.on('delete_message', function(msg) {
@@ -320,15 +313,29 @@ function submain(){
 		if (el){
 			el.remove()
 		}
+		messages.querySelectorAll(`.reply-to-message[message-id='${msg.id}']`).forEach(e=>{
+			e.innerHTML = LANG.deleted_message
+		})
 	});
 	socket.on('delete_chat', function(msg) {
+		let chat_name = msg.from_user == local_storage.userName ? msg.chat : msg.from_user;
 		let active_chat = chats.querySelector(".active")
-		if (active_chat && msg.from_user == active_chat.getAttribute("chat-name")){
+		if (active_chat && chat_name == active_chat.getAttribute("chat-name")){
 			messages.innerHTML = ""
 		}
-		let target = chats.querySelector(`[chat-name="${msg.from_user}"]`)
+		let target = chats.querySelector(`[chat-name="${chat_name}"]`)
 		if (target){
 			target.remove()
+		}
+		let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+		if (count > 0){
+			document.title = `${LANG.messenger} • (${count})`
+		} else {
+			if (active_chat){
+				document.title = `${LANG.messenger} • ${active_chat.getAttribute("chat-name")}`
+			} else{
+				document.title = LANG.messenger
+			}
 		}
 	});
 	socket.on('edit_message', function(msg) {
@@ -348,6 +355,20 @@ function submain(){
 			messages.querySelectorAll(".message.not-readed").forEach(e=>{
 				e.classList.remove("not-readed")
 			})
+		}
+		if (msg.from_user == local_storage.userName){
+			let target = chats.querySelector(`[chat-name="${msg.chat}"]`)
+			if (target){
+				let notif = target.querySelector(".notification-dot")
+				notif.innerHTML = ""
+				notif.classList.add("hidden")
+			}
+			let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
+			if (active_chat){
+				document.title = `${LANG.messenger} • ${active_chat.getAttribute("chat-name")}`
+			} else{
+				document.title = LANG.messenger
+			}
 		}
 	});
 	socket.on('user_online', function(msg) {
@@ -372,6 +393,16 @@ function submain(){
 					document.querySelector("#chat-info .chat-icon").classList.remove("online")
 				}
 			}
+		}
+	});
+	window.addEventListener('blur', _=> {
+		socket.emit("change_status", "offline");
+	});
+	window.addEventListener('focus', _=> {
+		socket.emit("change_status", "online");
+		let active_chat = chats.querySelector(".active")
+		if (active_chat){
+			markChatAsReaded(active_chat.getAttribute("chat-name"))
 		}
 	});
 
@@ -419,36 +450,6 @@ function submain(){
 					send.classList.add("disabled")
 					document.querySelector("#attachments").innerHTML = ""
 					document.querySelector("#chat-info .chat-icon").classList.remove("online")
-
-					if (document.querySelector("#quotes").getAttribute("edit-mode")){
-						let date = new Date(answer.message.time * 1000)
-						let time = date.getHours().toString().padStart(2, "0") + ":" + date.getMinutes().toString().padStart(2, "0")
-						answer.message.time = time
-
-						let new_message = buildMessage(answer.message)
-						let old_element = messages.querySelector(`.message[message-id="${answer.message.id}"]`)
-						old_element.replaceWith(new_message)
-					} else{
-						prepareMessage(answer.message)
-
-						let name = document.querySelector("#chat-info .chat-name").innerHTML
-						let ch_ = chats.querySelector(`[chat-name="${name}"]`)
-						if (ch_){
-							ch_.classList.add("active")
-							chats.prepend(ch_)
-						} else{
-							let img_ = document.querySelector("#chat-info .chat-icon img")
-							let chat = addChat(name, img_.src)
-							chat.classList.add("active")
-							chats.prepend(chat)
-						}
-
-						const url_ = new URL(window.location);
-						if (url_.searchParams.has('new-chat')){
-							url_.searchParams.delete('new-chat');
-							window.history.pushState(null, '', url_.toString());
-						}
-					}
 					cancelQuote()
 					return
 				}
@@ -469,12 +470,14 @@ async function getSW(callback){
 	await reg.update()
 	callback(reg)
 }
+var push_notify_allowed = false;
 function initPushNotifications(){
 	Notification.requestPermission().then(perm=>{
 		if (perm === "denied"){
 			console.error("Notifications denied")
 		}
 		else if (perm == "granted"){
+			push_notify_allowed = true;
 			navigator.serviceWorker.register('/root_/scripts/service-worker.js').then(
 				registration=>{
 					if (registration) {
@@ -502,15 +505,17 @@ function initPushNotifications(){
 }
 
 async function pushNotifications(from_user, message, icon){
-	getSW(reg=>{
-		message = message.length > 100 ? message.slice(0, 100) + "..." : message
-		reg.showNotification(from_user, {
-			body: message,
-			icon: icon,
-			tag: from_user,
-			renotify: true
-		});
-	})
+	if (push_notify_allowed){
+		getSW(reg=>{
+			message = message.length > 100 ? message.slice(0, 100) + "..." : message
+			reg.showNotification(from_user, {
+				body: message,
+				icon: icon,
+				tag: from_user,
+				renotify: true
+			});
+		})	
+	}
 }
 
 function markChatAsReaded(chatName){
@@ -652,11 +657,13 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		notification.classList.add("hidden")
 		notification.innerHTML = ""
 
-		getSW(reg=>{
-			reg.active.postMessage({
-				delete_notification: chatName
+		if (push_notify_allowed){
+			getSW(reg=>{
+				reg.active.postMessage({
+					delete_notification: chatName
+				})
 			})
-		})
+		}
 	}
 	chats.appendChild(div)
 	return div
@@ -733,7 +740,7 @@ function buildMessage(message){
 
 			${message.reply_to_message ?
 				`<div class="reply-to-message" message-id="${message.reply_to_message}">
-					${message.reply_to_message_text}
+					${message.reply_to_message_text ? message.reply_to_message_text : LANG.deleted_message}
 				</div>` : ""
 			}
 			<div class="tail">
@@ -1028,18 +1035,6 @@ function deleteChat(chatName){
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", '/api/messenger/delete_chat')
 	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-	xhr.onload = function() {
-		if (xhr.status == 200){ 
-			let answer = JSON.parse(xhr.response);
-			if (answer.successfully){
-				messages.innerHTML = ""
-				let target = chats.querySelector(`[chat-name="${chatName}"]`)
-				if (target){
-					target.remove()
-				}
-			}
-		}
-	}
 	xhr.send(JSON.stringify({
 		'user': local_storage.userName,
 		'password': local_storage.userPassword,
