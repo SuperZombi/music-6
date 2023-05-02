@@ -555,7 +555,7 @@ function newChat(){
 	let img_ = document.querySelector("#chat-info .chat-icon img")
 	let url = document.querySelector("#chat-info .url")
 	name.innerHTML = chatName
-	url.href = new URL("/" + chatName.toLocaleLowerCase(), window.location.href).href
+	url.href = decodeURI(new URL("/" + chatName.toLocaleLowerCase().replaceAll(" ", "-"), window.location.href).href)
 
 	loadProfileImage(chatName, url=>{
 		img_.src = url
@@ -655,7 +655,7 @@ function addChat(chatName, chatImage="", unread_messages=0, readOnly=false, onli
 		if (chatName == local_storage.userName){
 			url.href = new URL("/account/", window.location.href).href
 		} else{
-			url.href = new URL("/" + chatName.toLocaleLowerCase(), window.location.href).href
+			url.href = decodeURI(new URL("/" + chatName.toLocaleLowerCase().replaceAll(" ", "-"), window.location.href).href)
 		}
 		div.classList.contains("online") ? document.querySelector("#chat-info .chat-icon").classList.add("online") : null;
 
