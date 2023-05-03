@@ -262,6 +262,7 @@ function submain(){
 			if (active_chat && chat_name == active_chat.getAttribute("chat-name")){
 				prepareMessage(msg)
 				if (!document.hidden){
+					notify_quiet.play();
 					markChatAsReaded(active_chat.getAttribute("chat-name"))
 				}
 				else{
@@ -295,6 +296,7 @@ function submain(){
 				if (document.querySelector("#chat-body").classList.contains("show") && chat_name == opened_chat_name){
 					ch.classList.add("active")
 					prepareMessage(msg)
+					notify_quiet.play();
 				}
 				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
 				if (count > 0){
@@ -512,7 +514,11 @@ function initPushNotifications(){
 	})
 }
 
+var notify_audio = new Audio('/root_/audio/notification.mp3');
+var notify_quiet = new Audio('/root_/audio/notify_quiet.mp3');
 async function pushNotifications(from_user, message, icon){
+	notify_audio.play();
+
 	if (push_notify_allowed){
 		getSW(reg=>{
 			message = message.length > 100 ? message.slice(0, 100) + "..." : message
