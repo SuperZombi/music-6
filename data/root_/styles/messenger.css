@@ -732,6 +732,11 @@ html{
 	transform: translate(-50%, -50%);
 }
 
+#qrcode{
+	margin: auto;
+	filter: drop-shadow(0 0 5px lightgrey);
+}
+
 #userURL{
 	color: var(--contrast-color);
 	font-size: 12pt;

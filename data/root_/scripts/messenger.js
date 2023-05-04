@@ -81,14 +81,15 @@ function initSettings(){
 	}
 
 	let userURL = window.location.origin + window.location.pathname + "?new-chat#" + local_storage.userName
+	let userURL_simple = window.location.hostname + window.location.pathname + "?new-chat#" + local_storage.userName
 	document.getElementById("userURL").setAttribute("href", userURL)
-	document.getElementById("userURL").innerHTML = userURL.replaceAll("/", "/<wbr>")
+	document.getElementById("userURL").innerHTML = userURL_simple.replaceAll("/", "/<wbr>")
 														  .replaceAll("?", "?<wbr>")
 														  .replaceAll("#", "#<wbr>");
 	var qrcode = new QRCode(document.getElementById("qrcode"), {
 		text: userURL,
 		colorDark : "#13181e",
-    	colorLight : "white"
+		colorLight : "white"
 	});
 
 	let xhr = new XMLHttpRequest();
