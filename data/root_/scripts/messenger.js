@@ -80,16 +80,23 @@ function initSettings(){
 		localStorage.setItem("translation-lang", translation_lang.value)
 	}
 
-	let userURL = window.location.origin + window.location.pathname + "?new-chat#" + local_storage.userName
+	let userURL = window.location.origin + window.location.pathname + "?new-chat#" + local_storage.userName.replaceAll(" ", "%20")
 	let userURL_simple = window.location.hostname + window.location.pathname + "?new-chat#" + local_storage.userName
 	document.getElementById("userURL").setAttribute("href", userURL)
 	document.getElementById("userURL").innerHTML = userURL_simple.replaceAll("/", "/<wbr>")
 														  .replaceAll("?", "?<wbr>")
 														  .replaceAll("#", "#<wbr>");
-	var qrcode = new QRCode(document.getElementById("qrcode"), {
-		text: userURL,
-		colorDark : "#13181e",
-		colorLight : "white"
+
+	qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+	var typeNumber = 0; // autodetect
+	var errorCorrectionLevel = 'L'; // 'L', 'M', 'Q', 'H'
+	var qr = qrcode(typeNumber, errorCorrectionLevel);
+	qr.addData(userURL);
+	qr.make();
+
+	document.getElementById('qrcode').innerHTML = qr.createSvgTag({
+		cellSize: 7,
+		margin: 0
 	});
 
 	let xhr = new XMLHttpRequest();

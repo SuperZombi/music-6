@@ -735,6 +735,11 @@ html{
 #qrcode{
 	margin: auto;
 	filter: drop-shadow(0 0 5px lightgrey);
+	border-radius: 10px;
+	overflow: hidden;
+}
+#qrcode svg :last-child{
+	fill: #13181e;
 }
 
 #userURL{
