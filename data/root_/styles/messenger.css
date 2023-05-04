@@ -733,10 +733,15 @@ html{
 }
 
 #qrcode{
+	display: flex;
 	margin: auto;
-	filter: drop-shadow(0 0 5px lightgrey);
-	border-radius: 10px;
+	filter: drop-shadow(0 0 5px grey);
+	border-radius: 7px;
 	overflow: hidden;
+	transition: 0.5s;
+}
+.dark #qrcode{
+	filter: drop-shadow(0 0 5px lightgrey);
 }
 #qrcode svg :last-child{
 	fill: #13181e;
