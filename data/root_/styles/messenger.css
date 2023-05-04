@@ -756,6 +756,7 @@ html{
 	cursor: pointer;
 	text-align: center;
 	transition: 0.5s;
+	user-select: none;
 }
 #userURL:hover{
 	text-decoration: underline;
