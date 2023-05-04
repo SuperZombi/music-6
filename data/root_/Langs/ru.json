@@ -263,6 +263,10 @@
 	"translation_lang": "Язык перевода",
 	"default": "По умолчанию",
 	"custom": "Выбранный",
+	"push_notify_disabled": "Push-уведомления отключены",
+	"notification_sounds": "Звуки уведомлений",
+	"account_info": "Информация об Аккаунте",
+	"disabled_private_messages": "Вы отключили личные сообщения.<br>Вы можете изменить это в %настройках%.",
 
 	// Verification
 	"verification_title": "Верификация",

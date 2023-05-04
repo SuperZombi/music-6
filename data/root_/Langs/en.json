@@ -260,6 +260,10 @@
 	"translation_lang": "Translation language",
 	"default": "Default",
 	"custom": "Custom",
+	"push_notify_disabled": "Push notifications disabled",
+	"notification_sounds": "Notification sounds",
+	"account_info": "Account Info",
+	"disabled_private_messages": "You have disabled private messages.<br>You can change this in %settings%.",
 
 	// Verification
 	"verification_title": "Verification",

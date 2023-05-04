@@ -26,6 +26,14 @@ function loader(width, height){
 		</circle>
 	</svg>`
 }
+function copy(text){
+	const elem = document.createElement('textarea');
+	elem.value = text
+	document.body.appendChild(elem);
+	elem.select();
+	document.execCommand('copy');
+	document.body.removeChild(elem);
+}
 function main(){
 	document.title = LANG.messenger
 	
@@ -46,12 +54,14 @@ function main(){
 function initSettings(){
 	let settings = document.querySelector("#settings-popup")
 
-	settings.querySelector("input[name='translate-messages']").onchange = _=>{
-		localStorage.setItem("translate-messages", settings.querySelector("input[name='translate-messages']").checked)
-	}
-	if (localStorage.getItem("translate-messages")){
-		settings.querySelector("input[name='translate-messages']").checked = JSON.parse(localStorage.getItem("translate-messages"))
-	}
+	settings.querySelectorAll("input[type='checkbox']").forEach(input=>{
+		input.onchange = _=>{
+			localStorage.setItem(input.name, input.checked)
+		}
+		if (localStorage.getItem(input.name)){
+			input.checked = JSON.parse(localStorage.getItem(input.name))
+		}
+	})
 
 	let lang = window.navigator.language.substr(0, 2).toLowerCase()
 	let translation_lang = settings.querySelector("input[type='text'][name='translation-lang']")
@@ -69,6 +79,38 @@ function initSettings(){
 		settings.querySelector("input[type='radio'][name='translation-lang'][value='custom']").checked = true
 		localStorage.setItem("translation-lang", translation_lang.value)
 	}
+
+	let userURL = window.location.origin + window.location.pathname + "?new-chat#" + local_storage.userName
+	document.getElementById("userURL").setAttribute("href", userURL)
+	document.getElementById("userURL").innerHTML = userURL.replaceAll("/", "/<wbr>")
+														  .replaceAll("?", "?<wbr>")
+														  .replaceAll("#", "#<wbr>");
+	var qrcode = new QRCode(document.getElementById("qrcode"), {
+		text: userURL,
+		colorDark : "#13181e",
+    	colorLight : "white"
+	});
+
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", `/api/get_user_profile_public`)
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.onload = function() {
+		if (xhr.status == 200){
+			let answer = JSON.parse(xhr.response);
+			if (answer.successfully){
+				if (answer?.public_fields["receive-messages"] == false){
+					document.getElementById("receive-messages-denied").classList.remove("hide")
+					document.querySelector("#receive-messages-denied > *").innerHTML = LANG.disabled_private_messages
+						.replace(/%(.*)%/gm, (match, contents)=>{
+							return `<a href="/account/#settings" target="_blank">${contents}</a>`	
+						})
+				}
+			}
+		}
+	}
+	xhr.send(JSON.stringify({
+		'user': local_storage.userName
+	}))
 }
 function submain(){
 	initSettings()
@@ -262,7 +304,7 @@ function submain(){
 			if (active_chat && chat_name == active_chat.getAttribute("chat-name")){
 				prepareMessage(msg)
 				if (!document.hidden){
-					notify_quiet.play();
+					play_notify("quiet")
 					markChatAsReaded(active_chat.getAttribute("chat-name"))
 				}
 				else{
@@ -296,7 +338,7 @@ function submain(){
 				if (document.querySelector("#chat-body").classList.contains("show") && chat_name == opened_chat_name){
 					ch.classList.add("active")
 					prepareMessage(msg)
-					notify_quiet.play();
+					play_notify("quiet")
 				}
 				let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
 				if (count > 0){
@@ -325,9 +367,11 @@ function submain(){
 		if (active_chat && chat_name == active_chat.getAttribute("chat-name")){
 			messages.innerHTML = ""
 		}
-		let target = chats.querySelector(`[chat-name="${chat_name}"]`)
-		if (target){
-			target.remove()
+		if (chat_name != local_storage.userName){
+			let target = chats.querySelector(`[chat-name="${chat_name}"]`)
+			if (target){
+				target.remove()
+			}
 		}
 		let count = chats.querySelectorAll(".notification-dot:not(.hidden)").length
 		if (count > 0){
@@ -338,6 +382,13 @@ function submain(){
 			} else{
 				document.title = LANG.messenger
 			}
+		}
+		if (push_notify_allowed){
+			getSW(reg=>{
+				reg.active.postMessage({
+					delete_notification: chat_name
+				})
+			})
 		}
 	});
 	socket.on('edit_message', function(msg) {
@@ -488,6 +539,7 @@ function initPushNotifications(){
 		}
 		else if (perm == "granted"){
 			push_notify_allowed = true;
+			document.querySelector("#settings-popup #push_notify_disabled").classList.add("hide")
 			navigator.serviceWorker.register('/root_/scripts/service-worker.js').then(
 				registration=>{
 					if (registration) {
@@ -514,10 +566,17 @@ function initPushNotifications(){
 	})
 }
 
-var notify_audio = new Audio('/root_/audio/notification.mp3');
-var notify_quiet = new Audio('/root_/audio/notify_quiet.mp3');
+const notification_audios = {
+	"default": new Audio('/root_/audio/notification.mp3'),
+	"quiet": new Audio('/root_/audio/notify_quiet.mp3')
+}
+function play_notify(name){
+	if (document.querySelector("#settings-popup input[name='notification-sounds']").checked){
+		notification_audios[name].play();
+	}
+}
 async function pushNotifications(from_user, message, icon){
-	notify_audio.play();
+	play_notify("default")
 
 	if (push_notify_allowed){
 		getSW(reg=>{
@@ -883,13 +942,7 @@ function buildMessage(message){
 		`
 		copier.onclick = _=>{
 			let text = from_embed_to_link(msg.querySelector(".text"))
-
-			const elem = document.createElement('textarea');
-			elem.value = text
-			document.body.appendChild(elem);
-			elem.select();
-			document.execCommand('copy');
-			document.body.removeChild(elem);
+			copy(text)
 		}
 		msg.querySelector(".helper .helper-body").prepend(copier)
 

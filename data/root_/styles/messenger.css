@@ -637,6 +637,8 @@ html{
 	opacity: 0;
 	visibility: hidden;
 	color: var(--contrast-color);
+	max-height: 81%;
+	overflow: auto;
 }
 .popup.show.show{
 	opacity: 1;
@@ -684,6 +686,10 @@ html{
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
+	margin-top: 15px;
+}
+#settings-popup fieldset:first-of-type{
+	margin-top: 0;
 }
 #settings-popup label, #settings-popup label input:not([type="text"]){
 	cursor: pointer;
@@ -725,6 +731,44 @@ html{
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
+
+#userURL{
+	color: var(--contrast-color);
+	font-size: 12pt;
+	font-family: monospace;
+	width: 256px;
+	margin: 5px auto;
+	cursor: pointer;
+	text-align: center;
+	transition: 0.5s;
+}
+#userURL:hover{
+	text-decoration: underline;
+}
+
+#settings-popup .prompt{
+	display: flex;
+	background: var(--button-hover);
+	border-radius: 10px;
+	margin: 5px 0;
+}
+#settings-popup .prompt.hide{
+	display: none;
+}
+#settings-popup .prompt:before{
+	content: '';
+	background: red;
+	width: 10px;
+	margin-right: 10px;
+	border-radius: 10px 0 0 10px;
+}
+#settings-popup .prompt > *{
+	padding: 5px 0;
+}
+#settings-popup .prompt > * > a{
+	color: var(--contrast-color);
+}
+
 
 
 /* Phone  */
@@ -778,5 +822,12 @@ html{
 	}
 	#chats:not(.show) .chat > .chat-name{
 		display: none;
+	}
+}
+
+/* Title display for mobile */
+@media (pointer: coarse), (hover: none) {
+	#userURL::after{
+		top: 100%;
 	}
 }

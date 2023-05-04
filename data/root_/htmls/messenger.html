@@ -15,6 +15,23 @@
 <div id="settings-popup" class="popup">
 	<img src="/root_/images/close.svg" class="close_popup">
 	<fieldset>
+		<legend>${LANG.account_info}</legend>
+		<div id="receive-messages-denied" class="prompt hide">
+			<span>${LANG.disabled_private_messages}</span>
+		</div>
+		<div id="qrcode" style="margin: auto;"></div>
+		<div id="userURL" onclick="copy(this.getAttribute('href'))" title="${LANG.copy}"></div>
+	</fieldset>
+	<fieldset>
+		<legend>${LANG.notification_sounds}</legend>
+		<input style="vertical-align: middle;" class="form-switch" type="checkbox" name="notification-sounds" checked>
+		<div id="push_notify_disabled" class="prompt">
+			<span>${LANG.push_notify_disabled}<br>
+				<button style="font-size: 12pt; cursor: pointer;" onclick="initPushNotifications()">${LANG.enable}</button>
+			</span>
+		</div>
+	</fieldset>
+	<fieldset>
 		<legend style="display: flex; gap: 10px;">
 			<span>${LANG.translate_messages}</span>
 			<input class="form-switch" type="checkbox" name="translate-messages" checked>
