@@ -731,6 +731,37 @@ html{
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
+#media-fullscreener .previous,
+#media-fullscreener .next{
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 10;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	margin: 0 6px;
+	cursor: not-allowed;
+	outline: none;
+	border: none;
+	opacity: 0.5;
+	transition: 0.25s;
+	user-select: none;
+}
+#media-fullscreener .previous:not([disabled]),
+#media-fullscreener .next:not([disabled]){
+	cursor: pointer;
+}
+#media-fullscreener .previous:not([disabled]):hover,
+#media-fullscreener .next:not([disabled]):hover{
+	opacity: 1;
+}
+#media-fullscreener .previous{
+	left: 0;
+}
+#media-fullscreener .next{
+	right: 0;
+}
 
 #qrcode{
 	display: flex;
@@ -740,11 +771,45 @@ html{
 	border-radius: 7px;
 	overflow: hidden;
 	transition: 0.5s;
+	animation: rotateQR 8s infinite linear;
+}
+@keyframes rotateQR{
+	0%{
+		transform: perspective(900px) rotate3d(1, 0, 0, 6deg);
+	}
+	12.5%{
+		transform: perspective(900px) rotate3d(1, 1, 0, 6deg);
+	}
+	25%{
+		transform: perspective(900px) rotate3d(0, 1, 0, 6deg);
+	}
+	37.5%{
+		transform: perspective(900px) rotate3d(-1, 1, 0, 6deg);
+	}
+	50%{
+		transform: perspective(900px) rotate3d(-1, 0, 0, 6deg);
+	}
+	62.5%{
+		transform: perspective(900px) rotate3d(-1, -1, 0, 6deg);
+	}
+	75%{
+		transform: perspective(900px) rotate3d(0, -1, 0, 6deg);
+	}
+	87.5%{
+		transform: perspective(900px) rotate3d(1, -1, 0, 6deg);
+	}
+	100%{
+		transform: perspective(900px) rotate3d(1, 0, 0, 6deg);
+	}
 }
 .dark #qrcode{
 	filter: drop-shadow(0 0 5px lightgrey);
 }
 #qrcode svg :last-child{
+	fill: #00c0ff;
+	transition: 0.5s;
+}
+.dark #qrcode svg :last-child{
 	fill: #13181e;
 }
 
@@ -817,6 +882,21 @@ html{
 	#media-fullscreener img{
 		max-width: 100%;
 	}
+	#media-fullscreener .previous,
+	#media-fullscreener .next{
+		width: 30px;
+		height: 30px;
+		margin: 0 5px;
+	}
+	#media-fullscreener .previous:not([disabled]):hover,
+	#media-fullscreener .next:not([disabled]):hover{
+		opacity: 0.5;
+	}
+	#media-fullscreener .previous:not([disabled]):active,
+	#media-fullscreener .next:not([disabled]):active{
+		opacity: 1;
+	}
+
 	#chat-body .message-body .tail .text:has(img){
 		grid-template-columns: 1fr;
 	}

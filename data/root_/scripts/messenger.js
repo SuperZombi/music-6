@@ -1290,6 +1290,32 @@ function toBase64(file, callback) {
 function openImageFullScreen(img){
 	document.querySelector("#media-fullscreener img").src = img.src
 	document.querySelector("#media-fullscreener").classList.remove("hide")
+
+	document.querySelector("#media-fullscreener .previous").disabled = false
+	document.querySelector("#media-fullscreener .previous").onclick = _=>{}
+	document.querySelector("#media-fullscreener .next").disabled = false
+	document.querySelector("#media-fullscreener .next").onclick = _=>{}
+
+	let all_imgs = [...messages.querySelectorAll(".message img")]
+	let cur_index = all_imgs.indexOf(img)
+	if (cur_index > 0){
+		document.querySelector("#media-fullscreener .previous").onclick = _=>{
+			setTimeout(_=>{
+				openImageFullScreen(all_imgs[cur_index - 1])
+			}, 0)
+		}
+	} else{
+		document.querySelector("#media-fullscreener .previous").disabled = true
+	}
+	if (cur_index < all_imgs.length - 1){
+		document.querySelector("#media-fullscreener .next").onclick = _=>{
+			setTimeout(_=>{
+				openImageFullScreen(all_imgs[cur_index + 1])
+			}, 0)
+		}
+	} else{
+		document.querySelector("#media-fullscreener .next").disabled = true
+	}
 }
 function closeFullScreener(){
 	document.querySelector("#media-fullscreener").classList.add("hide")
@@ -1297,8 +1323,115 @@ function closeFullScreener(){
 document.querySelector("#media-fullscreener").onclick = event=>{
 	let path = event.path || (event.composedPath && event.composedPath());
 	if (path.includes(document.querySelector("#media-fullscreener img"))){return}
+	if (path.includes(document.querySelector("#media-fullscreener .previous"))){return}
+	if (path.includes(document.querySelector("#media-fullscreener .next"))){return}
 	else{
 		closeFullScreener()
+	}
+}
+var fullscreener_x, fullscreener_y;
+document.querySelector("#media-fullscreener img").addEventListener("touchstart", e=>{
+	fullscreener_x = e.touches[0].clientX
+	fullscreener_y = e.touches[0].clientY
+})
+document.querySelector("#media-fullscreener img").addEventListener("touchmove", e=>{
+	let target_x = Math.floor(fullscreener_x - e.touches[0].clientX) * (-1)
+	let target_y = Math.floor(fullscreener_y - e.touches[0].clientY) * (-1)
+	if (Math.abs(target_x) > 25 && Math.abs(target_y) < 50){
+		target_y = 0
+	}
+	let scale_diff = window.innerHeight / 3;
+	let one_percent = scale_diff / 75;
+	let transparenting = Math.floor(75 - (Math.abs(target_y) / one_percent))
+
+	transparenting = Math.max(10, transparenting) / 100
+	let scale = Math.max(0.85, transparenting + 0.25)
+
+	document.querySelector("#media-fullscreener img").style.transform = `translate(-50%, -50%) translateX(${target_x}px) translateY(${target_y}px) scale(${scale})`
+	document.querySelector("#media-fullscreener").style.background = `rgb(0, 0, 0, ${transparenting})`
+})
+document.querySelector("#media-fullscreener img").addEventListener("touchend", e=>{
+	document.querySelector("#media-fullscreener img").style.transition = "0.5s"
+	document.querySelector("#media-fullscreener").style.transition = "0.5s"
+	document.querySelector("#media-fullscreener img").style.transform = 'translate(-50%, -50%)'
+	document.querySelector("#media-fullscreener").style.background = 'rgb(0, 0, 0, 0.75)'
+	let diff_x = fullscreener_x - e.changedTouches[0].clientX
+	let diff_y = Math.abs(fullscreener_y - e.changedTouches[0].clientY)
+	if (diff_y > window.innerHeight / 5){
+		closeFullScreener()
+	}
+	else if (diff_x > 100){
+		document.querySelector("#media-fullscreener .next").onclick()
+	}
+	else if (diff_x < -100){
+		document.querySelector("#media-fullscreener .previous").onclick()
+	}
+	setTimeout(_=>{
+		document.querySelector("#media-fullscreener img").style.transition = ""
+		document.querySelector("#media-fullscreener").style.transition = ""
+	}, 500)
+})
+
+let qrcodeTimeout, qrcode2_timeout, qrcode3_timeout;
+document.querySelector("#qrcode").addEventListener("touchmove", e=>{
+	let rect = e.target.getBoundingClientRect();
+	let x = Math.max(0, Math.min(rect.width, e.targetTouches[0].pageX - rect.left))
+	let y = Math.max(0, Math.min(rect.height, e.targetTouches[0].pageY - rect.top))
+	e.offsetX = Math.floor(x)
+	e.offsetY = Math.floor(y)
+	qrcode_interaction(e)
+})
+document.querySelector("#qrcode").addEventListener("mousemove", e=>{
+	if (e.buttons == 1){
+		qrcode_interaction(e)
+	}
+})
+document.querySelector("#qrcode").addEventListener("click", qrcode_interaction)
+
+function qrcode_interaction(e){
+	if (qrcodeTimeout){clearTimeout(qrcodeTimeout)}
+	if (qrcode2_timeout){clearTimeout(qrcode2_timeout)}
+	if (qrcode3_timeout){clearTimeout(qrcode3_timeout)}
+	let box = document.querySelector("#qrcode");
+	let width = box.offsetWidth;
+	let height = box.offsetHeight;
+	let x = e.offsetX / (width/2)
+	x = Math.round((x - 1)*100)/100
+	let y = e.offsetY / (height/2)
+	y = Math.round((y - 1)*100)/100
+	let deg_x = Math.abs(x) * 20
+	let deg_y = Math.abs(y) * 20
+	let deg = Math.round(Math.max(deg_x, deg_y))
+	box.style.animation = "none"
+	box.style.transition = '0s'
+	box.style.transform = `perspective(900px) rotate3d(${y * (-1)}, ${x}, 0, ${deg}deg)`
+	qrcodeTimeout = setTimeout(_=>{
+		box.style.transition = ''
+		box.style.transform = 'perspective(900px) rotate3d(0, 0, 0, 0deg)'
+		qrcode2_timeout = setTimeout(_=>{
+			box.style.transition = '1.5s'
+			box.style.transform = 'perspective(900px) rotate3d(1, 0, 0, 6deg)'
+			qrcode3_timeout = setTimeout(_=>{
+				box.style.animation = ""
+			}, 1500)
+		}, 500)
+	}, 100)
+}
+
+function fullScreen_change(target){
+	let all_imgs = [...messages.querySelectorAll(".message img")]
+	let cur_index = all_imgs.indexOf(current_image)
+	let new_img;
+	if (target == "previous"){
+		new_img = all_imgs[cur_index - 1]
+	}
+	else if (target == "next"){
+		new_img = all_imgs[cur_index + 1]
+	}
+	if (new_img){
+		setTimeout(_=>{
+			openImageFullScreen(new_img)
+		}, 0)
 	}
 }
 
