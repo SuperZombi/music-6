@@ -410,6 +410,7 @@ html{
 	color: white;
 	position: relative;
 	user-select: none;
+	z-index: 2;
 }
 #chat-body .message:hover .helper,
 #chat-body .message.hovered .helper{
@@ -476,17 +477,37 @@ html{
 	background: rgb(255, 80, 70, 0.75);
 }
 
+#chat-body .message-wrapper{
+	max-width: 40%;
+	position: relative;
+}
+#chat-body .reply-absolute{
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: rgb(100, 100, 100, 0.75);
+	color: white;
+	width: 25px;
+	height: 25px;
+	font-size: 15px;
+	display: flex;
+	border-radius: 50%;
+	align-items: center;
+	justify-content: center;
+}
 #chat-body .message-body{
 	display: inline-flex;
 	flex-direction: column;
 	gap: 3px;
 	background: var(--foreign-message);
-	max-width: 40%;
 	padding: 6px 8px;
 	border-radius: 10px;
 	text-align: left;
 	transition: 1s;
 	color: var(--contrast-color);
+	z-index: 1;
+	position: relative;
 }
 #chat-body .message-body .tail{
 	display: inline-flex;
@@ -872,7 +893,7 @@ html{
 	#chat-body #chat-info #back-button{
 		display: block;
 	}
-	#chat-body .message-body{
+	#chat-body .message-wrapper{
 		max-width: 65%;
 	}	
 	.popup{

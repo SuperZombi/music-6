@@ -809,17 +809,21 @@ function buildMessage(message){
 
 	// ${message.from_user == local_storage.userName ? "": `<div class="user">${message.from_user}</div>`}
 	msg.innerHTML = `
-		<div class="message-body">
+		<div class="message-wrapper">
+			<div class="message-body">
 
-			${message.reply_to_message ?
-				`<div class="reply-to-message" message-id="${message.reply_to_message}">
-					${message.reply_to_message_text ? message.reply_to_message_text : LANG.deleted_message}
-				</div>` : ""
-			}
-			<div class="tail">
-				<div class="text"></div>
-				<time>${message.time}</time>
+				${message.reply_to_message ?
+					`<div class="reply-to-message" message-id="${message.reply_to_message}">
+						${message.reply_to_message_text ? message.reply_to_message_text : LANG.deleted_message}
+					</div>` : ""
+				}
+				<div class="tail">
+					<div class="text"></div>
+					<time>${message.time}</time>
+				</div>
 			</div>
+
+			<i class="fa-solid fa-reply reply-absolute"></i>
 		</div>
 
 		<div class="helper">
@@ -911,7 +915,7 @@ function buildMessage(message){
 				sel.removeAllRanges();
 			}
 
-			msg.querySelector('[action="reply"]').onclick()
+			replyer.onclick()
 		}
 	}
 	msg.querySelector('[action="delete"]').onclick = _=>{
@@ -1000,6 +1004,38 @@ function buildMessage(message){
 			focusMessage(message.reply_to_message)
 		}	
 	}
+
+	var message_x, canVibrate;
+	msg.querySelector(".message-body").addEventListener("touchstart", e=>{
+		message_x = e.touches[0].clientX
+		msg.querySelector(".message-body").style.transition = "0s"
+		msg.querySelector(".helper").style.display = "none"
+		canVibrate = true;
+	})
+	msg.querySelector(".message-body").addEventListener("touchmove", e=>{
+		let diff = Math.min(50, Math.max(0, message_x - e.touches[0].clientX))
+		if (diff >= 50){
+			if (canVibrate){
+				canVibrate = false;
+				window.navigator.vibrate(30);
+			}
+		} else{
+			canVibrate = true;
+		}
+		msg.querySelector(".message-body").style.transform = `translateX(-${diff}px)`
+	})
+	msg.querySelector(".message-body").addEventListener("touchend", e=>{
+		let diff = Math.max(0, message_x - e.changedTouches[0].clientX)
+		if (diff > 50){
+			if (replyer){ replyer.onclick() }
+		}
+		msg.querySelector(".message-body").style.transition = "0.25s"
+		msg.querySelector(".message-body").style.transform = ``
+		msg.querySelector(".helper").style.display = ""
+		setTimeout(_=>{
+			msg.querySelector(".message-body").style.transition = ""
+		}, 250)
+	})
 
 	return msg
 }
