@@ -636,6 +636,7 @@ html{
 	cursor: pointer;
 	transition: 0.5s;
 	opacity: 0;
+	z-index: 10;
 }
 #scroll-bottom.show{
 	bottom: 6px;
