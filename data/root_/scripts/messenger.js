@@ -1296,7 +1296,7 @@ function openImageFullScreen(img){
 	document.querySelector("#media-fullscreener .next").disabled = false
 	document.querySelector("#media-fullscreener .next").onclick = _=>{}
 
-	let all_imgs = [...messages.querySelectorAll(".message img")]
+	let all_imgs = [...messages.querySelectorAll(".message .tail img")]
 	let cur_index = all_imgs.indexOf(img)
 	if (cur_index > 0){
 		document.querySelector("#media-fullscreener .previous").onclick = _=>{
