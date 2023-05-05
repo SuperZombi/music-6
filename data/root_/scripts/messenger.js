@@ -1330,15 +1330,25 @@ document.querySelector("#media-fullscreener").onclick = event=>{
 	}
 }
 var fullscreener_x, fullscreener_y;
+var canVibrateOnFullScreener;
 document.querySelector("#media-fullscreener img").addEventListener("touchstart", e=>{
 	fullscreener_x = e.touches[0].clientX
 	fullscreener_y = e.touches[0].clientY
+	canVibrateOnFullScreener = true;
 })
 document.querySelector("#media-fullscreener img").addEventListener("touchmove", e=>{
 	let target_x = Math.floor(fullscreener_x - e.touches[0].clientX) * (-1)
 	let target_y = Math.floor(fullscreener_y - e.touches[0].clientY) * (-1)
 	if (Math.abs(target_x) > 25 && Math.abs(target_y) < 50){
 		target_y = 0
+	}
+	if (Math.abs(target_y) > window.innerHeight / 5){
+		if (canVibrateOnFullScreener){
+			canVibrateOnFullScreener = false;
+			window.navigator.vibrate(30);
+		}
+	} else{
+		canVibrateOnFullScreener = true;
 	}
 	let scale_diff = window.innerHeight / 3;
 	let one_percent = scale_diff / 75;
