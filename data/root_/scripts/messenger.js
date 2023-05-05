@@ -1361,10 +1361,16 @@ document.querySelector("#media-fullscreener img").addEventListener("touchend", e
 		closeFullScreener()
 	}
 	else if (diff_x > 100){
-		document.querySelector("#media-fullscreener .next").onclick()
+		if (!document.querySelector("#media-fullscreener .next").disabled){
+			document.querySelector("#media-fullscreener img").style.transition = ""
+			document.querySelector("#media-fullscreener .next").onclick()
+		}
 	}
 	else if (diff_x < -100){
-		document.querySelector("#media-fullscreener .previous").onclick()
+		if (!document.querySelector("#media-fullscreener .previous").disabled){
+			document.querySelector("#media-fullscreener img").style.transition = ""
+			document.querySelector("#media-fullscreener .previous").onclick()
+		}
 	}
 	setTimeout(_=>{
 		document.querySelector("#media-fullscreener img").style.transition = ""
