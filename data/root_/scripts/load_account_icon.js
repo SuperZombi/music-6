@@ -21,8 +21,10 @@ if (userName){
 			deleteCookie("userPassword")
 			window.location.reload()
 		}
-		menu.appendChild(logout)		
+		menu.appendChild(logout)
 	}
+} else{
+	document.querySelector("#messenger-button").remove()
 }
 
 function loadProfileImage(user){
