@@ -238,9 +238,11 @@
 						</div>
 					</div>
 
-					<div class="settings_element center-wrap" style="justify-content:space-evenly;">
-						<p style="font-size:18px;">${LANG.favorites_title}:<span style="cursor: help;" title="${LANG.favorites_prompt}">❓</span></p>
-						
+					<div class="settings_element center-wrap" style="max-height: 55px; box-sizing: border-box;">
+						<div class="group" style="font-size: 18px;">
+							${LANG.favorites_title}:
+							<span style="cursor: help;" title="${LANG.favorites_prompt}">❓</span>
+						</div>
 						<div class="switcher">
 							<input id="toggle_favorites-off" class="toggle toggle-left" name="toggle_favorites" value="false" type="radio" checked>
 							<label for="toggle_favorites-off" class="btn" title="${LANG.private}">🔒</label>
@@ -249,10 +251,12 @@
 						</div>
 					</div>
 
-					<div class="settings_element center-wrap" style="justify-content:space-evenly;">
-						<p style="font-size:18px;">${LANG.receive_messages}:<span style="cursor: help;" title="${LANG.receive_messages_promt}">❓</span></p>
-						<div class="switcher">
-							<input class="form-switch" type="checkbox" name="receive-messages"checked>
+					<div class="settings-table" style="border-spacing: 0;">
+						<div class="settings_element" style="height: 55px; font-size: 18px;">
+							<span>${LANG.receive_messages}:<span style="cursor: help;" title="${LANG.receive_messages_promt}">❓</span></span>
+							<span>
+								<input class="form-switch" type="checkbox" name="receive-messages" checked>
+							</span>
 						</div>
 					</div>
 				</div>

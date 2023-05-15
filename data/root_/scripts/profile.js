@@ -854,7 +854,7 @@ function changeSettings(e){
 	}
 }
 function saveSettings(){
-	let inputs = document.querySelectorAll("#profile-settings > .settings_element input, select");
+	let inputs = document.querySelectorAll("#profile-settings .settings_element input, select");
 	var final = {}
 	var final_all = {}
 	var canSaveSettings = true;
