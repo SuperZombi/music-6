@@ -376,10 +376,12 @@ function submain(){
 		let el = document.querySelector(`.message[message-id='${msg.id}']`)
 		if (el){
 			el.remove()
-			let last_el = messages.lastChild
-			if (last_el && last_el.classList.contains("info")){
-				last_el.remove()
-			}
+			setTimeout(_=>{
+				let last_el = messages.lastChild
+				if (last_el && last_el.classList.contains("info")){
+					last_el.remove()
+				}
+			}, 50)
 		}
 		messages.querySelectorAll(`.reply-to-message[message-id='${msg.id}']`).forEach(e=>{
 			e.innerHTML = LANG.deleted_message
