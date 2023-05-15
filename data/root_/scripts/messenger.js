@@ -1386,14 +1386,19 @@ document.querySelector("#media-fullscreener img").addEventListener("touchmove", 
 	} else{
 		canVibrateOnFullScreener = true;
 	}
-	let scale_diff = window.innerHeight / 3;
-	let one_percent = scale_diff / 75;
-	let transparenting = Math.floor(75 - (Math.abs(target_y) / one_percent))
+	let one_percent = window.innerHeight / 100;
+	let moved_percents = Math.abs(target_y) / one_percent;
 
+	let transparenting = Math.floor(75 - moved_percents * 3)
 	transparenting = Math.max(10, transparenting) / 100
-	let scale = Math.max(0.85, transparenting + 0.25)
+
+	let scale = Math.floor(100 - moved_percents)
+	scale = Math.max(85, scale) / 100
+
+	let border_radius = Math.min(Math.floor(moved_percents), 20)
 
 	document.querySelector("#media-fullscreener img").style.transform = `translate(-50%, -50%) translateX(${target_x}px) translateY(${target_y}px) scale(${scale})`
+	document.querySelector("#media-fullscreener img").style.borderRadius = `${border_radius}px`
 	document.querySelector("#media-fullscreener").style.background = `rgb(0, 0, 0, ${transparenting})`
 })
 document.querySelector("#media-fullscreener img").addEventListener("touchend", e=>{
@@ -1401,6 +1406,7 @@ document.querySelector("#media-fullscreener img").addEventListener("touchend", e
 	document.querySelector("#media-fullscreener").style.transition = "0.5s"
 	document.querySelector("#media-fullscreener img").style.transform = 'translate(-50%, -50%)'
 	document.querySelector("#media-fullscreener").style.background = 'rgb(0, 0, 0, 0.75)'
+	document.querySelector("#media-fullscreener img").style.borderRadius = '0px'
 	let diff_x = fullscreener_x - e.changedTouches[0].clientX
 	let diff_y = Math.abs(fullscreener_y - e.changedTouches[0].clientY)
 	if (diff_y > window.innerHeight / 5){
