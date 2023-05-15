@@ -1335,11 +1335,9 @@ def send_message():
 					cursor.execute(f'''
 						SELECT *
 						FROM messages
-						WHERE (from_user = :from_user AND to_user = :to_user)
-						   OR (from_user = :to_user AND to_user = :from_user)
+						WHERE (from_user = :to_user AND to_user = :from_user)
 						LIMIT 1;
-					''', {"from_user": request.json['user'],
-						  "to_user": chat_name}
+					''', {"from_user": request.json['user'], "to_user": chat_name}
 					)
 					result = cursor.fetchone()
 					if not result:
