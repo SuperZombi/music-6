@@ -950,14 +950,6 @@ function buildMessage(message){
 				let xhr = new XMLHttpRequest();
 				xhr.open("POST", '/api/messenger/delete_message')
 				xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-				xhr.onload = function() {
-					if (xhr.status == 200){ 
-						let answer = JSON.parse(xhr.response);
-						if (answer.successfully){
-							msg.remove()
-						}
-					}
-				}
 				xhr.send(JSON.stringify({
 					'user': local_storage.userName,
 					'password': local_storage.userPassword,
