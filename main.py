@@ -84,6 +84,28 @@ def status():
 	return jsonify({'online': True, 'time': int(time.time()),
 					'ip': ip, "device": ua_device, "os": ua_os})
 
+@app.route("/sitemap.txt")
+def sitemap():
+	def convert_url(url):
+		return urlparse(url)._replace(scheme='https').geturl()
+
+	all_users = list(
+		map(lambda x: x['path'], users.get_all().values())
+	)
+	all_tracks = list(
+		map(lambda x: '/'.join(x['path']), tracks.get_all())
+	)
+
+	root_url = convert_url(request.url_root)
+	all_urls = sorted(
+		map(lambda x: root_url + x + "/", [*all_users, *all_tracks])
+	)
+
+	output_file = BytesIO()
+	output_file.write(bytes('\n'.join(all_urls), 'utf-8'))
+	output_file.seek(0)
+	return send_file(output_file, mimetype='text/plain')
+
 
 @app.route("/api/get_recommends", methods=["POST"])
 def get_recommends():
