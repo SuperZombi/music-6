@@ -1302,9 +1302,7 @@ def send_message():
 		target_user = users.get(chat_name)
 		if not target_user:
 			return jsonify({'successfully': False, 'reason': Errors.user_dont_exist.name})
-		if not target_user.get("receive-messages", True):
-			return jsonify({'successfully': False, 'reason': Errors.prohibition_sending_messages.name})
-
+		
 		message = request.json['message']
 		time_now = int(time.time())
 		with sqlite3.connect('database/messages.db') as conn:
@@ -1333,6 +1331,20 @@ def send_message():
 				result_array = dict(zip(column_names, results))
 				msg = {**result_array, "is_read": bool(result_array["is_read"])}
 			else:
+				if not target_user.get("receive-messages", True):
+					cursor.execute(f'''
+						SELECT *
+						FROM messages
+						WHERE (from_user = :from_user AND to_user = :to_user)
+						   OR (from_user = :to_user AND to_user = :from_user)
+						LIMIT 1;
+					''', {"from_user": request.json['user'],
+						  "to_user": chat_name}
+					)
+					result = cursor.fetchone()
+					if not result:
+						return jsonify({'successfully': False, 'reason': Errors.prohibition_sending_messages.name})
+
 				cursor.execute(f'''
 					INSERT INTO messages (from_user, to_user, message, reply_to_message, time)
 					VALUES (:from_user, :to_user, :message, :reply_to_message, '{time_now}')

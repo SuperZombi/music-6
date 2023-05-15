@@ -90,7 +90,9 @@ class Errors(Enum):
 		'en': "Invalid verify method"
 	}
 	prohibition_sending_messages = {
-		'en': "Prohibition of sending messages"
+		'en': "This user has denied sending him messages",
+		'ru': "Этот пользователь запретил отправлять ему сообщения",
+		'uk': "Цей користувач заборонив надсилати йому повідомлення"
 	}
 	required_verify_link_not_found = {
 		'en': "Required link for verification not found",

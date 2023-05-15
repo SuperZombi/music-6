@@ -241,6 +241,7 @@
 	// Messenger
 	"messenger": "Messenger",
 	"receive_messages": "Receive messages",
+	"receive_messages_promt": "If this feature is disabled,\nYou will only receive messages from existing chats.",
 	"failed_send_message": "Failed to send message",
 	"user_not_found": "User is not found",
 	"saved_messages": "Saved messages",

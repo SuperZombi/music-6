@@ -841,7 +841,7 @@ hr{
 }
 
 #toTop{
-	height: 85px;
+	height: 80px;
 	position: fixed;
 	bottom: -50%;
 	right: 5px;
@@ -975,7 +975,7 @@ hr{
 	#header_ img{height: 65px;}
 	#header_ svg{height: 65px;}
 	#toTop{
-		height: 80px;
+		height: 70px;
 		right: 0;
 	}
 	.loader{
@@ -1090,6 +1090,7 @@ hr{
 		font-family: sans-serif;
 		transition-delay: 1s;
 		border-radius: 5px;
+		white-space: pre-line;
 	}
 
 	.artist_image_wrapper::after{

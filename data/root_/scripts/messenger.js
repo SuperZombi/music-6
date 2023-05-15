@@ -34,6 +34,18 @@ function copy(text){
 	document.execCommand('copy');
 	document.body.removeChild(elem);
 }
+function get_decode_error(code){
+	let xhr = new XMLHttpRequest();
+	xhr.open("POST", '/api/decode_error', false)
+	xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+	xhr.send(JSON.stringify({'code': code, 'lang': localStorage.getItem('lang')}))
+	if (xhr.status != 200){ return code }
+	else{
+		let answer = JSON.parse(xhr.response)
+		if (!answer.successfully){ return code }
+		else{ return answer.value }
+	}
+}
 function main(){
 	document.title = LANG.messenger
 	
@@ -525,9 +537,12 @@ function submain(){
 					document.querySelector("#chat-info .chat-icon").classList.remove("online")
 					cancelQuote()
 					return
+				} else {
+					notice.Error(get_decode_error(answer.reason))
 				}
+			} else {
+				notice.Error(LANG.failed_send_message)
 			}
-			notice.Error(LANG.failed_send_message)
 		}
 		xhr.send(JSON.stringify(data))
 	}
@@ -639,7 +654,9 @@ function newChat(){
 		document.title = `${LANG.messenger} • ${chatName}`
 		document.getElementById("new-chat-popup").classList.remove("show")
 		messages.innerHTML = ""
+		document.querySelector("#message-input").value = ""
 		document.querySelector("#attachments").innerHTML = ""
+		cancelQuote()
 		document.querySelector("#chat-info .chat-icon").classList.remove("online")
 	}, error=>{
 		document.getElementById("chat-body").classList.remove("show")
