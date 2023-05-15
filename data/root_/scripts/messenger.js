@@ -375,13 +375,15 @@ function submain(){
 	socket.on('delete_message', function(msg) {
 		let el = document.querySelector(`.message[message-id='${msg.id}']`)
 		if (el){
-			el.remove()
-			setTimeout(_=>{
-				let last_el = messages.lastChild
-				if (last_el && last_el.classList.contains("info")){
-					last_el.remove()
+			let last_el = messages.lastChild
+			let pre_el = el.previousElementSibling
+			let next_el = el.nextElementSibling
+			if (pre_el && pre_el.classList.contains("info")){
+				if ((next_el && next_el.classList.contains("info")) || last_el == el){
+					pre_el.remove()
 				}
-			}, 50)
+			}
+			el.remove()
 		}
 		messages.querySelectorAll(`.reply-to-message[message-id='${msg.id}']`).forEach(e=>{
 			e.innerHTML = LANG.deleted_message
