@@ -730,7 +730,7 @@ html{
 #media-fullscreener.hide{
 	display: none;
 }
-#media-fullscreener .close{
+#media-fullscreener .tools{
 	font-size: 24pt;
 	position: absolute;
 	right: 10px;
@@ -739,7 +739,19 @@ html{
 	transition: 0.2s;
 	cursor: pointer;
 	z-index: 2;
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	gap: 15px;
+	user-select: none;
+}
+#media-fullscreener .tools > *{
+	transition: 0.2s;
+	cursor: pointer;
 	filter: drop-shadow(0 0 2px black);
+}
+#media-fullscreener .tools > *:hover{
+	color: #00C0FF;
 }
 #media-fullscreener .close:hover{
 	color: red;
@@ -785,6 +797,18 @@ html{
 }
 #media-fullscreener .next{
 	right: 0;
+}
+#media-fullscreener #previous_img,
+#media-fullscreener #next_img{
+	transform: translateY(-50%);
+	filter: brightness(0.85) opacity(0.85);
+}
+#media-fullscreener #previous_img{
+	left: -100%;
+}
+#media-fullscreener #next_img{
+	left: unset;
+	right: -100%;
 }
 
 #qrcode{

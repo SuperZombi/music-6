@@ -1005,8 +1005,11 @@ function buildMessage(message){
 		}	
 	}
 
-	var message_x, canVibrate;
+	var message_x, canVibrate, replyer_timeout;
 	msg.querySelector(".message-body").addEventListener("touchstart", e=>{
+		if (replyer_timeout){
+			clearTimeout(replyer_timeout)
+		}
 		message_x = e.touches[0].clientX
 		msg.querySelector(".message-body").style.transition = "0s"
 		msg.querySelector(".helper").style.display = "none"
@@ -1032,7 +1035,7 @@ function buildMessage(message){
 		msg.querySelector(".message-body").style.transition = "0.25s"
 		msg.querySelector(".message-body").style.transform = ``
 		msg.querySelector(".helper").style.display = ""
-		setTimeout(_=>{
+		replyer_timeout = setTimeout(_=>{
 			msg.querySelector(".message-body").style.transition = ""
 		}, 250)
 	})
@@ -1324,8 +1327,15 @@ function toBase64(file, callback) {
 }
 
 function openImageFullScreen(img){
-	document.querySelector("#media-fullscreener img").src = img.src
+	document.querySelector("#media-fullscreener #current_img").src = img.src
+	document.querySelector("#media-fullscreener #previous_img").src = ""
+	document.querySelector("#media-fullscreener #next_img").src = ""
 	document.querySelector("#media-fullscreener").classList.remove("hide")
+
+	document.querySelector("#media-fullscreener #go_to_message").onclick = _=>{
+		let msg_id = img.closest(".message").getAttribute("message-id")
+		focusMessage(msg_id)
+	}
 
 	document.querySelector("#media-fullscreener .previous").disabled = false
 	document.querySelector("#media-fullscreener .previous").onclick = _=>{}
@@ -1335,6 +1345,7 @@ function openImageFullScreen(img){
 	let all_imgs = [...messages.querySelectorAll(".message .tail img")]
 	let cur_index = all_imgs.indexOf(img)
 	if (cur_index > 0){
+		document.querySelector("#media-fullscreener #previous_img").src = all_imgs[cur_index - 1].src
 		document.querySelector("#media-fullscreener .previous").onclick = _=>{
 			setTimeout(_=>{
 				openImageFullScreen(all_imgs[cur_index - 1])
@@ -1344,6 +1355,7 @@ function openImageFullScreen(img){
 		document.querySelector("#media-fullscreener .previous").disabled = true
 	}
 	if (cur_index < all_imgs.length - 1){
+		document.querySelector("#media-fullscreener #next_img").src = all_imgs[cur_index + 1].src
 		document.querySelector("#media-fullscreener .next").onclick = _=>{
 			setTimeout(_=>{
 				openImageFullScreen(all_imgs[cur_index + 1])
@@ -1358,7 +1370,7 @@ function closeFullScreener(){
 }
 document.querySelector("#media-fullscreener").onclick = event=>{
 	let path = event.path || (event.composedPath && event.composedPath());
-	if (path.includes(document.querySelector("#media-fullscreener img"))){return}
+	if (path.includes(document.querySelector("#media-fullscreener #current_img"))){return}
 	if (path.includes(document.querySelector("#media-fullscreener .previous"))){return}
 	if (path.includes(document.querySelector("#media-fullscreener .next"))){return}
 	else{
@@ -1367,12 +1379,12 @@ document.querySelector("#media-fullscreener").onclick = event=>{
 }
 var fullscreener_x, fullscreener_y;
 var canVibrateOnFullScreener;
-document.querySelector("#media-fullscreener img").addEventListener("touchstart", e=>{
+document.querySelector("#media-fullscreener #current_img").addEventListener("touchstart", e=>{
 	fullscreener_x = e.touches[0].clientX
 	fullscreener_y = e.touches[0].clientY
 	canVibrateOnFullScreener = true;
 })
-document.querySelector("#media-fullscreener img").addEventListener("touchmove", e=>{
+document.querySelector("#media-fullscreener #current_img").addEventListener("touchmove", e=>{
 	let target_x = Math.floor(fullscreener_x - e.touches[0].clientX) * (-1)
 	let target_y = Math.floor(fullscreener_y - e.touches[0].clientY) * (-1)
 	if (Math.abs(target_x) > 25 && Math.abs(target_y) < 50){
@@ -1397,16 +1409,30 @@ document.querySelector("#media-fullscreener img").addEventListener("touchmove", 
 
 	let border_radius = Math.min(Math.floor(moved_percents), 20)
 
-	document.querySelector("#media-fullscreener img").style.transform = `translate(-50%, -50%) translateX(${target_x}px) translateY(${target_y}px) scale(${scale})`
-	document.querySelector("#media-fullscreener img").style.borderRadius = `${border_radius}px`
+	if (target_x > 0 && Math.abs(target_y) < 50){
+		document.querySelector("#media-fullscreener #previous_img").style.transform = `translateY(-50%) translateX(${target_x - 25}px)`
+	}
+	else if (target_x < 0 && Math.abs(target_y) < 50){
+		document.querySelector("#media-fullscreener #next_img").style.transform = `translateY(-50%) translateX(${target_x + 25}px)`
+	}
+	else{
+		document.querySelector("#media-fullscreener #previous_img").style.transform = 'translateY(-50%)'
+		document.querySelector("#media-fullscreener #next_img").style.transform = 'translateY(-50%)'
+	}
+	document.querySelector("#media-fullscreener #current_img").style.transform = `translate(-50%, -50%) translateX(${target_x}px) translateY(${target_y}px) scale(${scale})`
+	document.querySelector("#media-fullscreener #current_img").style.borderRadius = `${border_radius}px`
 	document.querySelector("#media-fullscreener").style.background = `rgb(0, 0, 0, ${transparenting})`
 })
-document.querySelector("#media-fullscreener img").addEventListener("touchend", e=>{
-	document.querySelector("#media-fullscreener img").style.transition = "0.5s"
+document.querySelector("#media-fullscreener #current_img").addEventListener("touchend", e=>{
+	document.querySelector("#media-fullscreener #current_img").style.transition = "0.5s"
+	document.querySelector("#media-fullscreener #previous_img").style.transition = "0.5s"
+	document.querySelector("#media-fullscreener #next_img").style.transition = "0.5s"
 	document.querySelector("#media-fullscreener").style.transition = "0.5s"
-	document.querySelector("#media-fullscreener img").style.transform = 'translate(-50%, -50%)'
+	document.querySelector("#media-fullscreener #current_img").style.transform = 'translate(-50%, -50%)'
+	document.querySelector("#media-fullscreener #previous_img").style.transform = `translateY(-50%)`
+	document.querySelector("#media-fullscreener #next_img").style.transform = "translateY(-50%)"
 	document.querySelector("#media-fullscreener").style.background = 'rgb(0, 0, 0, 0.75)'
-	document.querySelector("#media-fullscreener img").style.borderRadius = '0px'
+	document.querySelector("#media-fullscreener #current_img").style.borderRadius = '0px'
 	let diff_x = fullscreener_x - e.changedTouches[0].clientX
 	let diff_y = Math.abs(fullscreener_y - e.changedTouches[0].clientY)
 	if (diff_y > window.innerHeight / 5){
@@ -1414,18 +1440,22 @@ document.querySelector("#media-fullscreener img").addEventListener("touchend", e
 	}
 	else if (diff_x > 100){
 		if (!document.querySelector("#media-fullscreener .next").disabled){
-			document.querySelector("#media-fullscreener img").style.transition = ""
+			document.querySelector("#media-fullscreener #current_img").style.transition = ""
+			document.querySelector("#media-fullscreener #next_img").style.transition = ""
 			document.querySelector("#media-fullscreener .next").onclick()
 		}
 	}
 	else if (diff_x < -100){
 		if (!document.querySelector("#media-fullscreener .previous").disabled){
-			document.querySelector("#media-fullscreener img").style.transition = ""
+			document.querySelector("#media-fullscreener #current_img").style.transition = ""
+			document.querySelector("#media-fullscreener #previous_img").style.transition = ""
 			document.querySelector("#media-fullscreener .previous").onclick()
 		}
 	}
 	setTimeout(_=>{
-		document.querySelector("#media-fullscreener img").style.transition = ""
+		document.querySelector("#media-fullscreener #current_img").style.transition = ""
+		document.querySelector("#media-fullscreener #previous_img").style.transition = ""
+		document.querySelector("#media-fullscreener #next_img").style.transition = ""
 		document.querySelector("#media-fullscreener").style.transition = ""
 	}, 500)
 })

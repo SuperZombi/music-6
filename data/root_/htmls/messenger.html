@@ -10,8 +10,13 @@
 <div id="media-fullscreener" class="hide">
 	<button class="previous"> < </button>
 	<button class="next"> > </button>
-	<div onclick="closeFullScreener()" class="close"><i class="fa-solid fa-circle-xmark"></i></div>
-	<img src="">
+	<div class="tools">
+		<div onclick="closeFullScreener()" class="close"><i class="fa-solid fa-circle-xmark"></i></div>
+		<div id="go_to_message" style="font-size: 22pt;"><i class="fa-solid fa-eye"></i></div>
+	</div>
+	<img src="" id="previous_img">
+	<img src="" id="current_img">
+	<img src="" id="next_img">
 </div>
 
 <div id="settings-popup" class="popup">
