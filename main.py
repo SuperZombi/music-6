@@ -89,16 +89,16 @@ def sitemap():
 	def convert_url(url):
 		return urlparse(url)._replace(scheme='https').geturl()
 
-	all_users = list(
-		map(lambda x: x['path'], users.get_all().values())
-	)
-	all_tracks = list(
-		map(lambda x: '/'.join(x['path']), tracks.get_all())
-	)
+	all_users = []
+	all_tracks = []
+
+	for i in tracks.get_all():
+		all_users.append(i['path'][0])
+		all_tracks.append('/'.join(i['path']))
 
 	root_url = convert_url(request.url_root)
 	all_urls = sorted(
-		map(lambda x: root_url + x + "/", [*all_users, *all_tracks])
+		map(lambda x: root_url + x + "/", [*set(all_users), *all_tracks])
 	)
 
 	output_file = BytesIO()
