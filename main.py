@@ -53,13 +53,14 @@ with sqlite3.connect('database/messages.db') as conn:
 	c = conn.cursor()
 	c.execute('''
 		CREATE TABLE IF NOT EXISTS "messages" (
-			"id"               INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			"from_user"        TEXT NOT NULL,
-			"to_user"          TEXT NOT NULL,
-			"message"          TEXT,
-			"reply_to_message" INTEGER,
-			"time"             NUMERIC,
-			"is_read"          INTEGER DEFAULT 0
+			"id"                  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"from_user"           TEXT NOT NULL,
+			"to_user"             TEXT NOT NULL,
+			"message"             TEXT,
+			"reply_to_message"    INTEGER,
+			"forwarded_from_user" TEXT,
+			"time"                NUMERIC,
+			"is_read"             INTEGER DEFAULT 0
 		);
 	''')
 	conn.commit()
@@ -1366,13 +1367,15 @@ def send_message():
 						return jsonify({'successfully': False, 'reason': Errors.prohibition_sending_messages.name})
 
 				cursor.execute(f'''
-					INSERT INTO messages (from_user, to_user, message, reply_to_message, time)
-					VALUES (:from_user, :to_user, :message, :reply_to_message, '{time_now}')
+					INSERT INTO messages (from_user,  to_user,  message,  reply_to_message,  forwarded_from_user,  time)
+					VALUES               (:from_user, :to_user, :message, :reply_to_message, :forwarded_from_user, '{time_now}')
 					RETURNING id;
 				''', {"from_user": request.json['user'],
 					  "to_user": chat_name,
 					  "message": message,
-					  "reply_to_message": request.json.get("reply_to_message", None)}
+					  "reply_to_message": request.json.get("reply_to_message", None),
+					  "forwarded_from_user": request.json.get("forwarded_from_user", None),
+					}
 				)
 				row_id = cursor.fetchone()[0]
 				cursor.execute(f'''
@@ -1387,6 +1390,7 @@ def send_message():
 					"chat": chat_name,
 					"message": message,
 					"time": time_now,
+					"forwarded_from_user": request.json.get("forwarded_from_user", None),
 					"is_read": False
 				}
 

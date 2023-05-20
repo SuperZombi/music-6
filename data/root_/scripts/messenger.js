@@ -542,7 +542,14 @@ function submain(){
 			if (document.querySelector("#quotes").getAttribute("edit-mode")){
 				msg_id = document.querySelector("#quote_message").getAttribute("edit-message-id")
 				data = {...data, "edit_message": msg_id}
-			} else{
+			}
+			else if (document.querySelector("#quotes").getAttribute("forward-mode")){
+				if (document.querySelector('#forward-settings input[name="show-sender"]').checked){
+					let forwarded = document.querySelector("#quotes").getAttribute("from-user")
+					data = {...data, "forwarded_from_user": forwarded}
+				}
+			}
+			else{
 				msg_id = document.querySelector("#quote_message").getAttribute("reply-to-message-id")
 				data = {...data, "reply_to_message": msg_id}
 			}
@@ -859,7 +866,7 @@ function buildMessage(message){
 	msg.innerHTML = `
 		<div class="message-wrapper">
 			<div class="message-body">
-
+				${message.forwarded_from_user ? `<div class="user">${LANG.forwarder_from} <span class="user-highlight">${message.forwarded_from_user}</span></div>` : ""}
 				${message.reply_to_message ?
 					`<div class="reply-to-message" message-id="${message.reply_to_message}">
 						${message.reply_to_message_text ? message.reply_to_message_text : LANG.deleted_message}
@@ -1004,6 +1011,7 @@ function buildMessage(message){
 					target.onclick()
 					document.getElementById("forward-popup").close()
 					document.querySelector("#quotes").setAttribute("forward-mode", true)
+					document.querySelector("#quotes").setAttribute("from-user", message.from_user)
 					document.querySelector("#quotes").classList.add("show")
 					document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
 					document.querySelector("#message-input").value = message.message
@@ -1011,6 +1019,12 @@ function buildMessage(message){
 				}
 			}
 		})
+	}
+	if (message.forwarded_from_user){
+		msg.querySelector(".message-body .user .user-highlight").onclick = _=>{
+			window.location.hash = message.forwarded_from_user
+			newChat()
+		}
 	}
 
 	let textNodes = getTextNodes(msg.querySelector(".text"))
@@ -1139,6 +1153,7 @@ function cancelQuote(){
 	}
 	if (document.querySelector("#quotes").getAttribute("forward-mode")){
 		document.querySelector("#quotes").removeAttribute("forward-mode")
+		document.querySelector("#quotes").removeAttribute("from-user")
 		document.querySelector("#message-input").value = ""
 		document.querySelector("#message-input").oninput()
 		document.querySelector('#forward-settings input[name="show-sender"]').checked = true;

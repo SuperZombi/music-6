@@ -331,6 +331,17 @@ html{
 	color: hotpink;
 }
 
+#forward-settings{
+	display: none;
+	margin-left: 9px;
+}
+#forward-settings > label{
+	display: flex;
+	gap: 13px;
+	align-items: center;
+	cursor: pointer;
+}
+
 #quotes{
 	display: none;
 	align-items: center;
@@ -367,6 +378,9 @@ html{
 }
 #quotes[forward-mode] #quote_message{
 	cursor: auto;
+}
+#quotes[forward-mode] ~ .chat-input-main #forward-settings{
+	display: block;
 }
 #quotes[forward-mode] ~ .chat-input-main #message-input,
 #quotes[forward-mode] ~ .chat-input-main #add-attachment{
@@ -633,6 +647,18 @@ html{
 	font-weight: bold;
 	user-select: none;
 }
+#chat-body .message-body .user .user-highlight{
+	color: blue;
+	cursor: pointer;
+	transition: 1s;
+}
+.dark #chat-body .message-body .user .user-highlight{
+	color: orange;
+}
+#chat-body .message-body .user .user-highlight:hover{
+	text-decoration: underline;
+}
+
 #chat-body .message-body .text{
 	display: inline-block;
 	white-space: pre-wrap;

@@ -257,6 +257,8 @@
 
 	"reply": "Reply",
 	"forward": "Forward",
+	"forwarder_from": "Forwarder from",
+	"show_sender": "Show sender",
 	"select_forward_chat": "Select chat",
 	
 	"translate": "Translate",

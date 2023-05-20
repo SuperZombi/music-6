@@ -260,6 +260,8 @@
 
 	"reply": "Ответить",
 	"forward": "Переслать",
+	"forwarder_from": "Переслано от",
+	"show_sender": "Показывать отправителя",
 	"select_forward_chat": "Выберите чат",
 
 	"translate": "Перевести",
