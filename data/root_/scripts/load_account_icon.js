@@ -1,7 +1,7 @@
 let userName = localStorage.getItem('userName')
+let menu = document.querySelector('#main_menu .menu')
 if (userName){
 	loadProfileImage(userName)
-	let menu = document.querySelector('#main_menu .menu')
 	if (menu){
 		let li = menu.querySelector('li[name="account"]')
 		li.setAttribute("href", "account")
@@ -24,7 +24,9 @@ if (userName){
 		menu.appendChild(logout)
 	}
 } else{
-	document.querySelector("#messenger-button").remove()
+	if (menu){
+		document.querySelector("#messenger-button").remove()
+	}
 }
 
 function loadProfileImage(user){
