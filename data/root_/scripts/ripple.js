@@ -1,5 +1,5 @@
 function createRipple(event) {
-  const button = event.currentTarget;
+  const button = event.target;
 
   const circle = document.createElement("div");
   const diameter = Math.max(button.clientWidth, button.clientHeight);
@@ -26,4 +26,7 @@ function createRipple(event) {
 const buttons = document.getElementsByClassName("ripple_but");
 for (const button of buttons) {
   button.addEventListener("mousedown", createRipple);
+  button.addEventListener("touchstart", e=>{
+    createRipple(e.touches[0])
+  });
 }
