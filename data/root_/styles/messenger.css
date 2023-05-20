@@ -44,7 +44,6 @@ html{
 	min-width: 300px;
 	background: var(--details_content);
 	transition: all 1s, transform 0.5s;
-	overflow: hidden;
 	white-space: nowrap;
 	overflow: auto;
 }
@@ -108,6 +107,50 @@ html{
 }
 #chats .chat .notification-dot.hidden{
 	opacity: 0;
+}
+
+
+#forward-popup::-webkit-scrollbar{
+	width: 6px;
+}
+#forward-popup .chats{
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	transition: all 1s, transform 0.5s;
+	white-space: nowrap;
+}
+#forward-popup .chats .chat{
+	height: 55px;
+	min-height: 55px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 6px;
+	cursor: pointer;
+	transition: background 0.12s, color 1s;
+	color: var(--contrast-color);
+	position: relative;
+	border-radius: 10px;
+}
+#forward-popup .chats .chat:hover{
+	background: var(--details_border);
+}
+#forward-popup .chats .chat > .chat-name{
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: min(300px, calc(100vw - 100px));
+}
+#forward-popup .chats .chat > .chat-icon{
+	height: 90%;
+	aspect-ratio: 1 / 1;
+	position: relative;
+}
+#forward-popup .chats .chat > .chat-icon > img{
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	border-radius: 50%;
 }
 
 
@@ -305,14 +348,28 @@ html{
 	height: 80%;
 	position: absolute;
 }
-#quotes .edit-icon{
+#quotes .edit-icon,
+#quotes .forward-icon{
 	color: #00C0FF;
 	display: none;
 }
-#quotes[edit-mode] .edit-icon{
+#quotes[edit-mode] .edit-icon,
+#quotes[forward-mode] .forward-icon{
 	display: block;
 }
-#quotes[edit-mode]:before{
+#quotes[edit-mode]:before,
+#quotes[forward-mode]:before{
+	display: none;
+}
+
+#quotes[forward-mode]{
+	padding-bottom: 0;
+}
+#quotes[forward-mode] #quote_message{
+	cursor: auto;
+}
+#quotes[forward-mode] ~ .chat-input-main #message-input,
+#quotes[forward-mode] ~ .chat-input-main #add-attachment{
 	display: none;
 }
 
@@ -322,20 +379,21 @@ html{
 	overflow: hidden;
 	box-sizing: border-box;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	width: 100%;
 	cursor: pointer;
 }
 #quotes #quote_message img,
 #quotes #quote_message iframe{
 	width: 60px;
-	object-fit: contain;
-	background: black;
+	height: 55px;
+	object-fit: cover;
 	border-radius: 6px;
 	filter: drop-shadow(0 0 2px rgb(0, 0, 0, 0.5));
 	margin-right: 10px;
 	user-drag: none;
 	-webkit-user-drag: none;
+	align-self: center;
 }
 #quotes #cancel_quote{
 	cursor: pointer;
@@ -358,6 +416,7 @@ html{
 	border-radius: 50%;
 	cursor: pointer;
 	transition: 0.25s;
+	margin-left: auto;
 }
 #send > svg{
 	height: 100%;
@@ -645,7 +704,7 @@ html{
 
 .popup{
 	background: var(--body-color);
-	width: 50%;
+	min-width: 35%;
 	position: fixed;
 	top: 50%;
 	left: 50%;
@@ -659,8 +718,9 @@ html{
 	opacity: 0;
 	visibility: hidden;
 	color: var(--contrast-color);
-	max-height: 81%;
-	overflow: auto;
+	max-height: 90%;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 .popup.show.show{
 	opacity: 1;
@@ -922,7 +982,8 @@ html{
 		max-width: 65%;
 	}	
 	.popup{
-		width: 99%;
+		min-width: 99%;
+		max-height: 95%;
 	}
 	#attachments:has(.attachment:nth-last-child(n+3)){
 		justify-content: center;

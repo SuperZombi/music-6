@@ -256,6 +256,9 @@
 	"deleted_message": "Deleted message",
 
 	"reply": "Reply",
+	"forward": "Forward",
+	"select_forward_chat": "Select chat",
+	
 	"translate": "Translate",
 	"translate_messages": "Translate messages",
 	"translation_lang": "Translation language",

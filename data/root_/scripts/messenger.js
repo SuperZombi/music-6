@@ -132,9 +132,39 @@ function initSettings(){
 		'user': local_storage.userName
 	}))
 }
+function initPopups(){
+	let allPopups = document.querySelectorAll(".popup")
+	allPopups.forEach(popup=>{
+		popup.show = _=>{
+			allPopups.forEach(e=>{
+				e.classList.remove("show")
+			})
+			popup.classList.add("show")
+		}
+		popup.close = _=>{
+			popup.classList.remove("show")
+		}
+		let close = popup.querySelector(".close_popup")
+		if (close){
+			close.onclick = _=>{popup.close()}
+		}
+	})
+	return function(){
+		let arr = document.querySelectorAll(".popup.show")
+		if (arr.length > 0){
+			arr.forEach(e=>{
+				e.classList.remove("show")
+			})
+			return true
+		}
+		return false
+	}
+}
+
 function submain(){
 	initSettings()
 	initPushNotifications()
+	var anyPopupOpen = initPopups()
 
 	var chats = document.getElementById("chats")
 	var messages = document.getElementById("messages")
@@ -156,15 +186,11 @@ function submain(){
 			if (!document.querySelector("#media-fullscreener").classList.contains("hide")){
 				document.querySelector("#media-fullscreener").classList.add("hide")
 			}
+			else if (anyPopupOpen()){}
 			else if (document.querySelector("#quotes").classList.contains("show")){
 				cancelQuote()
 			}
-			else if (document.querySelector("#settings-popup").classList.contains("show")){
-				document.getElementById("settings-popup").classList.remove("show")
-			}
-			else if (document.querySelector("#new-chat-popup").classList.contains("show")){
-				document.getElementById("new-chat-popup").classList.remove("show")
-			} else{
+			else{
 				document.querySelector("#back-button").onclick()
 				document.querySelector("#chat-body").classList.remove("show")
 				messages.innerHTML = ""
@@ -197,17 +223,11 @@ function submain(){
 
 	document.getElementById("askNewChat").onclick = _=>{
 		document.querySelector("#new-chat-popup input").value = ""
-		document.getElementById("new-chat-popup").classList.add("show")
-	}
-	document.querySelector("#new-chat-popup .close_popup").onclick = _=>{
-		document.getElementById("new-chat-popup").classList.remove("show")
+		document.getElementById("new-chat-popup").show()
 	}
 
 	document.getElementById("settings").onclick = _=>{
-		document.getElementById("settings-popup").classList.add("show")
-	}
-	document.querySelector("#settings-popup .close_popup").onclick = _=>{
-		document.getElementById("settings-popup").classList.remove("show")
+		document.getElementById("settings-popup").show()
 	}
 
 	document.querySelector("#new-chat-popup [role=button]").onclick = _=>{
@@ -220,16 +240,19 @@ function submain(){
 	document.getElementById("chats-wrapper").addEventListener("click", event=>{
 		let path = event.path || (event.composedPath && event.composedPath());
 		if (!path.includes(document.querySelector("#askNewChat"))){
-			document.getElementById("new-chat-popup").classList.remove("show")
+			document.getElementById("new-chat-popup").close()
 		}
 		if (!path.includes(document.querySelector("#settings"))){
-			document.getElementById("settings-popup").classList.remove("show")
+			document.getElementById("settings-popup").close()
 		}
 		if (!path.filter(y=>y.classList && y.classList.contains("hovered")).length > 0){
 			document.querySelectorAll("#messages-container .message.hovered").forEach(e=>{
 				e.classList.remove("hovered")
 				e.querySelector(".helper-body").classList.remove("show", "topper", "bottomer")
 			})
+		}
+		if (!path.filter(y=>y.getAttribute && y.getAttribute("action") == "forward").length > 0){
+			document.getElementById("forward-popup").close()
 		}
 	})
 
@@ -638,7 +661,7 @@ function newChat(){
 	let chatEl = chats.querySelector(`[chat-name="${chatName}"]`)
 	if (chatEl){
 		chatEl.onclick();
-		document.getElementById("new-chat-popup").classList.remove("show")
+		document.getElementById("new-chat-popup").close()
 		return
 	}
 	document.getElementById("chat-body").classList.add("show")
@@ -656,7 +679,7 @@ function newChat(){
 	loadProfileImage(chatName, url=>{
 		img_.src = url
 		document.title = `${LANG.messenger} • ${chatName}`
-		document.getElementById("new-chat-popup").classList.remove("show")
+		document.getElementById("new-chat-popup").close()
 		messages.innerHTML = ""
 		document.querySelector("#message-input").value = ""
 		document.querySelector("#attachments").innerHTML = ""
@@ -864,6 +887,10 @@ function buildMessage(message){
 					<span class="icon"><i class="fa-solid fa-trash"></i></span>
 					<span class="caption">${LANG.delete}</span>
 				</div>
+				<div action="forward">
+					<span class="icon"><i class="fa-solid fa-share"></i></span>
+					<span class="caption">${LANG.forward}</span>
+				</div>
 			</div>
 		</div>
 	`
@@ -958,6 +985,33 @@ function buildMessage(message){
 			}
 		}, 50)
 	}
+	msg.querySelector('[action="forward"]').onclick = _=>{
+		document.getElementById("forward-popup").show()
+		let area = document.querySelector("#forward-popup .chats")
+		area.innerHTML = chats.innerHTML;
+		area.querySelectorAll(":scope > *").forEach(e=>{
+			if (e.id == "settings" ||
+				e.id == "askNewChat" ||
+				e.id == "chat_loading"
+			){
+				e.remove()
+			}
+			let x = e.querySelector(".notification-dot")
+			if (x){x.remove()}
+			e.onclick = _=>{
+				let target = chats.querySelector(`[chat-name="${e.getAttribute("chat-name")}"]`)
+				if (target){
+					target.onclick()
+					document.getElementById("forward-popup").close()
+					document.querySelector("#quotes").setAttribute("forward-mode", true)
+					document.querySelector("#quotes").classList.add("show")
+					document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
+					document.querySelector("#message-input").value = message.message
+					document.querySelector("#message-input").oninput()
+				}
+			}
+		})
+	}
 
 	let textNodes = getTextNodes(msg.querySelector(".text"))
 	let iframes = [...msg.querySelectorAll(".text iframe")].filter(x=>x.src.startsWith("https://www.youtube.com/embed/"))
@@ -983,11 +1037,13 @@ function buildMessage(message){
 				<span class="caption">${LANG.edit}</span>
 			`
 			editor.onclick = _=>{
+				cancelQuote()
 				document.querySelector("#message-input").value = message.message
 				document.querySelector("#quotes").classList.add("show")
 				document.querySelector("#quotes").setAttribute("edit-mode", true)
 				document.querySelector("#quote_message").setAttribute("edit-message-id", message.id)
 				document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
+				document.querySelector("#message-input").oninput()
 				document.querySelector("#message-input").focus()
 			}
 			msg.querySelector(".helper .helper-body").prepend(editor)
@@ -1079,15 +1135,24 @@ function cancelQuote(){
 	if (document.querySelector("#quotes").getAttribute("edit-mode")){
 		document.querySelector("#quotes").removeAttribute("edit-mode")
 		document.querySelector("#message-input").value = ""
+		document.querySelector("#message-input").oninput()
+	}
+	if (document.querySelector("#quotes").getAttribute("forward-mode")){
+		document.querySelector("#quotes").removeAttribute("forward-mode")
+		document.querySelector("#message-input").value = ""
+		document.querySelector("#message-input").oninput()
+		document.querySelector('#forward-settings input[name="show-sender"]').checked = true;
 	}
 }
 function focusMessage(id){
 	let el = messages.querySelector(`.message[message-id="${id}"]`)
-	el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
-	el.classList.add("highlight")
-	setTimeout(_=>{
-		el.classList.remove("highlight")
-	}, 500)
+	if (el){
+		el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+		el.classList.add("highlight")
+		setTimeout(_=>{
+			el.classList.remove("highlight")
+		}, 500)
+	}
 }
 
 function prepareMessage(msg){

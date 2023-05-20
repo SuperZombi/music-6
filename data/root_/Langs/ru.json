@@ -259,6 +259,9 @@
 	"deleted_message": "Удаленное сообщение",
 
 	"reply": "Ответить",
+	"forward": "Переслать",
+	"select_forward_chat": "Выберите чат",
+
 	"translate": "Перевести",
 	"translate_messages": "Переводить сообщения",
 	"translation_lang": "Язык перевода",

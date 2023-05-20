@@ -259,6 +259,9 @@
 	"deleted_message": "Видалене повідомлення",
 
 	"reply": "Відповісти",
+	"forward": "Переслати",
+	"select_forward_chat": "Оберіть чат",
+
 	"translate": "Перекласти",
 	"translate_messages": "Перекладати повідомлення",
 	"translation_lang": "Мова перекладу",

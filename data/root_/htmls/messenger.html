@@ -7,6 +7,12 @@
 	<div role="button" class="expanding-link" style="font-size: 14pt;">OK</div>
 </div>
 
+<div id="forward-popup" class="popup" style="padding-bottom: 5px;">
+	<img src="/root_/images/close.svg" class="close_popup">
+	<h2 style="text-align: center; margin-top: 0;">${LANG.select_forward_chat}</h2>
+	<div class="chats"></div>
+</div>
+
 <div id="media-fullscreener" class="hide">
 	<button class="previous"> < </button>
 	<button class="next"> > </button>
@@ -104,6 +110,7 @@
 		<div class="chat-input">
 			<div id="quotes">
 				<div class="edit-icon"><i class="fa-solid fa-pen"></i></div>
+				<div class="forward-icon"><i class="fa-solid fa-share"></i></div>
 				<div id="quote_message"></div>
 				<div id="cancel_quote" onclick="cancelQuote()"><i class="fa fa-xmark"></i></div>
 			</div>
