@@ -325,6 +325,7 @@ function submain(){
 						chatEl.onclick()
 					}
 				}
+				window.dispatchEvent(new Event('chats-loaded'));
 			}
 		}
 	}
@@ -584,6 +585,18 @@ function submain(){
 	let search = new URLSearchParams(window.location.search)
 	if (search.has("new-chat")){
 		newChat()
+	}
+	else if (search.has("share")){
+		window.addEventListener("chats-loaded", _=>{
+			requestForward(_=>{
+				document.querySelector("#quote_message").innerHTML = search.get("share")
+				document.querySelector("#message-input").value = search.get("share")
+				document.querySelector("#message-input").oninput()
+			})
+			const url_ = new URL(window.location);
+			url_.searchParams.delete('share');
+			window.history.pushState(null, '', url_.toString());
+		})
 	}
 }
 
@@ -993,31 +1006,13 @@ function buildMessage(message){
 		}, 50)
 	}
 	msg.querySelector('[action="forward"]').onclick = _=>{
-		document.getElementById("forward-popup").show()
-		let area = document.querySelector("#forward-popup .chats")
-		area.innerHTML = chats.innerHTML;
-		area.querySelectorAll(":scope > *").forEach(e=>{
-			if (e.id == "settings" ||
-				e.id == "askNewChat" ||
-				e.id == "chat_loading"
-			){
-				e.remove()
-			}
-			let x = e.querySelector(".notification-dot")
-			if (x){x.remove()}
-			e.onclick = _=>{
-				let target = chats.querySelector(`[chat-name="${e.getAttribute("chat-name")}"]`)
-				if (target){
-					target.onclick()
-					document.getElementById("forward-popup").close()
-					document.querySelector("#quotes").setAttribute("forward-mode", true)
-					document.querySelector("#quotes").setAttribute("from-user", message.from_user)
-					document.querySelector("#quotes").classList.add("show")
-					document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
-					document.querySelector("#message-input").value = message.message
-					document.querySelector("#message-input").oninput()
-				}
-			}
+		requestForward(_=>{
+			document.querySelector("#quotes").setAttribute("forward-mode", true)
+			document.querySelector("#quotes").setAttribute("from-user", message.from_user)
+			document.querySelector("#quotes").classList.add("show")
+			document.querySelector("#quote_message").innerHTML = msg.querySelector(".text").innerHTML
+			document.querySelector("#message-input").value = message.message
+			document.querySelector("#message-input").oninput()
 		})
 	}
 	if (message.forwarded_from_user){
@@ -1635,4 +1630,28 @@ function translate(text, target, callback) {
 		}
 	}
 	xhr.send();
+}
+
+function requestForward(callback){
+	document.getElementById("forward-popup").show()
+	let area = document.querySelector("#forward-popup .chats")
+	area.innerHTML = chats.innerHTML;
+	area.querySelectorAll(":scope > *").forEach(e=>{
+		if (e.id == "settings" ||
+			e.id == "askNewChat" ||
+			e.id == "chat_loading"
+		){
+			e.remove()
+		}
+		let x = e.querySelector(".notification-dot")
+		if (x){x.remove()}
+		e.onclick = _=>{
+			let target = chats.querySelector(`[chat-name="${e.getAttribute("chat-name")}"]`)
+			if (target){
+				target.onclick()
+				document.getElementById("forward-popup").close()
+				callback()
+			}
+		}
+	})
 }

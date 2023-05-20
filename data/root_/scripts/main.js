@@ -84,7 +84,10 @@ function open_website(site_name){
 	}
 	let url = decodeURI(`${location.protocol}//${location.host+location.pathname}`)
 
-	if (site_name == "vk"){
+	if (site_name == "messenger"){
+		var link = window.location.origin + `/account/messenger?share=${url}`
+	}
+	else if (site_name == "vk"){
 		var link = `https://vk.com/share.php?url=${url}&title=${document.title}&description=Zombi Music&image=${image_url()}`
 	}
 	else if (site_name == "facebook"){

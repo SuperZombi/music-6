@@ -253,6 +253,7 @@ html{
 	font-size: 14pt;
 	min-height: 25px;
 	max-height: 175px;
+	box-sizing: border-box;
 }
 .dark #message-input{
 	color-scheme: dark;
