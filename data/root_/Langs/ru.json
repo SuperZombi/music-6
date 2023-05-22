@@ -176,6 +176,7 @@
 	"allow_download": "Разрешить Скачивание",
 	"links": "Ссылки",
 	"optional": "Необязательно",
+	"invalid_field": "Неправильное поле",
 
 	"choose_file": "Выберите файл",
 	"choose_file_empty": "или перетащите файл сюда",

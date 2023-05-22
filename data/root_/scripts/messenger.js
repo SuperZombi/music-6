@@ -914,6 +914,25 @@ function buildMessage(message){
 			</div>
 		</div>
 	`
+	var trusted_sites = [window.location.host, "youtube.com", "music.youtube.com", "youtu.be", "instagram.com", "open.spotify.com",
+					"discord.com", "t.me", "soundcloud.com", "twitter.com", "facebook.com", "vk.com",
+					"github.com", "newgrounds.com"];
+	function getSecureLink(link){
+		if (JSON.parse(localStorage.getItem("secure-links")) == false){
+			return link
+		}
+		else{
+			try{
+				let url = new URL(link);
+				if (url.protocol == "https:"){
+					if (trusted_sites.includes(url.hostname.replace("www.", ""))){
+						return link
+					}
+				}
+			}catch{}
+			return `/redirect?link=${link}`
+		}
+	}
 	function embedYoutube(text){
 		var el = document.createElement( 'html' );
 		el.innerHTML = text
@@ -944,6 +963,12 @@ function buildMessage(message){
 		return temp_element.innerText
 	}
 	msg.querySelector(".text").innerHTML = embedYoutube(marked.parseInline(message.message))
+
+	msg.querySelectorAll("a").forEach(a=>{
+		a.target = "_blank"
+		a.href = getSecureLink(a.href)
+	})
+
 	msg.querySelector(".helper").onclick = _=>{
 		window.navigator.vibrate(50);
 		msg.querySelector(".helper-body").classList.remove("topper", "bottomer")

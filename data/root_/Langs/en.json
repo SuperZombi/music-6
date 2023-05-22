@@ -173,6 +173,7 @@
 	"allow_download": "Allow Download",
 	"links": "Links",
 	"optional": "Optional",
+	"invalid_field": "Invalid field",
 
 	"choose_file": "Choose file",
 	"choose_file_empty": "or drag and drop file here",

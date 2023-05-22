@@ -224,20 +224,24 @@ async function checkLink(target){
             if (hosts[  target.id.split("form_")[1]  ].includes(domain)){
                 target.style.border = "3px solid lightgreen";
                 target.style.boxShadow = "0 0 10px lightgreen";
+                target.setCustomValidity("")
             }
             else{
                 target.style.border = "3px solid red";
                 target.style.boxShadow = "0 0 10px red";
+                target.setCustomValidity(LANG.invalid_field)
             }
         }
         catch{
             target.style.border = "3px solid red";
             target.style.boxShadow = "0 0 10px red";
+            target.setCustomValidity(LANG.invalid_field)
         }
     }
     else{
         target.style.border = "";
         target.style.boxShadow = "";
+        target.setCustomValidity("")
     }
 }
 
