@@ -31,7 +31,7 @@ import random
 import math
 from threading import Thread
 import sqlite3
-from tools import predict_ai
+# from tools import predict_ai
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
@@ -66,14 +66,14 @@ with sqlite3.connect('database/messages.db') as conn:
 	conn.commit()
 
 
-def refit_ai():
-	predict_ai.init("database/users.bd", "database/tracks.bd")
-	def setTimeout(x):
-		time.sleep(x)
-		predict_ai.init("database/users.bd", "database/tracks.bd")
-	Thread(target=setTimeout, daemon=True, args=(600,)).start()
+# def refit_ai():
+# 	predict_ai.init("database/users.bd", "database/tracks.bd")
+# 	def setTimeout(x):
+# 		time.sleep(x)
+# 		predict_ai.init("database/users.bd", "database/tracks.bd")
+# 	Thread(target=setTimeout, daemon=True, args=(600,)).start()
 
-Thread(target=refit_ai, daemon=True).start()
+# Thread(target=refit_ai, daemon=True).start()
 
 
 @app.route("/status")
