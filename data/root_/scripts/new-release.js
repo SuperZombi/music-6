@@ -355,6 +355,7 @@ function main(){
     if (location.hash == "#limits"){
         document.getElementById("limitations").open = true;
     }
+    document.querySelector("#form_release_date").valueAsDate = new Date();
 
     editInit()
     initDragAndDrop()
